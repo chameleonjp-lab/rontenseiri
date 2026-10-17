@@ -1,6 +1,7 @@
 import type { Project, Revision } from "./types";
 import { semanticSnapshot } from "./snapshot";
 import { validateReasoning } from "./reasoning-validation";
+import { invalidateReasoningDependents } from "./invalidation";
 import type {
   ReasoningGraph,
   QuestionOrigin,
@@ -48,21 +49,27 @@ function commit(
   targetId: string,
   kind: string,
   reason: string,
+  changedQuestionVersionIds: readonly string[] = [],
 ): ReasoningProject {
   requireText(reason, "reason");
-  const out = clone(p);
+  let out = clone(p);
   out.reasoning = after;
+  if (changedQuestionVersionIds.length)
+    out = invalidateReasoningDependents(
+      out,
+      changedQuestionVersionIds,
+    ) as ReasoningProject;
   const revision: Revision = {
     id: id("revision"),
     at: now(),
     targetId,
     kind: `reasoning:${kind}`,
     before: semanticSnapshot({ ...p, reasoning: before }),
-    after: semanticSnapshot({ ...p, reasoning: after }),
+    after: semanticSnapshot(out),
     reason: reason.trim(),
   };
   out.revisions = [...out.revisions, revision];
-  out.reasoning.revisions.push({
+  out.reasoning!.revisions.push({
     id: id("reasoning-revision"),
     at: revision.at,
     targetId,
@@ -144,7 +151,7 @@ export function reviseQuestion(
     supersedesId: old.id,
     reason: requireText(reason, "reason"),
   });
-  return commit(p, before, g, questionId, "question-revised", reason);
+  return commit(p, before, g, questionId, "question-revised", reason, [old.id]);
 }
 export function retractQuestion(
   project: ReasoningProject,
@@ -159,7 +166,7 @@ export function retractQuestion(
   const v = g.questionVersions.find((x) => x.id === q.currentVersionId);
   if (!v) throw new Error("question version missing");
   v.status = "retracted";
-  return commit(p, before, g, questionId, "question-retracted", reason);
+  return commit(p, before, g, questionId, "question-retracted", reason, [v.id]);
 }
 export function addEvidence(
   project: ReasoningProject,
@@ -248,11 +255,15 @@ export function undoReasoning(project: ReasoningProject): ReasoningProject {
     .reverse()
     .find((r) => r.kind.startsWith("reasoning:") && !undone.has(r.id));
   if (!target) throw new Error("no reasoning revision to undo");
-  const raw = target.before as { reasoning?: ReasoningGraph };
+  const raw = target.before as {
+    reasoning?: ReasoningGraph;
+    agendas?: Project["agendas"];
+  };
   if (!raw?.reasoning) throw new Error("revision cannot be undone");
   const out = clone(p);
   const before = semanticSnapshot(p);
   out.reasoning = clone(raw.reasoning);
+  if (raw.agendas) out.agendas = clone(raw.agendas);
   // Undo restores semantic state, not the audit trail. Keep every prior event.
   out.reasoning.revisions = clone(p.reasoning?.revisions ?? []);
   const undo: Revision = {

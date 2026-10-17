@@ -206,6 +206,16 @@ function check(p: Project): Project {
       throw new Error("invalid relation");
     relationIds.add(r.id);
   }
+  // `none` is an explicit assertion that the utterance has no return.
+  // Omitted returnStatus remains legacy-compatible (older persisted projects
+  // used the relation itself as the source of truth).
+  for (const u of p.utterances) {
+    if (
+      u.returnStatus === "none" &&
+      p.relations.some((r) => r.kind === "return" && r.from === u.id)
+    )
+      throw new Error("returnStatus none cannot have a return relation");
+  }
   // Every visible edge follows original utterance order, including A → B → A.
   // Chronology makes cycles impossible without recursive graph traversal.
   for (const r of p.relations) {
@@ -380,6 +390,15 @@ export function reviseProject(
     if (!valid) throw new Error(`invalid field type: ${key}`);
   }
   Object.assign(target, clone(patch));
+
+  // Keep generic revisions as safe as the dedicated return editor: an
+  // explicit `none` removes only return edges originating at this utterance.
+  // The target utterance, its classification, and unrelated edges remain.
+  if (u && patch.returnStatus === "none") {
+    p.relations = p.relations.filter(
+      (r) => !(r.kind === "return" && r.from === u.id),
+    );
+  }
 
   p.revisions.push({
     id: id("revision"),

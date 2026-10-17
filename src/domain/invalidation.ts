@@ -43,9 +43,28 @@ export function invalidateDependents(
   return out;
 }
 
+/** Follow explicit reasoning edges from changed question versions to summaries. */
+export function invalidateReasoningDependents(
+  project: Project,
+  changedQuestionVersionIds: readonly string[],
+): Project {
+  const out = structuredClone(project);
+  if (!changedQuestionVersionIds.length || !out.reasoning) return out;
+  const affectedUtterances = new Set<string>();
+  propagateReasoning(
+    out,
+    affectedUtterances,
+    new Set(changedQuestionVersionIds),
+  );
+  // Reuse the utterance/reasoning fixed point so response-derived dependencies
+  // also cross agenda boundaries through explicit relation.dependency edges.
+  return invalidateDependents(out, [...affectedUtterances]);
+}
+
 function propagateReasoning(
   project: Project,
   affectedUtterances: Set<string>,
+  initialVersions: Set<string> = new Set(),
 ): void {
   const reasoning = project.reasoning;
   if (!reasoning) return;
@@ -57,7 +76,7 @@ function propagateReasoning(
       .map((x) => x.id),
   );
   const affectedQuestions = new Set<string>();
-  const affectedVersions = new Set<string>();
+  const affectedVersions = new Set(initialVersions);
   const affectedResponses = new Set<string>();
   const affectedItems = new Set<string>();
   const affectedInterpretations = new Set<string>();

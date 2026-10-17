@@ -21,7 +21,7 @@ AIはdisabled（開始不可）である。この環境のChromiumではWebGPU A
 
 | 検証                  |                            結果 | 証拠・限界                                                                            |
 | --------------------- | ------------------------------: | ------------------------------------------------------------------------------------- |
-| 単体・回帰合計        | 100件通過（文書実験10件を含む） | ローカル差分。公開版の正本は同一SHAのCI artifact                                      |
+| 単体・回帰合計        | 108件通過（文書実験10件を含む） | 追加修正のローカル確認。公開版の正本は同一SHAのCI artifact                                      |
 | 文書実験テスト        |                        10件通過 | `documents.test.ts`等。通常UI対応を意味しない                                         |
 | ブラウザE2E           |           同一SHAのCI結果を参照 | Linux Chromium。iPhone Safari実機ではない                                             |
 | 500node表示・パン     |                ローカル確認済み | 50,000文字。選択・検索・折り畳み各100回のp95とは別                                    |
@@ -61,3 +61,11 @@ G0–G8のdecisionは [R01–R33実装状況](requirements-status.md) に登録�
 手入力から問いv1を登録した後の応答候補は実DOMに存在した。初回の追加試験は、選択肢を内包するラベルに`getByLabel("対象問い版", {exact:true})`を使ったためlocatorが一致せず、候補0件と誤判定した。実アクセシブル名の`getByRole("combobox", {name:"対象問い版", exact:true})`へ変更し、アプリの候補生成は変更せず解決した。
 
 `rich-persistence.spec.ts`は、手入力→原文改版→問いv1と応答→問いv2→r1(main)保存→分類r2(derived)自動保存→同一タブ再開→メタデータ更新→2回Undoでr1のmain／重要フラグ／原文版／問い版／旧v1応答を保持する経路を検証する。`focus.spec.ts`は、詳細を閉じた元nodeへのfocusと、パン後の「図へ戻る」による可視化・focusを独立した2件として固定する。公開SHAのCI結果を確認するまでローカル通過を完了とは呼ばない。
+
+## ドメインAPIブロッカーの追加回帰
+
+`dd0a674`で独立再現した2件を修正。`returnStatus:none`を明示更新すると同じrevisionで起点return edgeを削除し、手作りのnone＋edge payloadはvalidationと保存で拒否する。旧形式のstatus未指定＋根拠付きedgeは保持する。
+
+問いの改版・撤回は旧版から応答・根拠を辿り、さらに`Relation.dependency:true`を通る別議題も含め、到達したsummaryDependenciesだけを要再確認にする。旧版応答・要約本文・無関係議題は保持し、新版に応答を自動移送しない。最小TXT fixtureの単体回帰、議題間明示依存の改版／撤回回帰、および実IndexedDBで保存・再読込・Undoする2件を追加した。
+
+各100操作の観測は機能E2EとCI step・JSONを分離する。巨大DOMのtrace snapshotによる観測負荷を避け、代わりに300操作のログ、未完了時の部分分布と失敗理由を保存する。操作ハーネスの通過はG5全体の合格ではない。正本は同一公開SHAの`canvas-performance.json`とCI runであり、旧SHAの値を移植しない。

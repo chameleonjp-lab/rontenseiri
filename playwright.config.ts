@@ -6,7 +6,16 @@ export default defineConfig({
   timeout: 30_000,
   fullyParallel: false,
   workers: 1,
-  reporter: [["list"], ["json", { outputFile: "artifacts/e2e-results.json" }]],
+  reporter: [
+    ["list"],
+    [
+      "json",
+      {
+        outputFile:
+          process.env.PLAYWRIGHT_REPORT_PATH || "artifacts/e2e-results.json",
+      },
+    ],
+  ],
   use: {
     baseURL,
     viewport: { width: 1440, height: 980 },
