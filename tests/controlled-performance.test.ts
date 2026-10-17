@@ -1,4 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+import { tmpdir } from "node:os";
 import {
   COUNT,
   ROUNDS,
@@ -6,6 +9,7 @@ import {
   WARMUP,
   schedule,
   validateResult,
+  runControlledPerformance,
   type Operation,
 } from "../scripts/controlled-performance.mjs";
 
@@ -33,7 +37,35 @@ function result(operation: Operation = "selection") {
   return {
     testedSha: "abc",
     dirtyWorkingTree: false,
-    servedIdentity: { sha: "abc", dirty: false },
+    actualBaseURL: "http://localhost:4193",
+    healthCheck: {
+      baseURL: "http://localhost:4193",
+      endpoint: "http://localhost:4193/__rontenseiri_build_identity",
+      status: 200,
+      response: {
+        sha: "abc",
+        buildSha: "abc",
+        dirty: false,
+        mode: "production",
+      },
+      expectedSha: "abc",
+      expectedMode: "production",
+      signals: {
+        htmlDevClient: false,
+        devClientEndpoint: false,
+        runtimeDevClient: false,
+        hmrWebSocket: false,
+      },
+      completed: true,
+      passed: true,
+      errors: [],
+    },
+    servedIdentity: {
+      sha: "abc",
+      buildSha: "abc",
+      dirty: false,
+      mode: "production",
+    },
     diagnosticOnly: true,
     eligibleForG5: false,
     g5Passed: false,
@@ -61,6 +93,20 @@ function result(operation: Operation = "selection") {
 }
 
 describe("controlled performance protocol", () => {
+  it("既存の失敗・途中証拠がある出力先を上書きしない", async () => {
+    const root = await mkdtemp(join(tmpdir(), "rontenseiri-evidence-"));
+    try {
+      const existing = join(root, "partial.json");
+      await writeFile(existing, '{"failure":"preserve"}\n');
+      await expect(runControlledPerformance({ root })).rejects.toThrow(
+        "refusing to overwrite non-empty performance root",
+      );
+      expect(await readFile(existing, "utf8")).toBe('{"failure":"preserve"}\n');
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+
   it("固定3ラウンドの順序と9グループをスケジュールする", () => {
     const plan = schedule({ root: "/tmp/controlled-performance-test" });
     expect(plan.rounds).toEqual(ROUNDS);
@@ -72,11 +118,47 @@ describe("controlled performance protocol", () => {
     expect(validateResult(result("selection"), "selection", "abc")).toEqual([]);
   });
 
-  it("served SHAとstale identityを拒否する", () => {
-    const invalid = result();
-    invalid.servedIdentity = { sha: "stale", dirty: false };
+  it("stale SHA、dev mode、HMR、missing checks、URL不一致を拒否する", () => {
+    const valid = result();
+    const invalid = {
+      ...valid,
+      healthCheck: {
+        ...valid.healthCheck,
+        signals: { ...valid.healthCheck.signals, devClientEndpoint: undefined },
+      },
+    };
+    invalid.servedIdentity.sha = "stale";
+    invalid.healthCheck.response.sha = "stale";
+    invalid.healthCheck.expectedMode = "dev";
+    invalid.healthCheck.signals.hmrWebSocket = true;
+    invalid.healthCheck.passed = false;
+    invalid.healthCheck.completed = false;
+    invalid.actualBaseURL = "http://other:4193";
     expect(validateResult(invalid, "selection", "abc")).toEqual(
-      expect.arrayContaining(["served identity mismatch"]),
+      expect.arrayContaining([
+        "served identity mismatch",
+        "healthCheck response mismatch",
+        "healthCheck expectedMode is invalid",
+        "healthCheck signals are invalid",
+        "healthCheck did not pass",
+        "healthCheck is incomplete",
+        "actualBaseURL mismatch",
+      ]),
+    );
+  });
+
+  it("healthCheck欠落とcomplete falseの測定0件を拒否する", () => {
+    const invalid = {
+      ...result(),
+      healthCheck: undefined,
+      operations: [],
+      complete: false,
+    };
+    expect(validateResult(invalid, "selection", "abc")).toEqual(
+      expect.arrayContaining([
+        "healthCheck is missing",
+        "result is incomplete or has failure",
+      ]),
     );
   });
 

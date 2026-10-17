@@ -10,6 +10,10 @@
 
 `npm run test:performance:controlled`で実行する。clean checkoutで本番ビルドを一度生成し、ビルドに埋め込んだSHAとdirty状態を各サーバーから取得して実行対象と照合する。dist全ファイルのSHA-256 manifestも残す。生成物を作業ツリーの変更後に流用して測定しない。
 
+各群で測定前に、**実際のPlaywright baseURL**から`/__rontenseiri_build_identity`を取得する。HTTP 200、`sha`と`buildSha`がtested SHAと一致、`dirty:false`、`mode:production`でなければ、その場で失敗させ、warmupも測定も始めない。本番設定は開発設定をサーバー配列として継承せず、previewサーバー一つだけを起動する。
+
+さらにHTMLのdev client／React Refresh注入、`/@vite/client`の実内容、ブラウザーの実際のscript/resource要求とReact Refresh状態、予期しないWebSocketを確認する。productionを名乗るhealth応答でもdev/HMR信号があれば失敗する。事前検査は`completed`と`passed`を分け、全probe完了前の部分成功では測定できない。実際のbaseURL、endpoint、HTTP status、応答本文、probe結果を成功・失敗の両方のJSONに残す。測定前後も信号を再検査し、遅れて発生したdev接続を許さない。追加検査による処理コストも測定から事後控除しない。
+
 | ラウンド | 実行順序 |
 | --- | --- |
 | 1 | 選択 → 検索 → 開閉 |
@@ -31,7 +35,9 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium \
 
 専用ポートは4193（`PLAYWRIGHT_PORT`で空いているポートを指定可能）。既存サーバーは再利用しない。出力先は`artifacts/controlled-performance/`で、各`round-N-operation/`にraw値・操作ログ・Playwright結果を残し、`summary.json`に全9群の合否、対象SHA、本番資産hash、各群前後のOS負荷と空きメモリーをまとめる。集約側でもraw値からp95を検算し、100回・固定20回warmup・SHA一致・成功フラグ・ログ欠落を検査する。
 
-ローカル専用コミットで実行した証拠を公開HEADやCIの証拠とは呼ばない。公開リポジトリへのアクセスが許可されていない場合は、リモートHEAD未確認・未push・CI未実行を明記する。
+既存出力先に一つでもファイルがあれば、上書きせず失敗する。再実行する場合は、失敗・中断結果をSHAと理由付きの別ディレクトリに保存してから空の出力先を用意する。計測失敗だけを消して成功まで繰り返す運用はしない。
+
+ローカル専用コミットで実行した証拠を公開HEADやCIの証拠とは呼ばない。**同じ変更を公開し、その正確なSHAを公開HEADとして確認するまでは、ローカル結果を公開PRの検証証拠に混ぜない。**公開リポジトリへのアクセスが許可されていない場合は、リモートHEAD未確認・未push・CI未実行を明記する。ローカルSHA・公開SHA・CIのtested SHAはそれぞれ別に記録し、古いSHAの合格を引き継がない。
 
 ## 残る限界
 

@@ -7,6 +7,7 @@ import { parseInputs } from "../src/input/parse";
 import { dirname } from "node:path";
 import { createProject } from "../src/domain/project";
 import { exportProject } from "../src/export/project";
+import { validatePerformancePreflight } from "../scripts/performance-preflight.mjs";
 
 const COUNT = 100;
 const THRESHOLD_MS = 200;
@@ -28,14 +29,51 @@ const operationNames: Record<string, string> = {
 const outputPath =
   process.env.RONTENSEIRI_PERFORMANCE_OUTPUT ||
   "artifacts/canvas-performance.json";
+const provenance = {
+  execution:
+    process.env.GITHUB_ACTIONS === "true" ? "github-actions" : "local-only",
+  publicPrHeadVerified: false,
+  note: "Exact local tested SHA is not proof of a published PR HEAD. Verify publication and exact public/CI SHA separately before using as public PR evidence.",
+};
 // Full DOM trace snapshots themselves dominate large-graph runs. Preserve the
 // explicit action log instead; functional E2Es retain their normal traces.
 test.use({ trace: "off" });
 let evidenceWritten = false;
 let sessionStartedAt = new Date().toISOString();
+type HealthCheck = {
+  baseURL: string;
+  endpoint: string;
+  status: number | null;
+  response: unknown;
+  expectedSha: string;
+  expectedMode: "production" | "development";
+  signals: {
+    htmlDevClient: boolean;
+    devClientEndpoint: boolean;
+    runtimeDevClient: boolean;
+    hmrWebSocket: boolean;
+  };
+  completed: boolean;
+  passed: boolean;
+  errors: string[];
+  probes: Record<string, unknown>;
+};
+let healthCheck: HealthCheck | null = null;
+let actualBaseURL: string | null = null;
+function assertPreflight() {
+  const errors = validatePerformancePreflight(healthCheck);
+  if (healthCheck) {
+    healthCheck.errors = errors;
+    healthCheck.passed = healthCheck.completed && errors.length === 0;
+  }
+  if (errors.length)
+    throw new Error(`Performance preflight failed: ${errors.join("; ")}`);
+}
 test.beforeEach(async () => {
   evidenceWritten = false;
   sessionStartedAt = new Date().toISOString();
+  healthCheck = null;
+  actualBaseURL = null;
 });
 test.afterEach(async ({}, info) => {
   if (evidenceWritten) return;
@@ -53,6 +91,9 @@ test.afterEach(async ({}, info) => {
     JSON.stringify(
       {
         testedSha,
+        actualBaseURL: actualBaseURL ?? info.project.use.baseURL ?? null,
+        healthCheck,
+        provenance,
         diagnosticOnly: true,
         eligibleForG5: false,
         g5Passed: false,
@@ -219,10 +260,14 @@ async function measure(
   action: () => Promise<void>,
   settled: () => Promise<void>,
 ) {
+  if (!healthCheck?.completed)
+    throw new Error("Performance preflight has not completed");
+  assertPreflight();
   await page.evaluate((key) => performance.mark(key), `${name}-start`);
   await action();
   await settled();
   await nextFrame(page);
+  assertPreflight();
   return page.evaluate((key) => {
     performance.mark(`${key}-end`);
     return performance.measure(key, `${key}-start`, `${key}-end`).duration;
@@ -231,8 +276,10 @@ async function measure(
 
 test("500ノードの選択・検索・折り畳みを各100操作で観測する", async ({
   page,
+  baseURL,
 }) => {
   test.setTimeout(600_000);
+  actualBaseURL = baseURL ?? null;
   const text =
     Array.from({ length: 500 }, (_, i) =>
       `話者: ${String(i).padStart(3, "0")} `.padEnd(99, "あ"),
@@ -294,11 +341,119 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
   };
   try {
     expect(dirty, "診断対象はclean checkoutであること").toBe(false);
-    const response = await page.request.get("/__rontenseiri_build_identity");
-    expect(response.ok()).toBe(true);
-    servedIdentity = await response.json();
-    expect(servedIdentity).toEqual({ sha: testedSha, dirty: false });
+    healthCheck = {
+      baseURL: actualBaseURL ?? "",
+      endpoint: actualBaseURL
+        ? new URL("/__rontenseiri_build_identity", actualBaseURL).href
+        : "",
+      status: null,
+      response: null,
+      expectedSha: testedSha,
+      expectedMode: controlled ? "production" : "development",
+      signals: {
+        htmlDevClient: false,
+        devClientEndpoint: false,
+        runtimeDevClient: false,
+        hmrWebSocket: false,
+      },
+      completed: false,
+      passed: false,
+      errors: [],
+      probes: {},
+    };
+    if (!actualBaseURL) throw new Error("Actual Playwright baseURL is missing");
+    const healthResponse = await page.request.get(healthCheck.endpoint, {
+      headers: { "Cache-Control": "no-cache" },
+    });
+    healthCheck.status = healthResponse.status();
+    const healthBody = await healthResponse.text();
+    try {
+      healthCheck.response = JSON.parse(healthBody);
+    } catch {
+      healthCheck.response = healthBody;
+    }
+    servedIdentity = healthCheck.response;
+    healthCheck.probes.health = {
+      url: healthResponse.url(),
+      status: healthResponse.status(),
+      responseBody: healthBody,
+    };
+    if (healthResponse.url() !== healthCheck.endpoint)
+      throw new Error(
+        "Health endpoint redirected; refusing a different endpoint identity",
+      );
+    // Reject stale SHA/mode before loading app code, not after warmup/measurement.
+    assertPreflight();
+    const htmlUrl = new URL("/", actualBaseURL).href;
+    const htmlResponse = await page.request.get(htmlUrl);
+    const html = await htmlResponse.text();
+    const devPattern =
+      /\/@vite\/client|\/@react-refresh|__vite_plugin_react_preamble_installed__/;
+    healthCheck.signals.htmlDevClient = devPattern.test(html);
+    healthCheck.probes.html = {
+      url: htmlResponse.url(),
+      status: htmlResponse.status(),
+      devMarkersDetected: healthCheck.signals.htmlDevClient,
+    };
+    if (!htmlResponse.ok())
+      throw new Error(`App HTML probe failed: ${htmlResponse.status()}`);
+    assertPreflight();
+    const clientUrl = new URL("/@vite/client", actualBaseURL).href;
+    const clientResponse = await page.request.get(clientUrl);
+    const clientBody = await clientResponse.text();
+    healthCheck.signals.devClientEndpoint =
+      clientResponse.ok() &&
+      /createHotContext|vite-hmr|__vite__injectQuery/.test(clientBody);
+    healthCheck.probes.devClient = {
+      url: clientResponse.url(),
+      status: clientResponse.status(),
+      devClientDetected: healthCheck.signals.devClientEndpoint,
+    };
+    assertPreflight();
+    const runtimeDevUrls = new Set<string>();
+    const hmrSocketUrls = new Set<string>();
+    page.on("request", (request) => {
+      const url = new URL(request.url());
+      if (devPattern.test(url.pathname) && healthCheck) {
+        healthCheck.signals.runtimeDevClient = true;
+        runtimeDevUrls.add(`${url.origin}${url.pathname}`);
+        healthCheck.probes.runtimeDevUrls = [...runtimeDevUrls];
+      }
+    });
+    page.on("websocket", (socket) => {
+      // This local-only application has no production WebSocket feature.
+      // Reject all unexpected sockets rather than assuming a Vite URL shape.
+      const url = new URL(socket.url());
+      hmrSocketUrls.add(`${url.origin}${url.pathname}`);
+      if (healthCheck) {
+        healthCheck.signals.hmrWebSocket = true;
+        healthCheck.probes.unexpectedSocketUrls = [...hmrSocketUrls];
+      }
+    });
     await page.goto("/");
+    const runtime = await page.evaluate(() => ({
+      scriptUrls: [...document.scripts]
+        .map((script) => script.src)
+        .filter(Boolean),
+      resourceUrls: performance
+        .getEntriesByType("resource")
+        .map((entry) => entry.name),
+      reactRefreshPreamble: Boolean(
+        (
+          window as Window & {
+            __vite_plugin_react_preamble_installed__?: boolean;
+          }
+        ).__vite_plugin_react_preamble_installed__,
+      ),
+    }));
+    healthCheck.probes.runtime = { pageURL: page.url(), ...runtime };
+    healthCheck.signals.runtimeDevClient ||=
+      runtime.reactRefreshPreamble ||
+      [...runtime.scriptUrls, ...runtime.resourceUrls].some((url) =>
+        devPattern.test(new URL(url).pathname),
+      );
+    healthCheck.completed = true;
+    assertPreflight();
     browserDetails = await page.evaluate(() => {
       const gl = document.createElement("canvas").getContext("webgl");
       const ext = gl?.getExtension("WEBGL_debug_renderer_info");
@@ -488,6 +643,9 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
         {
           testedSha,
           dirtyWorkingTree: dirty,
+          actualBaseURL,
+          healthCheck,
+          provenance,
           servedIdentity,
           diagnosticOnly: true,
           eligibleForG5: false,

@@ -1,10 +1,11 @@
 import { createHash } from "node:crypto";
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { cpus, freemem, loadavg, release, totalmem } from "node:os";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { validatePerformancePreflight } from "./performance-preflight.mjs";
 
 export const OPERATIONS = ["selection", "search", "fold"];
 export const ROUNDS = [
@@ -17,7 +18,6 @@ export const WARMUP = 20;
 export const THRESHOLD_MS = 200;
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const metricNames = ["node-selection", "node-search", "branch-collapse-toggle"];
 const metricFor = {
   selection: "node-selection",
   search: "node-search",
@@ -35,11 +35,68 @@ export function validateResult(result, operation, expectedSha) {
   if (result.testedSha !== expectedSha) errors.push("testedSha mismatch");
   if (result.dirtyWorkingTree !== false)
     errors.push("working tree was not clean");
-  if (
-    JSON.stringify(result.servedIdentity) !==
-    JSON.stringify({ sha: expectedSha, dirty: false })
-  )
+  const expectedIdentity = {
+    sha: expectedSha,
+    buildSha: expectedSha,
+    dirty: false,
+    mode: "production",
+  };
+  const identityMatches = (value) =>
+    value &&
+    typeof value === "object" &&
+    Object.entries(expectedIdentity).every(
+      ([key, expected]) => value[key] === expected,
+    );
+  if (!identityMatches(result.servedIdentity))
     errors.push("served identity mismatch");
+  if (result.actualBaseURL !== result.healthCheck?.baseURL)
+    errors.push("actualBaseURL mismatch");
+  const healthCheck = result.healthCheck;
+  if (!healthCheck || typeof healthCheck !== "object") {
+    errors.push("healthCheck is missing");
+  } else {
+    if (typeof healthCheck.baseURL !== "string" || !healthCheck.baseURL)
+      errors.push("healthCheck baseURL is invalid");
+    if (typeof healthCheck.endpoint !== "string" || !healthCheck.endpoint)
+      errors.push("healthCheck endpoint is invalid");
+    if (healthCheck.status !== null && !Number.isInteger(healthCheck.status))
+      errors.push("healthCheck status is invalid");
+    const response = healthCheck.response;
+    if (!response || typeof response !== "object") {
+      errors.push("healthCheck response is missing");
+    } else if (!identityMatches(response)) {
+      errors.push("healthCheck response mismatch");
+    }
+    if (healthCheck.expectedSha !== expectedSha)
+      errors.push("healthCheck expectedSha mismatch");
+    if (healthCheck.expectedMode !== "production")
+      errors.push("healthCheck expectedMode is invalid");
+    const signals = healthCheck.signals;
+    const signalNames = [
+      "htmlDevClient",
+      "devClientEndpoint",
+      "runtimeDevClient",
+      "hmrWebSocket",
+    ];
+    if (
+      !signals ||
+      signalNames.some((name) => typeof signals[name] !== "boolean")
+    )
+      errors.push("healthCheck signals are invalid");
+    if (!Array.isArray(healthCheck.errors) || healthCheck.errors.length !== 0)
+      errors.push("healthCheck errors are not empty");
+    if (healthCheck.passed !== true) errors.push("healthCheck did not pass");
+    if (healthCheck.completed !== true)
+      errors.push("healthCheck is incomplete");
+    // Keep this pure and deterministic: these are the preflight helper's contract checks.
+    if (signals && signalNames.some((name) => signals[name] === true))
+      errors.push("healthCheck detected development client signals");
+    if (healthCheck.status !== 200)
+      errors.push("healthCheck status is not 200");
+    const pureHelperErrors = validatePerformancePreflight(healthCheck);
+    if (!Array.isArray(pureHelperErrors) || pureHelperErrors.length)
+      errors.push("healthCheck preflight helper rejected the check");
+  }
   if (
     result.diagnosticOnly !== true ||
     result.eligibleForG5 !== false ||
@@ -115,7 +172,6 @@ export function validateResult(result, operation, expectedSha) {
   }
   return errors;
 }
-
 async function hashTree(directory) {
   const files = [];
   async function visit(dir) {
@@ -157,7 +213,13 @@ export function schedule({
 export async function runControlledPerformance(options = {}) {
   const plan = schedule(options);
   const startedAt = new Date().toISOString();
-  await rm(plan.root, { recursive: true, force: true });
+  if (existsSync(plan.root)) {
+    const existing = await readdir(plan.root);
+    if (existing.length > 0)
+      throw new Error(
+        `refusing to overwrite non-empty performance root: ${plan.root}`,
+      );
+  }
   await mkdir(plan.root, { recursive: true });
   let sha;
   try {
@@ -226,8 +288,12 @@ export async function runControlledPerformance(options = {}) {
         const after = hostSnapshot();
         let result = null;
         let errors = [];
+        let actualBaseURL = null;
+        let healthCheck = null;
         try {
           result = JSON.parse(await readFile(output, "utf8"));
+          actualBaseURL = result.actualBaseURL ?? null;
+          healthCheck = result.healthCheck ?? null;
           errors = validateResult(result, operation, sha);
         } catch (error) {
           errors = [`cannot read result: ${error.message}`];
@@ -242,6 +308,8 @@ export async function runControlledPerformance(options = {}) {
           before,
           after,
           resultErrors: errors,
+          actualBaseURL,
+          healthCheck,
           passed: child.status === 0 && errors.length === 0,
         });
         progress(`${groupName} ${groups.at(-1).passed ? "passed" : "failed"}`);
@@ -269,6 +337,8 @@ export async function runControlledPerformance(options = {}) {
       eachGroupNewBrowserContextAndServerProcess: true,
     },
     groups,
+    actualBaseURL: groups.map((group) => group.actualBaseURL),
+    healthCheck: groups.map((group) => group.healthCheck),
     diagnosticOnly: true,
     eligibleForG5: false,
     g5Passed: false,
