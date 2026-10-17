@@ -59,7 +59,7 @@ npx playwright install --with-deps chromium
 npm run test:e2e
 ```
 
-現在分かる固有数は、core単体83件、文書実験テスト10件、既存ブラウザ9件＋問いUI2件＝11件、production offline 1件です。500node E2Eは追加中で、未実行追加分の合格を推測しません。`artifacts/software-benchmark.json` はNode/Linuxで、50,000文字・500 node・20回の入力／検証／layout／出力／restore p95実測です。これはG4/G5の品質合格や実機性能を意味しません。架空日本語評価ハーネスは21ケースありますが、実モデル予測は0件でnot-runです。
+単体・回帰は計100件（文書実験10件を含む）がローカルで通過。公開版は同一SHAのCI artifact（verified-sha.txtとe2e-results.json）を正本とします。50,000文字・500ノードの表示／パンと、選択・検索・折り畳み各100回のp95≤200msは別の検証です。実機未測定・未達はG5未合格のままです。Node/Linux入出力benchmarkもG4/G5合格を意味しません。架空日本語評価21ケースは実予測0件でnot-runです。
 
 ## まだできないこと・未確認事項
 
@@ -76,3 +76,9 @@ AI品質・モデル取得量・日本語品質、Mac／Windows／iPhone実機�
 - [要件ごとの実装状況・未達ゲート](docs/evaluation/requirements-status.md)
 - [実装検証結果と公開条件](docs/evaluation/implementation-review.md)
 - [アーキテクチャ判断記録](docs/architecture/decisions.md)
+
+### 保存と再開の受入境界
+
+`storageRevision`をIndexedDBのreadwrite transaction内で比較し、旧版による上書きを拒否します。同一タブの最近の作業もDB最新保存を再読込。保存前は一時作業、明示保存後だけ自動保存します。原文の旧版、問い版と旧版への応答、訂正・Undo履歴を保持します。単体失敗再現は`tests/public-review-fixtures.test.ts`と`tests/review-blockers.test.ts`、実ブラウザ経路は`e2e/`を参照してください。
+
+ローカルの並行検証は `PLAYWRIGHT_PORT=4183 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` のように専用ポートを指定できます。strictPortにより別checkoutを誤って検証しません。

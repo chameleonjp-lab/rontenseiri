@@ -129,6 +129,10 @@ test("keyboard detail, classification, exact source revision and history", async
   await expect(details.locator("blockquote")).toHaveText(
     "週1日の在宅勤務をまず1か月試してみたいです。",
   );
+  await page.screenshot({
+    path: "artifacts/source-inspector.png",
+    fullPage: true,
+  });
   await page.keyboard.press("Escape");
   await expect(details).not.toBeVisible();
   await expect(page.locator('[data-id="U01"] .speech-node')).toHaveClass(

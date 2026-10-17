@@ -55,3 +55,9 @@ G0–G8のdecisionは [R01–R33実装状況](requirements-status.md) に登録�
 ローカル検証と公開HEADは区別する。GitHub CIはPR headをcheckoutし、`artifacts/verified-sha.txt`へ実際の`git rev-parse HEAD`を記録。ブラウザJSON、性能JSON、オフライン復元画像、Node入出力ベンチマークを同じrunのartifactに保存する。チェック通過と計測条件を添えず「完成」と呼ばない。
 
 追加した失敗再現は `public-review-fixtures.test.ts` と `review-blockers.test.ts`、永続化・復帰・保存競合の実ブラウザ経路は `e2e/` にある。各100操作のp95≤200ms判定は `canvas-performance.json` を正本とし、G5全体（実機を含む）は引き続き未合格。
+
+### 追加保存試験の初回誤検出
+
+手入力から問いv1を登録した後の応答候補は実DOMに存在した。初回の追加試験は、選択肢を内包するラベルに`getByLabel("対象問い版", {exact:true})`を使ったためlocatorが一致せず、候補0件と誤判定した。実アクセシブル名の`getByRole("combobox", {name:"対象問い版", exact:true})`へ変更し、アプリの候補生成は変更せず解決した。
+
+`rich-persistence.spec.ts`は、手入力→原文改版→問いv1と応答→問いv2→r1(main)保存→分類r2(derived)自動保存→同一タブ再開→メタデータ更新→2回Undoでr1のmain／重要フラグ／原文版／問い版／旧v1応答を保持する経路を検証する。`focus.spec.ts`は、詳細を閉じた元nodeへのfocusと、パン後の「図へ戻る」による可視化・focusを独立した2件として固定する。公開SHAのCI結果を確認するまでローカル通過を完了とは呼ばない。
