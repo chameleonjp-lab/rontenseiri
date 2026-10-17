@@ -139,39 +139,49 @@ export function buildCanvasGraph(
   }
   return { nodes, edges };
 }
-/** Only altered nodes/data/edges get new identities; chronology and coordinates stay fixed. */
+const foldedGraphs = new WeakMap<CanvasGraph, CanvasGraph>();
+const selectedNodes = new WeakMap<Node, Node>();
+function foldedGraph(base: CanvasGraph): CanvasGraph {
+  let cached = foldedGraphs.get(base);
+  if (!cached) {
+    cached = {
+      nodes: base.nodes.map((node) =>
+        node.type === "speech" &&
+        (node.data.classification === "derived" ||
+          node.data.classification === "drift")
+          ? { ...node, hidden: true }
+          : node,
+      ),
+      edges: base.edges.map((edge) =>
+        edge.data?.kind !== "main" ? { ...edge, hidden: true } : edge,
+      ),
+    };
+    foldedGraphs.set(base, cached);
+  }
+  return cached;
+}
+/** Cache immutable folded and selected variants; unrelated selection never replaces hidden edges. */
 export function projectCanvasState(
   base: CanvasGraph,
   selectedId: string | null,
   selectedAgendaId: string,
   collapsed: boolean,
 ): CanvasGraph {
+  const state = collapsed ? foldedGraph(base) : base;
   return {
-    nodes: base.nodes.map((node) => {
+    nodes: state.nodes.map((node) => {
       const selected =
         node.type === "speech"
           ? node.id === selectedId
           : node.data.id === selectedAgendaId;
-      const hidden =
-        node.type === "speech" &&
-        collapsed &&
-        (node.data.classification === "derived" ||
-          node.data.classification === "drift");
-      if (node.data.selected === selected && node.hidden === hidden)
-        return node;
-      return {
-        ...node,
-        hidden,
-        data:
-          node.data.selected === selected
-            ? node.data
-            : { ...node.data, selected },
-      };
+      if (!selected) return node;
+      let cached = selectedNodes.get(node);
+      if (!cached) {
+        cached = { ...node, data: { ...node.data, selected: true } };
+        selectedNodes.set(node, cached);
+      }
+      return cached;
     }),
-    edges: collapsed
-      ? base.edges.map((edge) =>
-          edge.data?.kind !== "main" ? { ...edge, hidden: true } : edge,
-        )
-      : base.edges,
+    edges: state.edges,
   };
 }

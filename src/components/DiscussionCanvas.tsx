@@ -35,8 +35,11 @@ import { labels } from "../domain/types";
 import "@xyflow/react/dist/style.css";
 import "./canvas-compact.css";
 
+const speechMarkup = new WeakMap<SpeechData, React.ReactElement>();
 const Speech = memo(function Speech({ data }: NodeProps<Node<SpeechData>>) {
-  return (
+  const cached = speechMarkup.get(data);
+  if (cached) return cached;
+  const markup = (
     <div
       className={`speech-node kind-${data.classification} ${data.selected ? "is-selected" : ""}`}
     >
@@ -64,6 +67,8 @@ const Speech = memo(function Speech({ data }: NodeProps<Node<SpeechData>>) {
       <Handle type="source" position={Position.Right} />
     </div>
   );
+  speechMarkup.set(data, markup);
+  return markup;
 });
 const AgendaFrame = memo(function AgendaFrame({
   data,

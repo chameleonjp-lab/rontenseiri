@@ -50,3 +50,11 @@ CIは機能回帰・診断・offlineの結果を分離し、実際のSHAを`veri
 [`evals/rubric.md`](../../../evals/rubric.md)のG5は、統制されたwarmup／cache／独立sessionの性能試験、独立session等を含む正式プロトコル、キーボード主要導線、アクセシビリティ、取消・失敗・再読込・再解析・インポート・別タブの全復旧証跡を要求する。現在の機能試験が一部を覆っていても、全条件充足とはしない。
 
 iPhone Safari／Mac／Windows、実GPU、実機資源は未完了。Linux Chromiumの診断では代替しない。AI品質・実推論も未検証で、AI開始は無効のままである。
+
+## 3a98e47の中間結果と二段目の変更
+
+3a98e47はunit115・機能E2E23＋専用offline1が成功したが、レイテンシ予算は失敗した。CI p95は151.5／159.5／229.3ms、ローカルは249.4／245.7／375.5ms（選択／検索／開閉順）。改善しても未達を合格にせず、CIを失敗のまま記録した。
+
+独立レビューにより折り畳み中の選択でhidden edgeまで新規生成する漏れを確認し、immutableなfolded graph／selected nodeの派生キャッシュを追加した。加えてSpeechの不変dataに対応するReact要素をWeakMapで保持し、展開時に同じmarkupを再構築する負荷を抑えた。意味データ・座標・native event動作は変えない。
+
+観測protocol v2では**計時開始／終了位置、100操作、200ms、成功条件を維持**し、DOM成功確認をブラウザー内のrAFへ集約する。従来の複数RPCと100/250ms刻みのassertion backoffを避け、選択class／Inspector ID／canvas可視／3 stable framesを同じframeで確認する。開閉は期待ID集合／件数／相対配置を3回連続で確認する（従来の単発assert後のframe待機より厳しい）。これは観測分解能の変更であり、旧方式の数値と混ぜて改善率を算出しない。製品自体の改善は同一CDP手順のprofileと別に確認する。

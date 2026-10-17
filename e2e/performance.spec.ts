@@ -75,45 +75,94 @@ async function nextFrame(page: Page) {
       new Promise<void>((resolve) => requestAnimationFrame(() => resolve())),
   );
 }
-async function settleNode(page: Page, id: string) {
-  await page.waitForFunction(
-    (nodeId) => {
-      const hit = document.querySelector(`[data-id="${nodeId}"] .speech-hit`);
-      const canvas = document.querySelector(".flow-container");
-      if (!hit || !canvas) return false;
-      const r = hit.getBoundingClientRect(),
-        c = canvas.getBoundingClientRect();
-      return (
-        r.width > 0 &&
-        r.x >= c.x - 1 &&
-        r.y >= c.y - 1 &&
-        r.right <= c.right + 1 &&
-        r.bottom <= c.bottom + 1
+async function settleNode(page: Page, id: string, requireSelection = false) {
+  await page.evaluate(
+    async ({ nodeId, requireSelection }) => {
+      let previous = "",
+        stable = 0;
+      const deadline = performance.now() + 15000;
+      for (
+        let frame = 0;
+        frame < 900 && performance.now() < deadline;
+        frame++
+      ) {
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => resolve()),
+        );
+        const hits = document.querySelectorAll<HTMLElement>(
+          `[data-id="${nodeId}"] .speech-hit`,
+        );
+        const hit = hits[0],
+          canvas = document.querySelector(".flow-container");
+        const r = hit?.getBoundingClientRect(),
+          c = canvas?.getBoundingClientRect();
+        const visible =
+          !!r &&
+          !!c &&
+          r.width > 0 &&
+          r.x >= c.x - 1 &&
+          r.y >= c.y - 1 &&
+          r.right <= c.right + 1 &&
+          r.bottom <= c.bottom + 1;
+        const selectionOk =
+          !requireSelection ||
+          (document.querySelectorAll(
+            `[data-id="${nodeId}"] .speech-node.is-selected`,
+          ).length === 1 &&
+            !!document
+              .querySelector(".inspector")
+              ?.textContent?.includes(nodeId));
+        const current =
+          visible && selectionOk && hits.length === 1
+            ? [r!.x, r!.y, r!.width, r!.height]
+                .map((n) => n.toFixed(1))
+                .join(",")
+            : "";
+        stable = current && current === previous ? stable + 1 : 0;
+        previous = current;
+        if (stable >= 3) return;
+      }
+      throw new Error(
+        `node ${nodeId} did not satisfy identity/inspector/visible/stable conditions`,
       );
     },
-    id,
-    { timeout: 15_000 },
+    { nodeId: id, requireSelection },
   );
-  await page.evaluate(async (nodeId) => {
-    let previous = "",
-      stable = 0;
-    for (let frame = 0; frame < 180; frame++) {
+}
+async function settleFold(
+  page: Page,
+  expected: { id: string; transform: string }[],
+) {
+  await page.evaluate(async (expected) => {
+    let stable = 0;
+    const deadline = performance.now() + 15000;
+    for (let frame = 0; frame < 900 && performance.now() < deadline; frame++) {
+      const actual = Array.from(
+        document.querySelectorAll(".speech-hit"),
+        (el) => {
+          const n = el.closest<HTMLElement>(".react-flow__node")!;
+          return { id: n.dataset.id!, transform: n.style.transform };
+        },
+      ).sort((a, b) => a.id.localeCompare(b.id));
+      const valid =
+        actual.length === expected.length &&
+        document.querySelectorAll(".speech-node").length === expected.length &&
+        actual.every(
+          (n, i) =>
+            n.id === expected[i].id && n.transform === expected[i].transform,
+        );
+      stable = valid ? stable + 1 : 0;
+      if (stable >= 3) return;
       await new Promise<void>((resolve) =>
         requestAnimationFrame(() => resolve()),
       );
-      const r = document
-        .querySelector(`[data-id="${nodeId}"] .speech-hit`)
-        ?.getBoundingClientRect();
-      const current = r
-        ? [r.x, r.y, r.width, r.height].map((n) => n.toFixed(1)).join(",")
-        : "";
-      stable = current && current === previous ? stable + 1 : 0;
-      previous = current;
-      if (stable >= 3) return;
     }
-    throw new Error(`node ${nodeId} did not settle`);
-  }, id);
+    throw new Error(
+      "fold expected IDs/count/relative positions did not settle",
+    );
+  }, expected);
 }
+
 async function measure(
   page: Page,
   name: string,
@@ -258,11 +307,7 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
           );
         },
         async () => {
-          await expect(
-            page.locator(`[data-id="${id}"] .speech-node.is-selected`),
-          ).toHaveCount(1);
-          await expect(page.locator(".inspector")).toContainText(id);
-          await settleNode(page, id);
+          await settleNode(page, id, true);
         },
       );
       values.selection.push(duration);
@@ -286,11 +331,7 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
           await searchBox.press("Enter");
         },
         async () => {
-          await expect(
-            page.locator(`[data-id="${id}"] .speech-node.is-selected`),
-          ).toHaveCount(1);
-          await expect(page.locator(".inspector")).toContainText(id);
-          await settleNode(page, id);
+          await settleNode(page, id, true);
         },
       );
       values.search.push(duration);
@@ -300,7 +341,7 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
         canvasVisibleConfirmed: true,
       });
     }
-    const foldButton = page.getByRole("button", {
+    const foldButton = page.locator(".canvas-tools").getByRole("button", {
       name: /枝を(折りたたむ|開く)/,
     });
     const baselinePositions = await page
@@ -342,26 +383,7 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
           await foldButton.click();
         },
         async () => {
-          await expect(page.locator(".speech-node")).toHaveCount(
-            expectedIds.size,
-          );
-          await expect
-            .poll(() =>
-              page.locator(".speech-hit").evaluateAll((elements) =>
-                elements
-                  .map((el) => {
-                    const node = el.closest<HTMLElement>(".react-flow__node")!;
-                    return {
-                      id: node.dataset.id!,
-                      transform: node.style.transform,
-                    };
-                  })
-                  .sort((a, b) => a.id.localeCompare(b.id)),
-              ),
-            )
-            .toEqual(expectedPositions);
-          await nextFrame(page);
-          await nextFrame(page);
+          await settleFold(page, expectedPositions);
         },
       );
       previousVisible = await page.locator(".speech-node").count();
@@ -400,6 +422,9 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
           diagnosticOnly: true,
           eligibleForG5: false,
           protocol: {
+            observationProtocolVersion: 2,
+            readinessPolling:
+              "same start/end marks and conditions; all identity/inspector/visibility/3-stable-frame conditions verified in rAF loop; fold expected IDs/count/positions verified on 3 consecutive observations; avoids coarse assertion backoff",
             sessions: 1,
             warmupOperations: 0,
             excludedOperations: 0,
@@ -435,7 +460,7 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
           procedure:
             "UI JSON import; selection: search/focus preparation outside timing, agenda click clears selectedId, real pointer click on unselected node; search: textbox fill+Enter; fold: alternating toolbar toggles, exact expected ID set/count/relative positions confirmed. 8 IDs distributed across the full chronology.",
           durationDefinition:
-            "performance.mark before action through DOM assertions and next frame; selection/search additionally require 3 stable animation frames. Includes Playwright RPC/assertion overhead, not paint or real-device input latency. Full-DOM tracing disabled; operationLog retained.",
+            "performance.mark before action through DOM assertions and next frame; selection/search additionally require 3 stable animation frames. Includes Playwright RPC/action and in-page readiness overhead, not paint or real-device input latency. v2 replaces coarse assertion backoff with frame polling; start/end marks and success conditions are unchanged. Full-DOM tracing disabled; operationLog retained.",
           observational: true,
           latencyBudgetGate: {
             thresholdMs: THRESHOLD_MS,

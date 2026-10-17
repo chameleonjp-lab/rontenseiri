@@ -34,3 +34,11 @@ node scripts/profile-canvas.mjs candidate
 生CPU profileとJSONは`artifacts/profiles`へ保存する。記録fixtureは架空テキストのみで、外部サービスへ送信しない。
 
 受入は別途、新規server・clean checkout・served SHA一致の100操作を同じ公開SHAで再実行する。選択・検索・折り畳みのp95≤200msをCIでassertし、超過なら失敗のまま改善する。unit、keyboard/focus、mouse/touch hit、保存/再開/Undo、遅延detailsのdraft保持も回帰する。正式G5の統制プロトコル・アクセシビリティ・全復旧・実機、AI品質は別未完了である。
+
+## 二段目の改善
+
+3a98e47のCIは選択・検索が200ms以内になったが、開閉は229.3msで失敗した。ローカルの開閉は特に展開側へ偏った（collapse p95 208.3ms、expand p95 390.7ms）。そこでfolded graphとselected nodeのimmutable派生をcacheし、選択してもhidden edgeを再生成しないよう修正した。SpeechDataに対応する不変React要素もWeakMapで再利用する。初期importで表示済みの枝を再展開するときのJSX再生成を削減するためで、viewportやnode数を減らす最適化ではない。
+
+後続の100操作測定はprotocol v2のframe単位確認を明記する。marker位置・閾値・回数は維持し、成功条件は同等以上。旧方式との数値比較を、全て製品コードだけの改善だと扱わない。
+
+[二段目raw JSON](profiles/candidate-variant-cache.json)も同じ8操作×3のCDP手順で記録した。test-driverのrole探索等もCPUに含まれるため、profile wall値をp95として扱わない。最終観測ではfold buttonのrole探索を同じcanvas-tools内にscopeし、無関係な500ノードのaccessible name走査を避ける。計時開始位置・実クリック・成功条件は維持する。

@@ -70,3 +70,22 @@ describe("canvas geometry and UI state separation", () => {
     ).toBe(p.utterances[0].quote);
   });
 });
+
+it("folded edge/node identities survive unrelated selection and repeated folding", () => {
+  const p = sampleProject();
+  const base = buildCanvasGraph(p, noop, noop);
+  const folded = projectCanvasState(base, null, p.selectedAgendaId, true);
+  const selected = projectCanvasState(base, "U01", p.selectedAgendaId, true);
+  const again = projectCanvasState(base, null, p.selectedAgendaId, true);
+  expect(selected.edges).toBe(folded.edges);
+  expect(again.edges).toBe(folded.edges);
+  for (const node of folded.nodes) {
+    if (node.type === "speech" && node.id !== "U01")
+      expect(selected.nodes.find((n) => n.id === node.id)).toBe(node);
+    expect(again.nodes.find((n) => n.id === node.id)).toBe(node);
+  }
+  const reselected = projectCanvasState(base, "U01", p.selectedAgendaId, true);
+  expect(reselected.nodes.find((n) => n.id === "U01")).toBe(
+    selected.nodes.find((n) => n.id === "U01"),
+  );
+});
