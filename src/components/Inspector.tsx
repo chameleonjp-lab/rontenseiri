@@ -1,5 +1,6 @@
 import { semanticSnapshot } from "../domain/snapshot";
 import UtteranceBoundaryEditor from "./UtteranceBoundaryEditor";
+import LazyDetails from "./LazyDetails";
 import { invalidateDependents } from "../domain/invalidation";
 import { useEffect, useState } from "react";
 import { ArrowRight, Check, X } from "lucide-react";
@@ -372,62 +373,70 @@ export default function Inspector({
             分類だけの変更では原文・発言順・議題所属・他の発言を変えません。影響するまとめだけ要再確認にします。
           </p>
         </div>
-        <details className="boundary-edit">
-          <summary>議題の所属・境界を別に変更</summary>
-          <p className="fineprint">
-            派生やずれだけで新議題にしません。同じ議題が後で再登場しても、所属先の議題IDを引き継ぎます。
-          </p>
-          <label className="field">
-            所属先の議題
-            <select
-              aria-label="所属先の議題"
-              value={targetAgenda}
-              onChange={(e) => setTargetAgenda(e.target.value)}
-            >
-              {project.agendas.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.id}｜{a.title}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="field">
-            所属・境界の変更理由
-            <input
-              aria-label="所属・境界の変更理由"
-              value={boundaryReason}
-              onChange={(e) => setBoundaryReason(e.target.value)}
-            />
-          </label>
-          <button
-            disabled={targetAgenda === agenda?.id}
-            onClick={() =>
-              boundary(() =>
-                moveUtterance(project, u.id, targetAgenda, boundaryReason),
-              )
-            }
-          >
-            この発言の所属先だけ変更
-          </button>
-          <button
-            onClick={() =>
-              boundary(() => splitAgenda(project, u.id, boundaryReason))
-            }
-          >
-            この発言から新議題に分ける
-          </button>
-          <button
-            disabled={!agenda || project.agendas[0]?.id === agenda.id}
-            onClick={() =>
-              boundary(() => mergeAgenda(project, agenda!.id, boundaryReason))
-            }
-          >
-            前の議題と結合
-          </button>
-          <p className="fineprint">
-            議題を分けても、発言の本文は分割しません。操作を取り消す場合は訂正履歴のUndoを使えます。
-          </p>
-        </details>
+        <LazyDetails
+          className="boundary-edit"
+          summary="議題の所属・境界を別に変更"
+        >
+          {() => (
+            <>
+              <p className="fineprint">
+                派生やずれだけで新議題にしません。同じ議題が後で再登場しても、所属先の議題IDを引き継ぎます。
+              </p>
+              <label className="field">
+                所属先の議題
+                <select
+                  aria-label="所属先の議題"
+                  value={targetAgenda}
+                  onChange={(e) => setTargetAgenda(e.target.value)}
+                >
+                  {project.agendas.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.id}｜{a.title}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="field">
+                所属・境界の変更理由
+                <input
+                  aria-label="所属・境界の変更理由"
+                  value={boundaryReason}
+                  onChange={(e) => setBoundaryReason(e.target.value)}
+                />
+              </label>
+              <button
+                disabled={targetAgenda === agenda?.id}
+                onClick={() =>
+                  boundary(() =>
+                    moveUtterance(project, u.id, targetAgenda, boundaryReason),
+                  )
+                }
+              >
+                この発言の所属先だけ変更
+              </button>
+              <button
+                onClick={() =>
+                  boundary(() => splitAgenda(project, u.id, boundaryReason))
+                }
+              >
+                この発言から新議題に分ける
+              </button>
+              <button
+                disabled={!agenda || project.agendas[0]?.id === agenda.id}
+                onClick={() =>
+                  boundary(() =>
+                    mergeAgenda(project, agenda!.id, boundaryReason),
+                  )
+                }
+              >
+                前の議題と結合
+              </button>
+              <p className="fineprint">
+                議題を分けても、発言の本文は分割しません。操作を取り消す場合は訂正履歴のUndoを使えます。
+              </p>
+            </>
+          )}
+        </LazyDetails>
         <UtteranceBoundaryEditor
           project={project}
           utteranceId={u.id}

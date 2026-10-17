@@ -64,7 +64,7 @@ function metric(name: string, values: number[]) {
     p95,
     max: sorted.at(-1) ?? null,
     thresholdMs: THRESHOLD_MS,
-    withinDiagnosticThreshold:
+    withinLatencyBudget:
       values.length === COUNT && p95 !== null && p95 <= THRESHOLD_MS,
     values,
   };
@@ -433,12 +433,21 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
             includesDerivedAndDriftBranches: true,
           },
           procedure:
-            "UI JSON import; selection: search/focus preparation outside timing, agenda click clears selectedId, real pointer click on unselected node; search: textbox fill+Enter; fold: alternating toolbar toggles, visible node-count change. 8 IDs distributed across the full chronology.",
+            "UI JSON import; selection: search/focus preparation outside timing, agenda click clears selectedId, real pointer click on unselected node; search: textbox fill+Enter; fold: alternating toolbar toggles, exact expected ID set/count/relative positions confirmed. 8 IDs distributed across the full chronology.",
           durationDefinition:
             "performance.mark before action through DOM assertions and next frame; selection/search additionally require 3 stable animation frames. Includes Playwright RPC/assertion overhead, not paint or real-device input latency. Full-DOM tracing disabled; operationLog retained.",
           observational: true,
+          latencyBudgetGate: {
+            thresholdMs: THRESHOLD_MS,
+            passed:
+              failure === null &&
+              operations.every((m) => m.withinLatencyBudget),
+            failedOperations: operations
+              .filter((m) => !m.withinLatencyBudget)
+              .map((m) => m.name),
+          },
           ciMeaning:
-            "CI only checks diagnostic execution and assertions. Threshold exceedance is NOT a performance gate pass. This harness is ineligible for G5 acceptance.",
+            "CI fails if any of the three 100-operation p95 values exceeds 200ms. This product latency gate is separate from overall G5 acceptance; protocol/device/accessibility/recovery gates remain incomplete.",
           operations,
           operationLog,
           failure,
@@ -446,7 +455,7 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
             failure === null && operations.every((m) => m.count === COUNT),
           g5Passed: false,
           g5Status:
-            "部分測定。性能閾値、主要キーボード導線・アクセシビリティ・全復旧ケースの証跡、およびiPhone/Mac/Windows実機ゲートは別途確認が必要。Linux観測だけではG5全体を合格にしない。",
+            "製品レイテンシ予算はlatencyBudgetGateを参照。正式warmup/cache/独立session、主要キーボード導線・アクセシビリティ・全復旧、iPhone/Mac/Windows実機は別途必要。G5全体は未完了。",
         },
         null,
         2,
@@ -459,4 +468,13 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
       (v) => v.length === COUNT && v.every((n) => Number.isFinite(n) && n >= 0),
     ),
   ).toBe(true);
+  for (const [name, points] of Object.entries(values)) {
+    const result = metric(name, points);
+    expect
+      .soft(
+        result.p95,
+        `${name}: 100-operation p95 must be <= ${THRESHOLD_MS}ms`,
+      )
+      .toBeLessThanOrEqual(THRESHOLD_MS);
+  }
 });

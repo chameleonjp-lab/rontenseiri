@@ -2,9 +2,11 @@
 
 ## このハーネスの位置づけ
 
-`e2e/performance.spec.ts`は**診断専用**であり、G5受入証拠としては不適格である。`diagnosticOnly:true`、`eligibleForG5:false`、`g5Passed:false`を必ず記録する。500ノードを表示したこと、各100回完走したこと、CIが成功したことを、性能またはG5全体の合格と呼ばない。
+`e2e/performance.spec.ts`は、各100操作の製品レイテンシ予算を**p95≤200ms**として検査する。超過は製品性能の失敗であり、今回から**一操作群でも超えればCIを失敗させる**。回数・閾値・成功アサーション・frame待機は緩和していない。
 
-各操作の`withinDiagnosticThreshold`はp95≤200msかを示すだけで、CIの性能ゲートではない。超過値を消したり合格へ丸めたりしない。正式な性能ゲートを追加する場合は、下記の未充足条件を解消し、200ms超過でCIを失敗させる別の受入試験が必要になる。
+JSONの`latencyBudgetGate.passed`と`withinLatencyBudget`がこの部分ゲートを示す。完走やCI greenだけでG5全体を合格とはしない。warmup/cache/独立session・実機・アクセシビリティ・全復旧の正式条件はまだ不足しているため、`diagnosticOnly:true`、`eligibleForG5:false`、`g5Passed:false`を維持する。
+
+3f21c87ではCI p95が選択266.7／検索522.1／開閉345.2msで全超過した。ハーネスだけの問題とせず、[プロファイルで原因を確認し、表示実装を改善](canvas-performance-profile.md)した。後続SHAの合否はそのSHA自身の100操作JSONで判断し、旧値を移植しない。
 
 ## 診断手順と出力
 
@@ -23,9 +25,9 @@ case `canvas-500-v1`は合成TXT 50,000 code pointsから作るProject v1で、5
 - clean checkoutのSHAと、**新規起動した開発サーバーの起動時SHA**の一致。既存server再利用・dirty checkoutは拒否する。
 - 開始／終了時刻、case/version、500ノード、入力hash、browser版、OS/kernel/CPU/memory、WebGL renderer、実GPUアダプター未取得、cache条件。
 - 各操作のcount／p50／p95／max／raw values、完了時刻付き操作ログ。
-- 途中失敗時の操作ID・対象ID・時刻・準備込み経過時間・例外。fixture／git等のpreflight失敗も未完了JSONにする。
+- 途中失敗時の操作ID・対象ID・時刻・準備込み経過時間・例外。レイテンシ予算失敗は`latencyBudgetGate.failedOperations`と各群のp95へ記録する。fixture／git等のpreflight失敗も未完了JSONにする。
 
-最初の180秒timeoutは三操作未完成であり、性能合格の証拠ではなかった。現在の上限600秒は全300操作を完走または失敗記録するための試験上限で、操作durationから遅さを取り除く仕組みではない。
+旧ハーネスの最初の180秒timeoutは三操作未完成であり、性能合格の証拠ではなかった。現在の上限600秒は全300操作を完走または失敗記録するための試験上限で、操作durationから遅さを取り除く仕組みではない。
 
 ## 再実行
 
@@ -45,6 +47,6 @@ CIは機能回帰・診断・offlineの結果を分離し、実際のSHAを`veri
 
 ## 正式G5に足りないもの
 
-[`evals/rubric.md`](../../../evals/rubric.md)のG5は、統制されたwarmup／cache／独立sessionの性能試験、p95≤200msの失敗assert、キーボード主要導線、アクセシビリティ、取消・失敗・再読込・再解析・インポート・別タブの全復旧証跡を要求する。現在の機能試験が一部を覆っていても、全条件充足とはしない。
+[`evals/rubric.md`](../../../evals/rubric.md)のG5は、統制されたwarmup／cache／独立sessionの性能試験、独立session等を含む正式プロトコル、キーボード主要導線、アクセシビリティ、取消・失敗・再読込・再解析・インポート・別タブの全復旧証跡を要求する。現在の機能試験が一部を覆っていても、全条件充足とはしない。
 
 iPhone Safari／Mac／Windows、実GPU、実機資源は未完了。Linux Chromiumの診断では代替しない。AI品質・実推論も未検証で、AI開始は無効のままである。

@@ -21,7 +21,7 @@ AIはdisabled（開始不可）である。この環境のChromiumではWebGPU A
 
 | 検証                  |                            結果 | 証拠・限界                                                                            |
 | --------------------- | ------------------------------: | ------------------------------------------------------------------------------------- |
-| 単体・回帰合計        | 112件通過（文書実験10件を含む） | 追加修正のローカル確認。公開版の正本は同一SHAのCI artifact                                      |
+| 単体・回帰合計        | 115件通過（文書実験10件を含む） | 追加修正のローカル確認。公開版の正本は同一SHAのCI artifact                                      |
 | 文書実験テスト        |                        10件通過 | `documents.test.ts`等。通常UI対応を意味しない                                         |
 | ブラウザE2E           |           同一SHAのCI結果を参照 | Linux Chromium。iPhone Safari実機ではない                                             |
 | 500node表示・パン     |                ローカル確認済み | 50,000文字。選択・検索・折り畳み各100回のp95とは別                                    |
@@ -77,3 +77,7 @@ G0–G8のdecisionは [R01–R33実装状況](requirements-status.md) に登録�
 性能ハーネスは正式G5受入から切り離した**診断専用**（eligibleForG5:false）である。warmup／cache／独立sessionが統制されておらず、閾値超過でCIを失敗させる正式ゲートではない。CI greenをG5合格としない。期待ID集合・件数・相対配置、失敗操作時刻、preflight失敗JSON、clean checkoutと新規server起動時SHAの照合を補強したが、正式ゲート未完了は変わらない。
 
 旧4cd3d64の公開CIは成功したが、p95診断値は選択251ms／検索576ms／折り畳み307.8msで全て200ms超過。同SHAの親側ローカルは機能E2E22件成功・1件skipの後、offline専用port4274が別checkoutに使われていたため、その段階ではofflineと後続診断を実行できなかった。製品失敗や未実行を成功数へ混ぜない。後続SHAは競合しないportの新規serverで再検証する。
+
+### 性能超過への継続対応
+
+3f21c87の全3操作の200ms超過を製品性能問題として扱い、ScriptDuration/CPU profileで全node/data/edge再生成・閉じた候補DOMのeager構築・固定検索アニメーションを切り分けた。base geometryとUI差分の分離、同値state更新抑止、MiniMap callback安定化、詳細候補の初回遅延、即時検索jumpを実装。根拠は`canvas-performance-profile.md`とraw JSONに記録した。後続ハーネスでは100回・200ms・成功アサーションを維持し、一操作群でもp95超過でCIを失敗させる。過去の「診断超過ではCI失敗にしない」は3f21c87時点の記録で、後続には適用しない。G5全体の未完了は別である。

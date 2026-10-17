@@ -1,4 +1,9 @@
-import { relationLabel } from "../domain/relation-label";
+import {
+  buildCanvasGraph,
+  projectCanvasState,
+  type SpeechData,
+  type AgendaData,
+} from "./canvas-model";
 import { memo, useMemo, useState, useCallback, useEffect } from "react";
 import {
   ReactFlow,
@@ -8,10 +13,8 @@ import {
   useReactFlow,
   Handle,
   Position,
-  MarkerType,
   type Node,
   type NodeProps,
-  type Edge,
 } from "@xyflow/react";
 import {
   Minus,
@@ -27,34 +30,11 @@ import {
   ArrowUp,
   ArrowDown,
 } from "lucide-react";
-import type { Project, Classification } from "../domain/types";
+import type { Project } from "../domain/types";
 import { labels } from "../domain/types";
-import { layoutProject } from "../domain/layout";
 import "@xyflow/react/dist/style.css";
 import "./canvas-compact.css";
 
-type SpeechData = {
-  utteranceId: string;
-  speaker: string;
-  quote: string;
-  classification: Classification;
-  selected: boolean;
-  important: boolean;
-  onSelect: (id: string) => void;
-  time?: string;
-  returning: boolean;
-};
-type AgendaData = {
-  title: string;
-  id: string;
-  decision: string;
-  count: number;
-  candidate: boolean;
-  selected: boolean;
-  onSelect: (id: string) => void;
-  arrival: string;
-  needsReview: boolean;
-};
 const Speech = memo(function Speech({ data }: NodeProps<Node<SpeechData>>) {
   return (
     <div
@@ -115,12 +95,16 @@ const AgendaFrame = memo(function AgendaFrame({
   );
 });
 const nodeTypes = { speech: Speech, agenda: AgendaFrame };
-const colors = {
-  main: "#148489",
-  derived: "#8b78d9",
-  drift: "#d5a032",
-  return: "#148489",
-};
+
+const miniMapNodeColor = (n: Node) =>
+  n.type === "agenda"
+    ? "#75b9b5"
+    : n.data?.classification === "derived"
+      ? "#8874d0"
+      : n.data?.classification === "drift"
+        ? "#d29b2e"
+        : "#16888d";
+const proOptions = { hideAttribution: true };
 
 interface Props {
   project: Project;
@@ -165,97 +149,28 @@ function CanvasContent({
         )
         .map((u) => u.id),
     );
-  }, [project, collapsed, onVisibleIds]);
-  const { nodes, edges } = useMemo(() => {
-    const nodes: Node[] = [];
-    const edges: Edge[] = [];
-    const layout = layoutProject(project);
-    const positions = new Map(layout.nodes.map((n) => [n.id, n]));
-    for (const block of layout.blocks) {
-      const agenda = project.agendas.find((a) => a.id === block.agendaId)!;
-      nodes.push({
-        id: `agenda-${block.id}`,
-        type: "agenda",
-        position: { x: block.x, y: block.y },
-        data: {
-          id: agenda.id,
-          title: `${agenda.title}${block.occurrence > 1 ? "（再登場）" : ""}`,
-          decision: labels.decision[agenda.decision],
-          count: block.utteranceIds.length,
-          candidate: agenda.boundary === "candidate",
-          selected: agenda.id === project.selectedAgendaId,
-          onSelect: onSelectAgenda,
-          arrival: agenda.arrival,
-          needsReview: agenda.needsReview,
-        },
-        style: { width: block.width, height: block.height },
-        draggable: false,
-        selectable: false,
-        focusable: false,
-        zIndex: -1,
-      });
-    }
-    for (const position of layout.nodes) {
-      const u = project.utterances.find((item) => item.id === position.id)!;
-      const returning = project.relations.some(
-        (r) => r.to === u.id && r.kind === "return",
-      );
-      nodes.push({
-        id: u.id,
-        type: "speech",
-        position: { x: position.x, y: position.y },
-        hidden:
-          collapsed &&
-          (u.classification === "derived" || u.classification === "drift"),
-        data: {
-          utteranceId: u.id,
-          speaker: u.speaker,
-          quote: u.quote,
-          classification: u.classification,
-          selected: selectedId === u.id,
-          important: u.important,
-          time: u.time,
-          onSelect,
-          returning,
-        },
-        draggable: false,
-        selectable: false,
-        focusable: false,
-      });
-    }
-    for (const relation of project.relations) {
-      const color = colors[relation.kind];
-      edges.push({
-        id: relation.id,
-        source: relation.from,
-        target: relation.to,
-        type: "default",
-        animated: false,
-        label: relationLabel(
-          relation,
-          positions.get(relation.from)?.agendaId,
-          positions.get(relation.to)?.agendaId,
-        ),
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          color,
-          width: 18,
-          height: 18,
-        },
-        style: {
-          stroke: color,
-          strokeWidth: relation.kind === "main" ? 3 : 2,
-          strokeDasharray: relation.kind === "drift" ? "6 5" : undefined,
-        },
-        labelStyle: { fill: color, fontSize: 12 },
-        labelBgStyle: { fill: "#f6fafb", fillOpacity: 0.95 },
-        hidden: collapsed && relation.kind !== "main",
-        focusable: false,
-        selectable: false,
-      });
-    }
-    return { nodes, edges };
-  }, [project, selectedId, onSelect, onSelectAgenda, collapsed]);
+  }, [project.agendas, project.utterances, collapsed, onVisibleIds]);
+  const baseGraph = useMemo(
+    () => buildCanvasGraph(project, onSelect, onSelectAgenda),
+    [
+      project.agendas,
+      project.utterances,
+      project.relations,
+      onSelect,
+      onSelectAgenda,
+    ],
+  );
+  const { nodes, edges } = useMemo(
+    () =>
+      projectCanvasState(
+        baseGraph,
+        selectedId,
+        project.selectedAgendaId,
+        collapsed,
+      ),
+    [baseGraph, selectedId, project.selectedAgendaId, collapsed],
+  );
+
   const locate = useCallback(
     (id?: string) => {
       const target = flow.getNode(
@@ -266,7 +181,8 @@ function CanvasContent({
           nodes: [target],
           padding: 0.5,
           maxZoom: 1.1,
-          duration: 250,
+          duration: 0,
+          includeHiddenNodes: true,
         });
     },
     [flow, selectedId, project.selectedAgendaId],
@@ -316,7 +232,7 @@ function CanvasContent({
       setCollapsed(false);
       onSelect(found.id);
       setSearchMessage(`${found.id} を選択しました`);
-      setTimeout(() => locate(found.id), 30);
+      requestAnimationFrame(() => locate(found.id));
     } else setSearchMessage("一致する発言がありません");
   }
   return (
@@ -367,7 +283,7 @@ function CanvasContent({
             aria-label="選択ノードへ戻る"
             onClick={() => {
               if (collapsed) setCollapsed(false);
-              setTimeout(() => locate(), 30);
+              requestAnimationFrame(() => locate());
             }}
           >
             <LocateFixed size={15} />
@@ -462,22 +378,14 @@ function CanvasContent({
           maxZoom={2}
           defaultViewport={{ x: 25, y: 10, zoom: 0.8 }}
           onMove={(_, v) => setZoom(v.zoom)}
-          proOptions={{ hideAttribution: true }}
+          proOptions={proOptions}
           aria-label="議題の発言関係図"
         >
           <Background gap={24} color="#d1e0e4" />
           <MiniMap
             pannable
             zoomable
-            nodeColor={(n) =>
-              n.type === "agenda"
-                ? "#75b9b5"
-                : n.data?.classification === "derived"
-                  ? "#8874d0"
-                  : n.data?.classification === "drift"
-                    ? "#d29b2e"
-                    : "#16888d"
-            }
+            nodeColor={miniMapNodeColor}
             nodeStrokeColor="#ffffff"
             maskColor="rgba(235,241,244,0.7)"
             ariaLabel="全体のミニマップ。ドラッグで表示位置を移動"
@@ -518,10 +426,10 @@ function CanvasContent({
     </section>
   );
 }
-export default function DiscussionCanvas(props: Props) {
+export default memo(function DiscussionCanvas(props: Props) {
   return (
     <ReactFlowProvider>
       <CanvasContent {...props} />
     </ReactFlowProvider>
   );
-}
+});

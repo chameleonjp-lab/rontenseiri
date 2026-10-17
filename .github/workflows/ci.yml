@@ -40,7 +40,7 @@ jobs:
         run: npm run test:offline
       - name: Engineering benchmark and empty evaluation
         run: npm run benchmark && npm run evaluate
-      - name: 500-node diagnostics (NOT G5 acceptance evidence)
+      - name: 500-node latency budget <=200ms (NOT overall G5)
         timeout-minutes: 12
         env:
           PLAYWRIGHT_PORT: 4183

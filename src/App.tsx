@@ -84,6 +84,15 @@ export default function App() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [visibleIds, setVisibleIds] = useState<string[]>([]);
+  const receiveVisibleIds = useCallback(
+    (ids: string[]) =>
+      setVisibleIds((old) =>
+        old.length === ids.length && old.every((id, i) => id === ids[i])
+          ? old
+          : ids,
+      ),
+    [],
+  );
   const [modal, setModal] = useState<"input" | "export" | "ai" | "help" | null>(
     null,
   );
@@ -216,7 +225,9 @@ export default function App() {
     });
   }, []);
   const selectAgenda = useCallback((id: string) => {
-    setProject((p) => (p ? { ...p, selectedAgendaId: id } : p));
+    setProject((p) =>
+      p && p.selectedAgendaId !== id ? { ...p, selectedAgendaId: id } : p,
+    );
     setSelectedId(null);
     setDetailsOpen(false);
   }, []);
@@ -472,7 +483,7 @@ export default function App() {
                 selectedId={selectedId}
                 onSelect={select}
                 onSelectAgenda={selectAgenda}
-                onVisibleIds={setVisibleIds}
+                onVisibleIds={receiveVisibleIds}
               />
             </div>
             {view === "transcript" && (
