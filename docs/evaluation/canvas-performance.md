@@ -69,3 +69,13 @@ a48c0e2のCI p95は117.3／128.4／130.9msで全て予算内だったが、ロ�
 - 成功確認は可視ID/件数/座標に加え、**全500 retained nodeのID/座標、隠れた枝の実CSS visibility・inert・AX非表示を3回連続で確認**する。DOM総数ではなく可視集合を確認するのは実装方式の変更に対応するもので、隠れていない枝をARIAだけで除外して測ることは許さない。
 
 追加E2Eは同一DOM・座標の再利用、隠れた枝のfocus拒否/role除外、隠すべき辺の全IDとCSS/AX、可視ID集合を検査する。DOMを保持するので折り畳みによるDOM総数削減はしないが、初期500ノードの数を増やさず各操作でも総ID/件数を固定する。heap全体や実機メモリ合格までは称しない。
+
+## 四段目：可視性更新をReactFlowのgraph更新から切り離す
+
+d737927ではlocal p95が選択198.8／検索200.8／開閉238.7msで、検索と開閉がなお失敗した（CIは136.2／134.1／157.0ms）。短いCDP診断でもfoldの平均script144.869ms、task209.186msが残った。これは100操作のformal値ではなく8操作のCPU診断である。
+
+枝DOM保持だけでは、折り畳みごとにnode/edge propsを変えるReactFlow内部のJSX更新負荷が残る。そこで枝の所属をstatic classへ移し、**foldではnode/edge配列を一切変えず**、root CSSとbranchだけ購読する小さなexternal-store Boundaryで可視性・native inert・ARIAを同期する。NodeWrapperのinline visibilityに勝つCSS指定が必要なのでhidden!importantを対象classに限って使う。非main辺・隠れた端点のmain辺・MiniMapもstatic classで隠す。辺ARIAはclass/ARIA/DOM変化を監視し、mainへ変わった辺の一時属性を復元する。cleanupも自分の設定値が残る場合だけ元値を復元して他writerの変更を消さない。
+
+検索queryも小さなformのlocal stateへ移し、入力だけでCanvasContentを再描画しない。formはhiddenで保持するので閉じてもqueryを失わず、開くとfocusする。分類の派生→本筋→派生と2回Undo、履歴往復時に保持されたfold state、CSS/inert/AX/元座標も追加E2Eで確認する。
+
+**protocol2.1・100回・200ms・marker・3安定frame・全500のID/座標/実CSS/inert/AX条件はこの段では変更しない。** formalなwarmup/独立session条件、実GPU・実機・支援技術・全recovery・heap検証は引き続き別の未完了事項。fitはbranch speechを除外するがagenda frameの全寸法を維持するので、折り畳み後に枝相当の余白が残る点は既存動作として記録する（tight bounds合格は主張しない）。

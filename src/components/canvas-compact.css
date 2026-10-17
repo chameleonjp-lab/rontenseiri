@@ -38,10 +38,11 @@
   stroke-width: 2;
 }
 
-/* Preserve mounted branch subtrees: hidden is visual, inert and AX-hidden.
-   ReactFlow `hidden` unmounts nodes/handles/edges and makes re-expansion costly. */
-.react-flow__node.view-collapsed,
-.react-flow__edge.view-collapsed {
-  visibility: hidden;
-  pointer-events: none;
+/* Folding changes visual state only; graph/DOM identity stays unchanged. */
+.branches-collapsed .react-flow__node.branch-node,
+.branches-collapsed .react-flow__edge.branch-edge,
+.branches-collapsed .branch-minimap {
+  /* NodeWrapper sets visibility inline after measuring. */
+  visibility: hidden !important;
+  pointer-events: none !important;
 }

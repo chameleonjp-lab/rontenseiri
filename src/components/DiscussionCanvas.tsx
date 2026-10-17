@@ -1,11 +1,25 @@
+import { observeBranchEdgeVisibility } from "./branch-edge-visibility";
+import {
+  BranchVisibilityContext,
+  BranchVisibilityBoundary,
+  createBranchVisibilityStore,
+} from "./BranchVisibility";
 import {
   buildCanvasGraph,
-  isCanvasHidden,
+  isBranchNode,
   projectCanvasState,
   type SpeechData,
   type AgendaData,
 } from "./canvas-model";
-import { memo, useMemo, useState, useCallback, useEffect } from "react";
+import {
+  memo,
+  useMemo,
+  useState,
+  useCallback,
+  useEffect,
+  useRef,
+  useLayoutEffect,
+} from "react";
 import {
   ReactFlow,
   ReactFlowProvider,
@@ -42,7 +56,10 @@ const Speech = memo(function Speech({ data }: NodeProps<Node<SpeechData>>) {
   const cached = speechMarkup.get(data);
   if (cached) return cached;
   const markup = (
-    <div
+    <BranchVisibilityBoundary
+      isBranch={
+        data.classification === "derived" || data.classification === "drift"
+      }
       className={`speech-node kind-${data.classification} ${data.selected ? "is-selected" : ""}`}
     >
       <Handle type="target" position={Position.Left} />
@@ -67,7 +84,7 @@ const Speech = memo(function Speech({ data }: NodeProps<Node<SpeechData>>) {
         {data.time && <small className="node-time">{data.time}</small>}
       </button>
       <Handle type="source" position={Position.Right} />
-    </div>
+    </BranchVisibilityBoundary>
   );
   speechMarkup.set(data, markup);
   return markup;
@@ -104,19 +121,55 @@ const AgendaFrame = memo(function AgendaFrame({
 const nodeTypes = { speech: Speech, agenda: AgendaFrame };
 
 const miniMapNodeColor = (n: Node) =>
-  isCanvasHidden(n)
-    ? "transparent"
-    : n.type === "agenda"
-      ? "#75b9b5"
-      : n.data?.classification === "derived"
-        ? "#8874d0"
-        : n.data?.classification === "drift"
-          ? "#d29b2e"
-          : "#16888d";
-const miniMapNodeStrokeColor = (n: Node) =>
-  isCanvasHidden(n) ? "transparent" : "#ffffff";
+  n.type === "agenda"
+    ? "#75b9b5"
+    : n.data?.classification === "derived"
+      ? "#8874d0"
+      : n.data?.classification === "drift"
+        ? "#d29b2e"
+        : "#16888d";
+const miniMapNodeClassName = (n: Node) =>
+  isBranchNode(n) ? "branch-minimap" : "";
+const initialViewport = { x: 25, y: 10, zoom: 0.8 };
 const proOptions = { hideAttribution: true };
 
+function CanvasSearch({
+  open,
+  onSearch,
+  message,
+}: {
+  open: boolean;
+  onSearch: (query: string) => void;
+  message: string;
+}) {
+  const [query, setQuery] = useState("");
+  const input = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    if (open) input.current?.focus();
+  }, [open]);
+  return (
+    <form
+      className="canvas-search"
+      hidden={!open}
+      style={open ? undefined : { display: "none" }}
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSearch(query);
+      }}
+    >
+      <label htmlFor="graph-search">発言を検索</label>
+      <input
+        ref={input}
+        id="graph-search"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        placeholder="発言番号・話者・言葉"
+      />
+      <button type="submit">検索</button>
+      <span role="status">{message}</span>
+    </form>
+  );
+}
 interface Props {
   project: Project;
   selectedId: string | null;
@@ -132,7 +185,16 @@ function CanvasContent({
   onVisibleIds,
 }: Props) {
   const flow = useReactFlow();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsedState] = useState(false);
+  const visibility = useMemo(() => createBranchVisibilityStore(), []);
+  const setCollapsed = useCallback(
+    (value: boolean) => {
+      visibility.set(value);
+      setCollapsedState(value);
+    },
+    [visibility],
+  );
+  const container = useRef<HTMLDivElement>(null);
   const [zoom, setZoom] = useState(0.8);
   const onMove = useCallback<OnMove>(
     (_, viewport) => setZoom(viewport.zoom),
@@ -146,7 +208,8 @@ function CanvasContent({
           pannable
           zoomable
           nodeColor={miniMapNodeColor}
-          nodeStrokeColor={miniMapNodeStrokeColor}
+          nodeStrokeColor="#ffffff"
+          nodeClassName={miniMapNodeClassName}
           maskColor="rgba(235,241,244,0.7)"
           ariaLabel="全体のミニマップ。ドラッグで表示位置を移動"
         />
@@ -154,7 +217,6 @@ function CanvasContent({
     ),
     [],
   );
-  const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchMessage, setSearchMessage] = useState("");
   const hiddenCount = collapsed
@@ -192,15 +254,14 @@ function CanvasContent({
     ],
   );
   const { nodes, edges } = useMemo(
-    () =>
-      projectCanvasState(
-        baseGraph,
-        selectedId,
-        project.selectedAgendaId,
-        collapsed,
-      ),
-    [baseGraph, selectedId, project.selectedAgendaId, collapsed],
+    () => projectCanvasState(baseGraph, selectedId, project.selectedAgendaId),
+    [baseGraph, selectedId, project.selectedAgendaId],
   );
+
+  useLayoutEffect(() => {
+    const root = container.current;
+    return root ? observeBranchEdgeVisibility(root, collapsed) : undefined;
+  }, [collapsed]);
 
   const locate = useCallback(
     (id?: string) => {
@@ -253,7 +314,7 @@ function CanvasContent({
     return () =>
       window.removeEventListener("rontenseiri:focus-node", focusNode);
   }, [flow, project.id, project.utterances]);
-  function search() {
+  function search(query: string) {
     const found = project.utterances.find((u) =>
       `${u.id} ${u.speaker} ${u.quote}`
         .toLowerCase()
@@ -300,7 +361,9 @@ function CanvasContent({
             aria-label="全体表示"
             onClick={() =>
               void flow.fitView({
-                nodes: flow.getNodes().filter((n) => !isCanvasHidden(n)),
+                nodes: flow
+                  .getNodes()
+                  .filter((n) => !collapsed || !isBranchNode(n)),
                 padding: 0.1,
                 duration: 300,
                 minZoom: 0.001,
@@ -333,26 +396,11 @@ function CanvasContent({
           </button>
         </div>
       </div>
-      {searchOpen && (
-        <form
-          className="canvas-search"
-          onSubmit={(e) => {
-            e.preventDefault();
-            search();
-          }}
-        >
-          <label htmlFor="graph-search">発言を検索</label>
-          <input
-            id="graph-search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            autoFocus
-            placeholder="発言番号・話者・言葉"
-          />
-          <button type="submit">検索</button>
-          <span role="status">{searchMessage}</span>
-        </form>
-      )}
+      <CanvasSearch
+        open={searchOpen}
+        onSearch={search}
+        message={searchMessage}
+      />
       <div className="gesture-guide">
         <span>クリック・タップ：詳細</span>
         <span>空白ドラッグ：表示位置を移動</span>
@@ -365,7 +413,8 @@ function CanvasContent({
         </details>
       </div>
       <div
-        className="flow-container"
+        ref={container}
+        className={`flow-container ${collapsed ? "branches-collapsed" : ""}`}
         tabIndex={0}
         aria-label="キャンバス。矢印キーで表示位置を移動。プラス・マイナスで拡大縮小"
         onKeyDown={(e) => {
@@ -392,29 +441,31 @@ function CanvasContent({
           }
         }}
       >
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          nodeTypes={nodeTypes}
-          nodesDraggable={false}
-          nodesConnectable={false}
-          elementsSelectable={false}
-          nodesFocusable={false}
-          edgesFocusable={false}
-          panOnDrag
-          zoomOnPinch
-          zoomOnScroll
-          paneClickDistance={8}
-          nodeClickDistance={8}
-          minZoom={0.001}
-          maxZoom={2}
-          defaultViewport={{ x: 25, y: 10, zoom: 0.8 }}
-          onMove={onMove}
-          proOptions={proOptions}
-          aria-label="議題の発言関係図"
-        >
-          {decorations}
-        </ReactFlow>
+        <BranchVisibilityContext.Provider value={visibility}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            nodesDraggable={false}
+            nodesConnectable={false}
+            elementsSelectable={false}
+            nodesFocusable={false}
+            edgesFocusable={false}
+            panOnDrag
+            zoomOnPinch
+            zoomOnScroll
+            paneClickDistance={8}
+            nodeClickDistance={8}
+            minZoom={0.001}
+            maxZoom={2}
+            defaultViewport={initialViewport}
+            onMove={onMove}
+            proOptions={proOptions}
+            aria-label="議題の発言関係図"
+          >
+            {decorations}
+          </ReactFlow>
+        </BranchVisibilityContext.Provider>
         <div className="canvas-hand-hint">
           <Hand size={20} />
           <span>

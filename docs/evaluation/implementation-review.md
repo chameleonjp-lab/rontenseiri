@@ -91,3 +91,7 @@ G0–G8のdecisionは [R01–R33実装状況](requirements-status.md) に登録�
 ### ローカル200ms超過への三段目
 
 CIだけ成功したa48c0e2でもlocal全群が未達だったため、枝DOMをunmountせずCSS/inert/AXで保持する方式と、ReactFlowのonMove/装飾要素安定化を実装した。非main辺・隠れた端点のmain辺、MiniMap、全体表示を可視状態へ揃え、意味・原文・履歴・DTOにUI属性を持ち込まない。protocol2.1の準備完了barrier/局所role走査を明示し、500全nodeのID/配置と可視/非可視CSS/inert/AXを確認してから計時終了する。直前の機能E2Eは24成功・標準offline1skip（専用offlineで別実行）。
+
+### 四段目の根本対策
+
+d737927 localは選択198.8msだけ成功し、検索200.8msと開閉238.7msは失敗。CPU診断で残った大量JSX更新を、static branch class・constant store/Provider・小さいBranchVisibilityBoundaryとroot CSSに分離し、foldでReactFlowのgraph propsを更新しなくした。検索queryもform内へ分離。source classification/Undoでの枝classとinert/ARIA復帰、辺class変更時の一時ARIA属性の復元を回帰へ追加。計測protocol2.1と200msのassertは変更しない。

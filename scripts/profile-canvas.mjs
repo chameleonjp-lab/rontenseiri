@@ -164,7 +164,9 @@ try {
     );
   }
   for (let i = 0; i < 8; i++) {
-    const before = await page.locator(".speech-node").count();
+    const before = await page
+      .locator('.react-flow__node:not([aria-hidden="true"]) .speech-node')
+      .count();
     await observe(
       "fold",
       i,
@@ -176,7 +178,9 @@ try {
       async () => {
         await page.waitForFunction(
           (before) =>
-            document.querySelectorAll(".speech-node").length !== before,
+            document.querySelectorAll(
+              '.react-flow__node:not([aria-hidden="true"]) .speech-node',
+            ).length !== before,
           before,
         );
       },
@@ -192,6 +196,9 @@ try {
     "src/App.tsx",
     "src/components/canvas-model.ts",
     "src/components/LazyDetails.tsx",
+    "src/components/BranchVisibility.tsx",
+    "src/components/branch-edge-visibility.ts",
+    "src/components/canvas-compact.css",
   ]) {
     try {
       sources[p] = createHash("sha256")

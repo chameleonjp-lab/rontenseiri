@@ -47,7 +47,9 @@ test("枝DOMは保持しつつ視覚・AX・focusから除外し、同じ要素�
     )
     .map((r) => r.id)
     .sort();
-  const retainedEdges = page.locator(".react-flow__edge.view-collapsed");
+  const retainedEdges = page.locator(
+    ".branches-collapsed .react-flow__edge.branch-edge",
+  );
   await expect(retainedEdges).toHaveCount(hiddenEdges.length);
   expect(
     await retainedEdges.evaluateAll((els) =>
@@ -125,4 +127,77 @@ test("枝DOMは保持しつつ視覚・AX・focusから除外し、同じ要素�
   await expect(hit).toBeVisible();
   await expect(hit).toBeInViewport({ ratio: 0.99 });
   await expect(page.locator(".inspector")).toContainText(branch.id);
+});
+
+test("折り畳み中の派生→本筋→UndoでCSS・inert・AXと枝の座標を復元する", async ({
+  page,
+}) => {
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "サンプルを見てみる", exact: true })
+    .click();
+  const branch = sampleProject().utterances.find(
+    (u) => u.classification === "derived",
+  )!;
+  const node = page.locator(`[data-id="${branch.id}"].react-flow__node`);
+  const hit = node.locator(".speech-hit");
+  await hit.press("Enter");
+  const original = await node.evaluate(
+    (el) => (el as HTMLElement).style.transform,
+  );
+  await page
+    .getByRole("button", { name: "枝を折りたたむ", exact: true })
+    .click();
+  await expect(hit).toBeHidden();
+  await page.getByLabel("発言の分類", { exact: true }).selectOption("main");
+  await page
+    .getByLabel("変更理由", { exact: true })
+    .fill("折り畳み中の分類再確認");
+  await page.getByRole("button", { name: "訂正を保存", exact: true }).click();
+  await expect(hit).toBeVisible();
+  await expect(node).toHaveJSProperty("inert", false);
+  await expect(node).not.toHaveAttribute("aria-hidden", "true");
+  await expect(node).not.toHaveClass(/branch-node/);
+  await expect
+    .poll(() =>
+      page
+        .locator(".react-flow__edge")
+        .evaluateAll((els) =>
+          els.every((el) =>
+            getComputedStyle(el).visibility === "hidden"
+              ? el.getAttribute("aria-hidden") === "true"
+              : el.getAttribute("aria-hidden") !== "true",
+          ),
+        ),
+    )
+    .toBe(true);
+
+  await page.getByLabel("発言の分類", { exact: true }).selectOption("derived");
+  await page
+    .getByLabel("変更理由", { exact: true })
+    .fill("派生に戻して表示を再確認");
+  await page.getByRole("button", { name: "訂正を保存", exact: true }).click();
+  await expect(hit).toBeHidden();
+  await expect(node).toHaveJSProperty("inert", true);
+  for (let i = 0; i < 2; i++) {
+    await page.getByRole("button", { name: "訂正履歴", exact: true }).click();
+    await page
+      .getByRole("button", { name: "直前の訂正を元に戻す", exact: true })
+      .click();
+    await page.getByRole("button", { name: "議題の流れ", exact: true }).click();
+    if (i === 0) {
+      await expect(hit).toBeVisible();
+      await expect(node).toHaveJSProperty("inert", false);
+    }
+  }
+  await expect(hit).toBeHidden();
+  await expect(node).toHaveJSProperty("inert", true);
+  await expect(node).toHaveAttribute("aria-hidden", "true");
+  await expect(node).toHaveClass(/branch-node/);
+  await expect
+    .poll(() => node.evaluate((el) => (el as HTMLElement).style.transform))
+    .toBe(original);
+  await page.getByRole("button", { name: "枝を開く", exact: true }).click();
+  await expect(hit).toBeVisible();
+  await expect(node).toHaveJSProperty("inert", false);
 });

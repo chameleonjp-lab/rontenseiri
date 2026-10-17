@@ -49,6 +49,13 @@ export function buildCanvasGraph(
   const positions = new Map(layout.nodes.map((n) => [n.id, n]));
   const utterances = new Map(project.utterances.map((u) => [u.id, u]));
   const agendas = new Map(project.agendas.map((a) => [a.id, a]));
+  const branchIds = new Set(
+    project.utterances
+      .filter(
+        (u) => u.classification === "derived" || u.classification === "drift",
+      )
+      .map((u) => u.id),
+  );
   const returningIds = new Set(
     project.relations.filter((r) => r.kind === "return").map((r) => r.to),
   );
@@ -85,6 +92,7 @@ export function buildCanvasGraph(
     nodes.push({
       id: u.id,
       type: "speech",
+      className: branchIds.has(u.id) ? "branch-node" : undefined,
       position: { x: position.x, y: position.y },
       hidden: false,
       initialWidth: 225,
@@ -112,6 +120,12 @@ export function buildCanvasGraph(
       source: relation.from,
       target: relation.to,
       type: "default",
+      className:
+        relation.kind !== "main" ||
+        branchIds.has(relation.from) ||
+        branchIds.has(relation.to)
+          ? "branch-edge"
+          : undefined,
       animated: false,
       label: relationLabel(
         relation,
@@ -139,75 +153,18 @@ export function buildCanvasGraph(
   }
   return { nodes, edges };
 }
-export function isCanvasHidden(item: { className?: string }): boolean {
-  return item.className?.split(/\s+/).includes("view-collapsed") ?? false;
+export function isBranchNode(item: { className?: string }): boolean {
+  return item.className?.split(/\s+/).includes("branch-node") ?? false;
 }
-const foldedGraphs = new WeakMap<CanvasGraph, CanvasGraph>();
 const selectedNodes = new WeakMap<Node, Node>();
-function foldedGraph(base: CanvasGraph): CanvasGraph {
-  let cached = foldedGraphs.get(base);
-  if (!cached) {
-    const hiddenIds = new Set(
-      base.nodes
-        .filter(
-          (n) =>
-            n.type === "speech" &&
-            (n.data.classification === "derived" ||
-              n.data.classification === "drift"),
-        )
-        .map((n) => n.id),
-    );
-    cached = {
-      nodes: base.nodes.map((node) =>
-        node.type === "speech" &&
-        (node.data.classification === "derived" ||
-          node.data.classification === "drift")
-          ? {
-              ...node,
-              className: [node.className, "view-collapsed"]
-                .filter(Boolean)
-                .join(" "),
-              style: {
-                ...node.style,
-                visibility: "hidden",
-                pointerEvents: "none",
-              },
-              domAttributes: {
-                ...node.domAttributes,
-                "aria-hidden": true,
-                inert: true,
-              },
-            }
-          : node,
-      ),
-      edges: base.edges.map((edge) =>
-        edge.data?.kind !== "main" ||
-        hiddenIds.has(edge.source) ||
-        hiddenIds.has(edge.target)
-          ? {
-              ...edge,
-              className: [edge.className, "view-collapsed"]
-                .filter(Boolean)
-                .join(" "),
-              domAttributes: { ...edge.domAttributes, "aria-hidden": true },
-            }
-          : edge,
-      ),
-    };
-    foldedGraphs.set(base, cached);
-  }
-  return cached;
-}
-/** Cache immutable folded and selected variants; unrelated selection never replaces hidden edges. */
+/** Selection-only projection. Folding is visual state and never rebuilds the graph. */
 export function projectCanvasState(
   base: CanvasGraph,
   selectedId: string | null,
   selectedAgendaId: string,
-  collapsed: boolean,
 ): CanvasGraph {
-  const state = collapsed ? foldedGraph(base) : base;
   return {
-    nodes: state.nodes.map((node) => {
+    nodes: base.nodes.map((node) => {
       const selected =
         node.type === "speech"
           ? node.id === selectedId
@@ -220,6 +177,6 @@ export function projectCanvasState(
       }
       return cached;
     }),
-    edges: state.edges,
+    edges: base.edges,
   };
 }

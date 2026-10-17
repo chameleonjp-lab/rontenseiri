@@ -10,7 +10,7 @@ describe("canvas geometry and UI state separation", () => {
   it("selection reuses all nonselected speech node/data and every edge", () => {
     const p = sampleProject();
     const base = buildCanvasGraph(p, noop, noop);
-    const result = projectCanvasState(base, "U01", p.selectedAgendaId, false);
+    const result = projectCanvasState(base, "U01", p.selectedAgendaId);
     expect(result.edges).toBe(base.edges);
     for (const node of base.nodes.filter((n) => n.type === "speech")) {
       const rendered = result.nodes.find((n) => n.id === node.id)!;
@@ -25,50 +25,31 @@ describe("canvas geometry and UI state separation", () => {
       expect(node.data.selected).toBe(false);
     }
   });
-  it("folding changes only branch visibility, retaining data and coordinates", () => {
+  it("static branch classes cover node and edge membership without changing semantic data", () => {
     const p = sampleProject();
     const base = buildCanvasGraph(p, noop, noop);
-    const folded = projectCanvasState(base, null, p.selectedAgendaId, true);
+    const branchIds = new Set(
+      p.utterances
+        .filter(
+          (u) => u.classification === "derived" || u.classification === "drift",
+        )
+        .map((u) => u.id),
+    );
     for (const node of base.nodes.filter((n) => n.type === "speech")) {
-      const rendered = folded.nodes.find((n) => n.id === node.id)!;
-      const branch =
-        node.data.classification === "derived" ||
-        node.data.classification === "drift";
-      expect(rendered.className === "view-collapsed").toBe(branch);
-      expect(rendered.hidden).toBe(false);
-      if (branch) {
-        expect(rendered.domAttributes?.["aria-hidden"]).toBe(true);
-        expect(rendered.domAttributes?.inert).toBe(true);
-      }
-      expect(rendered.data).toBe(node.data);
-      expect(rendered.position).toBe(node.position);
-      if (!branch) expect(rendered).toBe(node);
+      expect(node.className === "branch-node").toBe(branchIds.has(node.id));
       expect(node.hidden).toBe(false);
+      expect(node.data.classification).toBe(
+        p.utterances.find((u) => u.id === node.id)!.classification,
+      );
     }
     for (const edge of base.edges) {
-      const rendered = folded.edges.find((e) => e.id === edge.id)!;
-      const hiddenIds = new Set(
-        base.nodes
-          .filter(
-            (n) =>
-              n.type === "speech" &&
-              (n.data.classification === "derived" ||
-                n.data.classification === "drift"),
-          )
-          .map((n) => n.id),
-      );
-      const hidden =
+      expect(edge.className === "branch-edge").toBe(
         edge.data?.kind !== "main" ||
-        hiddenIds.has(edge.source) ||
-        hiddenIds.has(edge.target);
-      expect(rendered.className === "view-collapsed").toBe(hidden);
-      if (!hidden) expect(rendered).toBe(edge);
+          branchIds.has(edge.source) ||
+          branchIds.has(edge.target),
+      );
+      expect(edge.hidden).toBe(false);
     }
-    const expanded = projectCanvasState(base, null, p.selectedAgendaId, false);
-    expect(expanded.edges).toBe(base.edges);
-    expect(expanded.nodes.filter((n) => n.type === "speech")).toEqual(
-      base.nodes.filter((n) => n.type === "speech"),
-    );
   });
   it("geometry stays identical to canonical chronological layout and content edits rebuild data", () => {
     const p = sampleProject();
@@ -90,12 +71,12 @@ describe("canvas geometry and UI state separation", () => {
   });
 });
 
-it("folded edge/node identities survive unrelated selection and repeated folding", () => {
+it("node and edge identities survive repeated selection projection; folding has no graph input", () => {
   const p = sampleProject();
   const base = buildCanvasGraph(p, noop, noop);
-  const folded = projectCanvasState(base, null, p.selectedAgendaId, true);
-  const selected = projectCanvasState(base, "U01", p.selectedAgendaId, true);
-  const again = projectCanvasState(base, null, p.selectedAgendaId, true);
+  const folded = projectCanvasState(base, null, p.selectedAgendaId);
+  const selected = projectCanvasState(base, "U01", p.selectedAgendaId);
+  const again = projectCanvasState(base, null, p.selectedAgendaId);
   expect(selected.edges).toBe(folded.edges);
   expect(again.edges).toBe(folded.edges);
   for (const node of folded.nodes) {
@@ -103,7 +84,7 @@ it("folded edge/node identities survive unrelated selection and repeated folding
       expect(selected.nodes.find((n) => n.id === node.id)).toBe(node);
     expect(again.nodes.find((n) => n.id === node.id)).toBe(node);
   }
-  const reselected = projectCanvasState(base, "U01", p.selectedAgendaId, true);
+  const reselected = projectCanvasState(base, "U01", p.selectedAgendaId);
   expect(reselected.nodes.find((n) => n.id === "U01")).toBe(
     selected.nodes.find((n) => n.id === "U01"),
   );
