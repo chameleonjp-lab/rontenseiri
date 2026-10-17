@@ -98,3 +98,27 @@ describe("return relation consistency", () => {
     );
   });
 });
+
+it("矛盾する復帰なしJSONのimportを拒否する", () => {
+  const p = linkedProject();
+  const payload = JSON.parse(exportProject(p, "json", undefined, false));
+  payload.project.utterances.find(
+    (u: { id: string }) => u.id === "U08",
+  ).returnStatus = "none";
+  expect(() => importProject(JSON.stringify(payload))).toThrow(
+    /returnStatus none/,
+  );
+  const out = reviseProject(
+    p,
+    "U08",
+    { returnStatus: "none" },
+    "復帰なしに訂正",
+  );
+  const restored = importProject(exportProject(out, "json", undefined, false));
+  expect(
+    restored.relations.filter((r) => r.from === "U08" && r.kind === "return"),
+  ).toEqual([]);
+  expect(restored.utterances.find((u) => u.id === "U08")!.returnStatus).toBe(
+    "none",
+  );
+});

@@ -36,16 +36,16 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Browser acceptance tests
         run: npm run test:e2e -- --grep-invert "各100操作で観測する"
-      - name: 500-node operation observations (not a full G5 pass)
+      - name: Offline restart acceptance
+        run: npm run test:offline
+      - name: Engineering benchmark and empty evaluation
+        run: npm run benchmark && npm run evaluate
+      - name: 500-node diagnostics (NOT G5 acceptance evidence)
         timeout-minutes: 12
         env:
           PLAYWRIGHT_PORT: 4183
           PLAYWRIGHT_REPORT_PATH: artifacts/performance-e2e-results.json
         run: npx playwright test e2e/performance.spec.ts --output=test-results-performance
-      - name: Offline restart acceptance
-        run: npm run test:offline
-      - name: Engineering benchmark and empty evaluation
-        run: npm run benchmark && npm run evaluate
       - name: Keep browser evidence
         if: always()
         uses: actions/upload-artifact@v4

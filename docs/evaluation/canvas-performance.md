@@ -1,40 +1,50 @@
-# Canvas performance evaluation (G5)
+# 500ノード操作の診断 — G5は未完了
 
-## 判定条件
+## このハーネスの位置づけ
 
-500ノードを表示できること、またはパンできることだけでは **G5合格とはしない**。実際の500ノードJSONをUIからimportした同一SHAの実行で、次の各操作を**100回**計測し、p95を比較する。
+`e2e/performance.spec.ts`は**診断専用**であり、G5受入証拠としては不適格である。`diagnosticOnly:true`、`eligibleForG5:false`、`g5Passed:false`を必ず記録する。500ノードを表示したこと、各100回完走したこと、CIが成功したことを、性能またはG5全体の合格と呼ばない。
 
-- ノード選択（複数IDを交互に実ポインタークリック）
-- ノード検索（存在する異なるIDを検索textboxへ入力してEnter）
-- 折り畳み（derived/drift枝を含むfixtureで開閉を交互）
+各操作の`withinDiagnosticThreshold`はp95≤200msかを示すだけで、CIの性能ゲートではない。超過値を消したり合格へ丸めたりしない。正式な性能ゲートを追加する場合は、下記の未充足条件を解消し、200ms超過でCIを失敗させる別の受入試験が必要になる。
 
-各操作について `count: 100`、`p50`、`p95`、`max`、`thresholdMs: 200`、`pass: p95 <= 200` を `artifacts/canvas-performance.json` に記録する。選択はselected classとInspectorの同一ID、検索はselectedかつcanvas内可視、折り畳みは対象表示数がDOMへ反映された後の次frameまで確認する。
+## 診断手順と出力
 
-計測は `performance.mark` を実際のpointer/keyboard action直前に開始し、対象UI状態が反映され、位置が3回連続の `requestAnimationFrame` で安定した後の次frameまで終了しない。markはPlaywrightのaction/assertion awaitもまたぐ保守的なRPC-inclusive観測値であり、paint計測・実機レイテンシではない。固定waitを大量に使わず、DOM状態とframeを待つ。
+case `canvas-500-v1`は合成TXT 50,000 code pointsから作るProject v1で、500ノード・派生／ずれを含む。入力TXTのSHA-256を保存し、JSONのUI import経路で読み込む。先頭から末尾まで分散した8 IDを使う。
 
-> `g5Passed: false` または計測未実施・100回未満・p95超過はG5未合格（部分対応または未検証）として扱う。p95超過は観測試験そのものを失敗扱いにしない。500ノード表示だけの結果を通過と呼ばない。
+1. 選択100回：対象を検索で表示し、議題選択でselectedIdを解除した後、実ポインタークリックを測る。選択classとInspectorのID一致、キャンバス内可視、位置の安定を確認する。準備検索は計測外である。
+2. 検索100回：存在する異なるIDをtextboxへ入力しEnter。選択ID・Inspector・可視位置を確認する。
+3. 折り畳み100回：開閉を交互に操作。fixtureから求めた期待ID集合・件数と、各ノードの相対配置をDOMで確認する。
 
-JSONには `testedSha`（`git rev-parse HEAD`）、timestamp、Chromium、viewport、OS、500 nodes/50,000 code points、duration定義、`observational: true`、およびG5全体未合格（実機未測定）を必ず残す。親変更を含む最終SHAで再実行して、JSONのSHAとテスト対象SHAを一致させる。
+1 session、warmup 0回、除外0回、選択→検索→折り畳みの順である。グループ間のcache状態は同条件に統制していない。選択準備には検索が含まれ、Vite module cacheや共有ホストの同時負荷も統制していない。**この非対称性が診断専用である主な理由である。**
+
+`performance.mark`は実操作直前から、DOMの成功アサーションと次frameまでを含む。選択・検索はさらに3回連続の安定frameを確認する。Playwright RPC／assertion overhead込みの保守的な観測であり、paint測定、実機入力レイテンシ、本番build、モデル推論の測定ではない。巨大DOMのtrace snapshotを無効にし、代わりに操作ログを保存する。機能E2Eの失敗traceは維持する。
+
+`artifacts/canvas-performance.json`には次を記録する。
+
+- clean checkoutのSHAと、**新規起動した開発サーバーの起動時SHA**の一致。既存server再利用・dirty checkoutは拒否する。
+- 開始／終了時刻、case/version、500ノード、入力hash、browser版、OS/kernel/CPU/memory、WebGL renderer、実GPUアダプター未取得、cache条件。
+- 各操作のcount／p50／p95／max／raw values、完了時刻付き操作ログ。
+- 途中失敗時の操作ID・対象ID・時刻・準備込み経過時間・例外。fixture／git等のpreflight失敗も未完了JSONにする。
+
+最初の180秒timeoutは三操作未完成であり、性能合格の証拠ではなかった。現在の上限600秒は全300操作を完走または失敗記録するための試験上限で、操作durationから遅さを取り除く仕組みではない。
 
 ## 再実行
 
-専用port **4183** を使う。4173は別checkoutのため使用しない。
+専用ポート4183を空け、新しいserverで実行する。4173は別checkoutが使用している場合があるので、この環境では使わない。オフライン試験も競合しない専用ポートを指定する。
 
 ```bash
 PLAYWRIGHT_PORT=4183 \
+PLAYWRIGHT_REPORT_PATH=artifacts/performance-e2e-results.json \
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium \
-npx playwright test e2e/performance.spec.ts \
-  --output=test-results-performance
+npx playwright test e2e/performance.spec.ts --output=test-results-performance
+
+PLAYWRIGHT_OFFLINE_PORT=4286 \
+PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:offline
 ```
 
-CIまたは親変更後に、全CI完了後の**同一SHA**で再実行し、`artifacts/canvas-performance.json` をGitHub Actions artifactとして保存する。JSONの数値を別SHAの実行結果へ手作業で移植してはならない。
+CIは機能回帰・診断・offlineの結果を分離し、実際のSHAを`verified-sha.txt`へ記録する。後続SHAへ旧値を移植しない。CI artifactが匿名取得できない場合は、公開PRに同じSHAの診断値と限界を併記する。
 
-## 証跡と未完了条件
+## 正式G5に足りないもの
 
-case `canvas-500-v1`（Project v1、合成TXTのSHA-256付き）。先頭から末尾まで分散した8 IDを使用し、選択準備の検索と選択解除は選択の計測外とする。新しいbrowser contextを使用するがVite開発serverのmodule cacheは温まり得る。本番build・モデル処理・実機入力レイテンシの測定ではない。
+[`evals/rubric.md`](../../../evals/rubric.md)のG5は、統制されたwarmup／cache／独立sessionの性能試験、p95≤200msの失敗assert、キーボード主要導線、アクセシビリティ、取消・失敗・再読込・再解析・インポート・別タブの全復旧証跡を要求する。現在の機能試験が一部を覆っていても、全条件充足とはしない。
 
-JSONには実行開始・終了、OS/kernel/CPU/memory、browser版、WebGL renderer、GPUアダプター未取得、cache条件、手順、各100個のraw values、300操作ログ、失敗理由も残す。閾値超過を成功へ丸めず、途中失敗でも完了数と部分分布を記録する。性能試験だけfull-DOM traceを無効にし、操作ログを証跡にする。機能試験の失敗traceは維持する。
-
-初回の180秒timeoutでは三操作が揃わず証拠未完成だった。ハーネスの上限は600秒とし、各操作のdurationから待機を除去するためではなく、全300操作を完走または失敗記録するための上限とする。
-
-G5全体はキーボード主要導線、アクセシビリティ、および取消・失敗・再読込・再解析・インポート・別タブの復旧証跡も必要。[`evals/rubric.md`](../../../evals/rubric.md)を参照。iPhone Safari／Mac／Windowsは未完了で、Linux Chromiumでは代替しない。現時点の`g5Passed`は常にfalseとし、性能三操作のpassとは分離する。
+iPhone Safari／Mac／Windows、実GPU、実機資源は未完了。Linux Chromiumの診断では代替しない。AI品質・実推論も未検証で、AI開始は無効のままである。

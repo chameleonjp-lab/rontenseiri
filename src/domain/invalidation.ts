@@ -142,6 +142,7 @@ function propagateReasoning(
     }
     for (const item of reasoning.items) {
       if (
+        affectedItems.has(item.id) ||
         item.utteranceIds.some((id) => affectedUtterances.has(id)) ||
         item.evidenceIds.some((id) => changedEvidence.has(id)) ||
         (item.counterargumentToId !== undefined &&
@@ -157,6 +158,7 @@ function propagateReasoning(
     }
     for (const interpretation of reasoning.interpretations) {
       if (
+        affectedVersions.has(interpretation.questionVersionId) ||
         interpretation.premiseItemIds.some((id) => affectedItems.has(id)) ||
         interpretation.conclusionItemIds.some((id) => affectedItems.has(id))
       ) {
@@ -168,6 +170,15 @@ function propagateReasoning(
         if (!affectedVersions.has(interpretation.questionVersionId)) {
           affectedVersions.add(interpretation.questionVersionId);
           changed = true;
+        }
+        for (const itemId of [
+          ...interpretation.premiseItemIds,
+          ...interpretation.conclusionItemIds,
+        ]) {
+          if (!affectedItems.has(itemId)) {
+            affectedItems.add(itemId);
+            changed = true;
+          }
         }
       }
     }

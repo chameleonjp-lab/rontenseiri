@@ -12,6 +12,46 @@ const THRESHOLD_MS = 200;
 // Full DOM trace snapshots themselves dominate large-graph runs. Preserve the
 // explicit action log instead; functional E2Es retain their normal traces.
 test.use({ trace: "off" });
+let evidenceWritten = false;
+let sessionStartedAt = new Date().toISOString();
+test.beforeEach(async () => {
+  evidenceWritten = false;
+  sessionStartedAt = new Date().toISOString();
+});
+test.afterEach(async ({}, info) => {
+  if (evidenceWritten) return;
+  let testedSha: string | null = null;
+  try {
+    testedSha = execFileSync("git", ["rev-parse", "HEAD"], {
+      encoding: "utf8",
+    }).trim();
+  } catch {
+    /* Preserve preflight/git failure too. */
+  }
+  await mkdir("artifacts", { recursive: true });
+  await writeFile(
+    "artifacts/canvas-performance.json",
+    JSON.stringify(
+      {
+        testedSha,
+        diagnosticOnly: true,
+        eligibleForG5: false,
+        g5Passed: false,
+        complete: false,
+        startedAt: sessionStartedAt,
+        timestamp: new Date().toISOString(),
+        failure: {
+          phase: "preflight/fixture/git",
+          errors: info.errors.map((e) => e.message),
+          elapsedMs: Date.now() - Date.parse(sessionStartedAt),
+        },
+        operations: [],
+      },
+      null,
+      2,
+    ) + "\n",
+  );
+});
 function metric(name: string, values: number[]) {
   const sorted = [...values].sort((a, b) => a - b);
   const percentile = (p: number) =>
@@ -24,7 +64,8 @@ function metric(name: string, values: number[]) {
     p95,
     max: sorted.at(-1) ?? null,
     thresholdMs: THRESHOLD_MS,
-    pass: values.length === COUNT && p95 !== null && p95 <= THRESHOLD_MS,
+    withinDiagnosticThreshold:
+      values.length === COUNT && p95 !== null && p95 <= THRESHOLD_MS,
     values,
   };
 }
@@ -128,17 +169,36 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
   );
   let failure: string | null = null;
   let browserDetails: object = {};
+  let servedIdentity: unknown = null;
+  let activeStep = {
+    operation: "setup",
+    index: -1,
+    id: "",
+    startedAt: new Date().toISOString(),
+    wallStart: Date.now(),
+  };
   const log = (
     operation: string,
     index: number,
     duration: number,
     details: object = {},
   ) => {
-    operationLog.push({ operation, index, durationMs: duration, ...details });
+    operationLog.push({
+      operation,
+      index,
+      durationMs: duration,
+      completedAt: new Date().toISOString(),
+      ...details,
+    });
     if ((index + 1) % 10 === 0)
-      console.log(`[G5] ${operation} ${index + 1}/${COUNT}`);
+      console.log(`[diagnostic] ${operation} ${index + 1}/${COUNT}`);
   };
   try {
+    expect(dirty, "診断対象はclean checkoutであること").toBe(false);
+    const response = await page.request.get("/__rontenseiri_build_identity");
+    expect(response.ok()).toBe(true);
+    servedIdentity = await response.json();
+    expect(servedIdentity).toEqual({ sha: testedSha, dirty: false });
     await page.goto("/");
     browserDetails = await page.evaluate(() => {
       const gl = document.createElement("canvas").getContext("webgl");
@@ -166,6 +226,13 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
     const agendaButton = page.locator(".sidebar-agendas > button").first();
     for (let i = 0; i < COUNT; i++) {
       const id = ids[i % ids.length];
+      activeStep = {
+        operation: "selection-preparation-and-click",
+        index: i,
+        id,
+        startedAt: new Date().toISOString(),
+        wallStart: Date.now(),
+      };
       if (!(await searchBox.isVisible())) await searchButton.click();
       await searchBox.fill(id);
       await searchBox.press("Enter");
@@ -203,6 +270,13 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
     }
     for (let i = 0; i < COUNT; i++) {
       const id = ids[(i + 1) % ids.length];
+      activeStep = {
+        operation: "search",
+        index: i,
+        id,
+        startedAt: new Date().toISOString(),
+        wallStart: Date.now(),
+      };
       if (!(await searchBox.isVisible())) await searchButton.click();
       const duration = await measure(
         page,
@@ -229,9 +303,38 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
     const foldButton = page.getByRole("button", {
       name: /枝を(折りたたむ|開く)/,
     });
+    const baselinePositions = await page
+      .locator(".speech-hit")
+      .evaluateAll((elements) =>
+        elements
+          .map((el) => {
+            const node = el.closest<HTMLElement>(".react-flow__node")!;
+            return { id: node.dataset.id!, transform: node.style.transform };
+          })
+          .sort((a, b) => a.id.localeCompare(b.id)),
+      );
     let previousVisible = await page.locator(".speech-node").count();
     for (let i = 0; i < COUNT; i++) {
       const before = previousVisible;
+      activeStep = {
+        operation: "fold",
+        index: i,
+        id: i % 2 === 0 ? "collapse" : "expand",
+        startedAt: new Date().toISOString(),
+        wallStart: Date.now(),
+      };
+      const expectedIds = new Set(
+        project.utterances
+          .filter(
+            (u) =>
+              i % 2 !== 0 ||
+              (u.classification !== "derived" && u.classification !== "drift"),
+          )
+          .map((u) => u.id),
+      );
+      const expectedPositions = baselinePositions.filter((n) =>
+        expectedIds.has(n.id),
+      );
       const duration = await measure(
         page,
         `fold-${i}`,
@@ -239,9 +342,26 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
           await foldButton.click();
         },
         async () => {
+          await expect(page.locator(".speech-node")).toHaveCount(
+            expectedIds.size,
+          );
           await expect
-            .poll(() => page.locator(".speech-node").count())
-            .not.toBe(before);
+            .poll(() =>
+              page.locator(".speech-hit").evaluateAll((elements) =>
+                elements
+                  .map((el) => {
+                    const node = el.closest<HTMLElement>(".react-flow__node")!;
+                    return {
+                      id: node.dataset.id!,
+                      transform: node.style.transform,
+                    };
+                  })
+                  .sort((a, b) => a.id.localeCompare(b.id)),
+              ),
+            )
+            .toEqual(expectedPositions);
+          await nextFrame(page);
+          await nextFrame(page);
         },
       );
       previousVisible = await page.locator(".speech-node").count();
@@ -249,10 +369,19 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
       log("fold", i, duration, {
         beforeVisibleNodes: before,
         afterVisibleNodes: previousVisible,
+        expectedVisibleNodes: expectedIds.size,
+        exactVisibleIdsAndPositionsConfirmed: true,
       });
     }
   } catch (error) {
     failure = String(error);
+    operationLog.push({
+      failure: true,
+      ...activeStep,
+      failedAt: new Date().toISOString(),
+      phaseAndPreparationElapsedMs: Date.now() - activeStep.wallStart,
+      error: failure,
+    });
     throw error;
   } finally {
     const operations = [
@@ -267,6 +396,18 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
         {
           testedSha,
           dirtyWorkingTree: dirty,
+          servedIdentity,
+          diagnosticOnly: true,
+          eligibleForG5: false,
+          protocol: {
+            sessions: 1,
+            warmupOperations: 0,
+            excludedOperations: 0,
+            order: ["selection", "search", "fold"],
+            cacheIsolation:
+              "uncontrolled across operation groups; selection preparation includes search; not a controlled G5 protocol",
+            concurrentHostLoad: "not controlled",
+          },
           startedAt,
           timestamp: new Date().toISOString(),
           evaluator: "automated Playwright observation",
@@ -296,6 +437,8 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
           durationDefinition:
             "performance.mark before action through DOM assertions and next frame; selection/search additionally require 3 stable animation frames. Includes Playwright RPC/assertion overhead, not paint or real-device input latency. Full-DOM tracing disabled; operationLog retained.",
           observational: true,
+          ciMeaning:
+            "CI only checks diagnostic execution and assertions. Threshold exceedance is NOT a performance gate pass. This harness is ineligible for G5 acceptance.",
           operations,
           operationLog,
           failure,
@@ -309,6 +452,7 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
         2,
       ) + "\n",
     );
+    evidenceWritten = true;
   }
   expect(
     Object.values(values).every(

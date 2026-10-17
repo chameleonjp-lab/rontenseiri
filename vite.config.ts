@@ -3,6 +3,36 @@ import { defineConfig, loadEnv, type Plugin } from "vite";
 import react from "@vitejs/plugin-react";
 import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { execFileSync } from "node:child_process";
+
+function developmentBuildIdentity(): Plugin {
+  return {
+    name: "rontenseiri-development-build-identity",
+    apply: "serve",
+    configureServer(server) {
+      let identity: { sha: string; dirty: boolean };
+      try {
+        identity = {
+          sha: execFileSync("git", ["rev-parse", "HEAD"], {
+            encoding: "utf8",
+          }).trim(),
+          dirty: Boolean(
+            execFileSync("git", ["status", "--porcelain"], {
+              encoding: "utf8",
+            }).trim(),
+          ),
+        };
+      } catch {
+        identity = { sha: "unknown", dirty: true };
+      }
+      server.middlewares.use("/__rontenseiri_build_identity", (_req, res) => {
+        res.setHeader("Content-Type", "application/json");
+        res.setHeader("Cache-Control", "no-store");
+        res.end(JSON.stringify(identity));
+      });
+    },
+  };
+}
 
 function offlineServiceWorker(): Plugin {
   return {
@@ -43,7 +73,7 @@ export default defineConfig(({ mode }) => {
   const base = env.CUE_APP_BASE || process.env.VITE_APP_BASE || "./";
   process.env.__RONTENSEIRI_BASE = base;
   return {
-    plugins: [react(), offlineServiceWorker()],
+    plugins: [react(), developmentBuildIdentity(), offlineServiceWorker()],
     base,
     server: {
       watch: {

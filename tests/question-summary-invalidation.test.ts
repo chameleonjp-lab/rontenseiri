@@ -9,6 +9,7 @@ import {
   undoReasoning,
 } from "../src/domain/reasoning";
 
+import { exportProject, importProject } from "../src/export/project";
 const at = "2020-01-01T00:00:00.000Z";
 
 async function fixture(text = "費用は？\n100円です") {
@@ -94,15 +95,15 @@ describe("question version summary invalidation", () => {
 });
 
 it.each(["revise", "retract"] as const)(
-  "問い%sは応答から別議題の明示依存を辿り無関係要約を保つ",
+  "問い%sは応答から別議題の二段の明示依存を辿り無関係要約を保つ",
   async (action) => {
     const base = await fixture(
-      "費用は？\n100円です\nこの回答を前提に進めます\n別件の天気です",
+      "費用は？\n100円です\nこの回答を前提に進めます\n二段目の前提です\n別件の天気です",
     );
     const p = base.p;
     p.agendas[0].utteranceIds = ["U01", "U02"];
-    p.agendas[1].utteranceIds = ["U04"];
-    p.agendas[1].summaryDependencies = ["U04"];
+    p.agendas[1].utteranceIds = ["U05"];
+    p.agendas[1].summaryDependencies = ["U05"];
     p.agendas.push({
       ...structuredClone(p.agendas[0]),
       id: "B",
@@ -110,6 +111,22 @@ it.each(["revise", "retract"] as const)(
       utteranceIds: ["U03"],
       summaryDependencies: ["U03"],
       needsReview: false,
+    });
+    p.agendas.push({
+      ...structuredClone(p.agendas[0]),
+      id: "C",
+      title: "二段目の依存議題",
+      utteranceIds: ["U04"],
+      summaryDependencies: ["U04"],
+      needsReview: false,
+    });
+    p.relations.push({
+      id: "second-hop",
+      from: "U03",
+      to: "U04",
+      kind: "derived",
+      evidenceIds: ["U03"],
+      dependency: true,
     });
     p.relations.push({
       id: "dependent",
@@ -128,6 +145,17 @@ it.each(["revise", "retract"] as const)(
           ])
         : retractQuestion(p, base.questionId, "要求撤回");
     expect(validateProject(out)).toBeDefined();
+    expect(out.agendas.find((a) => a.id === "C")!.needsReview).toBe(true);
+    const restored = importProject(
+      exportProject(out, "json", undefined, false),
+    );
+    expect(restored.reasoning).toEqual(out.reasoning);
+    expect(restored.agendas).toEqual(out.agendas);
+    expect(restored.sources).toEqual(out.sources);
+    expect(restored.revisions).toEqual(out.revisions);
+    const restoredUndo = undoReasoning(restored);
+    expect(restoredUndo.agendas).toEqual(p.agendas);
+    expect(restoredUndo.reasoning!.responses).toEqual(originalResponses);
     expect(out.agendas.find((a) => a.id === "B")!.needsReview).toBe(true);
     expect(out.agendas.find((a) => a.id === "D")!.needsReview).toBe(false);
     expect(out.reasoning!.responses).toEqual(originalResponses);
