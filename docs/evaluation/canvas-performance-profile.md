@@ -71,3 +71,11 @@ d737927ではlocal p95が選択198.8／検索200.8／開閉238.7msで、検索�
 同じvisible-count対応scriptによる8回foldの平均scriptはd737927の144.869msから可視性分離candidateの47.446ms、taskは209.186msから101.955msへ下がった。candidateはdirty sourceのhashを持つ診断で、100操作p95やG5合格の代用ではない。この採取後にdefaultViewportの参照もmodule constantへ安定化したため、candidateのCPU値を最終HEADそのものの値とは称さない。formalな最新100操作は公開HEAD自身で別採取する。
 
 保存済みcandidate JSONのsource fingerprintsは当時の既存6ファイルのみで、新しいBoundary/edge管理/CSSのhashは未採取だった。このためcandidate CPU値は更に限定的な診断として扱う。元JSONを事後改変せず保持し、再現用scriptには新しい3ファイルもhash対象へ追加した。最終HEADのソフトウェア・100操作はclean checkoutとserved SHA一致で別検証する。
+
+## 五段目：選択時の復帰候補JSXを再利用
+
+4e12ee5ではlocalの検索192.2ms・開閉156.6msは予算内になったが、選択215.5msが残った（CIは150.3／145.2／128.6ms）。Inspectorは常時表示する復帰先selectで、対象より後のmain候補のoptionを選択のたびに生成していた。
+
+候補のeligibility/filter/order・表示文・操作は一切変えず、不変Utterance objectをkeyにするWeakMapでoption ReactElementだけを再利用する。これは遅延表示や候補省略ではなく、候補は最初から全件select内に存在する。同一IDでも訂正/import/Undoで新objectになれば古い文は再利用されず、原文抜粋を保持することを単体で確認する。変更は表示要素だけで、意味・ID・履歴・DTOは変えない。
+
+protocol2.1・100回・200ms・成功条件・marker位置は四段目から変更しない。短いCPU診断をこの段の確定SHAのp95と混同せず、最新公開HEAD自身で再計測する。

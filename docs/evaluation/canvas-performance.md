@@ -79,3 +79,11 @@ d737927ではlocal p95が選択198.8／検索200.8／開閉238.7msで、検索�
 検索queryも小さなformのlocal stateへ移し、入力だけでCanvasContentを再描画しない。formはhiddenで保持するので閉じてもqueryを失わず、開くとfocusする。分類の派生→本筋→派生と2回Undo、履歴往復時に保持されたfold state、CSS/inert/AX/元座標も追加E2Eで確認する。
 
 **protocol2.1・100回・200ms・marker・3安定frame・全500のID/座標/実CSS/inert/AX条件はこの段では変更しない。** formalなwarmup/独立session条件、実GPU・実機・支援技術・全recovery・heap検証は引き続き別の未完了事項。fitはbranch speechを除外するがagenda frameの全寸法を維持するので、折り畳み後に枝相当の余白が残る点は既存動作として記録する（tight bounds合格は主張しない）。
+
+## 五段目：選択時の復帰候補JSXを再利用
+
+4e12ee5ではlocalの検索192.2ms・開閉156.6msは予算内になったが、選択215.5msが残った（CIは150.3／145.2／128.6ms）。Inspectorは常時表示する復帰先selectで、対象より後のmain候補のoptionを選択のたびに生成していた。
+
+候補のeligibility/filter/order・表示文・操作は一切変えず、不変Utterance objectをkeyにするWeakMapでoption ReactElementだけを再利用する。これは遅延表示や候補省略ではなく、候補は最初から全件select内に存在する。同一IDでも訂正/import/Undoで新objectになれば古い文は再利用されず、原文抜粋を保持することを単体で確認する。変更は表示要素だけで、意味・ID・履歴・DTOは変えない。
+
+protocol2.1・100回・200ms・成功条件・marker位置は四段目から変更しない。短いCPU診断をこの段の確定SHAのp95と混同せず、最新公開HEAD自身で再計測する。

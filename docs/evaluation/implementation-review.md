@@ -95,3 +95,11 @@ CIだけ成功したa48c0e2でもlocal全群が未達だったため、枝DOMを
 ### 四段目の根本対策
 
 d737927 localは選択198.8msだけ成功し、検索200.8msと開閉238.7msは失敗。CPU診断で残った大量JSX更新を、static branch class・constant store/Provider・小さいBranchVisibilityBoundaryとroot CSSに分離し、foldでReactFlowのgraph propsを更新しなくした。検索queryもform内へ分離。source classification/Undoでの枝classとinert/ARIA復帰、辺class変更時の一時ARIA属性の復元を回帰へ追加。計測protocol2.1と200msのassertは変更しない。
+
+## 五段目：選択時の復帰候補JSXを再利用
+
+4e12ee5ではlocalの検索192.2ms・開閉156.6msは予算内になったが、選択215.5msが残った（CIは150.3／145.2／128.6ms）。Inspectorは常時表示する復帰先selectで、対象より後のmain候補のoptionを選択のたびに生成していた。
+
+候補のeligibility/filter/order・表示文・操作は一切変えず、不変Utterance objectをkeyにするWeakMapでoption ReactElementだけを再利用する。これは遅延表示や候補省略ではなく、候補は最初から全件select内に存在する。同一IDでも訂正/import/Undoで新objectになれば古い文は再利用されず、原文抜粋を保持することを単体で確認する。変更は表示要素だけで、意味・ID・履歴・DTOは変えない。
+
+protocol2.1・100回・200ms・成功条件・marker位置は四段目から変更しない。短いCPU診断をこの段の確定SHAのp95と混同せず、最新公開HEAD自身で再計測する。

@@ -198,6 +198,7 @@ try {
     "src/components/LazyDetails.tsx",
     "src/components/BranchVisibility.tsx",
     "src/components/branch-edge-visibility.ts",
+    "src/components/return-target-option.tsx",
     "src/components/canvas-compact.css",
   ]) {
     try {

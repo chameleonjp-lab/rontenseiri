@@ -1,3 +1,4 @@
+import { returnTargetOption } from "./return-target-option";
 import { semanticSnapshot } from "../domain/snapshot";
 import UtteranceBoundaryEditor from "./UtteranceBoundaryEditor";
 import LazyDetails from "./LazyDetails";
@@ -285,11 +286,7 @@ export default function Inspector({
                     .filter(
                       (t) => t.order > u.order && t.classification === "main",
                     )
-                    .map((t) => (
-                      <option key={t.id} value={t.id}>
-                        {t.id} · {t.quote.slice(0, 25)}
-                      </option>
-                    ))}
+                    .map(returnTargetOption)}
                 </select>
               </label>
               {incomingReturn &&
