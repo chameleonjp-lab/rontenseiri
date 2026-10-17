@@ -379,13 +379,18 @@ export function importProject(text: string): Project {
   const wrapper = value as {
     project?: unknown;
     scope?: unknown;
-    manifest?: { limited?: unknown; allowedUtteranceIds?: unknown };
+    manifest?: Record<string, unknown>;
   };
   if (!wrapper || typeof wrapper !== "object" || !("project" in wrapper))
     throw new Error("Project wrapperが必要です");
   if (
     wrapper.scope === "agenda" &&
-    (wrapper.manifest?.limited !== true ||
+    (wrapper.manifest?.schemaVersion !== 1 ||
+      wrapper.manifest.limited !== true ||
+      wrapper.manifest.fullBackup !== false ||
+      wrapper.manifest.historyIncluded !== false ||
+      wrapper.manifest.sourceCoverageComplete !== false ||
+      wrapper.manifest.organizationComplete !== false ||
       !Array.isArray(wrapper.manifest.allowedUtteranceIds))
   )
     throw new Error("限定出力manifestが不正です");
@@ -402,9 +407,44 @@ export function importProject(text: string): Project {
       allowed.some(
         (id) =>
           typeof id !== "string" || !p.utterances.some((u) => u.id === id),
-      )
+      ) ||
+      allowed.some((id, index) => id !== p.utterances[index]?.id)
     )
       throw new Error("限定出力のmanifestと内容が一致しません");
+    const agenda = p.agendas[0];
+    if (
+      agenda.decision !== "undecided" ||
+      agenda.answer !== "none" ||
+      agenda.agreement !== "unknown" ||
+      agenda.verification !== "unverified" ||
+      agenda.arrival !==
+        "選択発言のみの限定出力。議題全体の到達点は含めません。" ||
+      agenda.unresolved.length !== 0 ||
+      agenda.nextAction !== "" ||
+      agenda.needsReview !== false ||
+      agenda.utteranceIds.length !== allowed.length ||
+      agenda.utteranceIds.some((id, index) => id !== allowed[index])
+    )
+      throw new Error("限定出力の内容が限定契約と一致しません");
+    if (p.extent !== "excerpt") throw new Error("限定出力の範囲が不正です");
+    for (const [index, source] of p.sources.entries()) {
+      const sourceQuotes = p.utterances
+        .filter((u) => u.sourceId === source.id)
+        .sort((a, b) => a.order - b.order)
+        .map((u) => u.quote)
+        .join("\n");
+      const expectedId = `limited-source-${String(index + 1).padStart(2, "0")}`;
+      if (
+        !sourceQuotes ||
+        source.text !== sourceQuotes ||
+        source.id !== expectedId ||
+        source.versionId !== `${expectedId}-v1` ||
+        source.name !== "選択発言の原文" ||
+        source.warnings.length !== 0 ||
+        source.hash !== `limited-${index + 1}`
+      )
+        throw new Error("限定出力の原文に範囲外の内容があります");
+    }
   } else if (wrapper.scope !== "full") throw new Error("未対応の出力範囲です");
   return {
     ...p,

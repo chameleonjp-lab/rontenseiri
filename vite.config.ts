@@ -5,6 +5,30 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 
+function productionBuildIdentity(): Plugin {
+  return {
+    name: "rontenseiri-production-build-identity",
+    apply: "build",
+    generateBundle() {
+      this.emitFile({
+        type: "asset",
+        fileName: "__rontenseiri_build_identity",
+        source:
+          JSON.stringify({
+            sha: execFileSync("git", ["rev-parse", "HEAD"], {
+              encoding: "utf8",
+            }).trim(),
+            dirty: Boolean(
+              execFileSync("git", ["status", "--porcelain"], {
+                encoding: "utf8",
+              }).trim(),
+            ),
+          }) + "\n",
+      });
+    },
+  };
+}
+
 function developmentBuildIdentity(): Plugin {
   return {
     name: "rontenseiri-development-build-identity",
@@ -73,7 +97,12 @@ export default defineConfig(({ mode }) => {
   const base = env.CUE_APP_BASE || process.env.VITE_APP_BASE || "./";
   process.env.__RONTENSEIRI_BASE = base;
   return {
-    plugins: [react(), developmentBuildIdentity(), offlineServiceWorker()],
+    plugins: [
+      react(),
+      developmentBuildIdentity(),
+      productionBuildIdentity(),
+      offlineServiceWorker(),
+    ],
     base,
     server: {
       watch: {

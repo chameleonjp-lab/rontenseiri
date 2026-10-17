@@ -31,7 +31,7 @@ import {
 import DiscussionCanvas from "./components/DiscussionCanvas";
 import ExportDialog from "./components/ExportDialog";
 import Inspector from "./components/Inspector";
-import { undoLastRevision } from "./domain/revisions";
+import { canUndo, undoLastRevision } from "./domain/revisions";
 import { useModalFocus } from "./components/useModalFocus";
 import type {
   Project,
@@ -105,7 +105,9 @@ export default function App() {
   const lastFocused = useRef<HTMLElement | null>(null);
   const savedProjectRef = useRef<Project | null>(null);
   const activeProjectRef = useRef(project);
+  const selectedIdRef = useRef(selectedId);
   activeProjectRef.current = project;
+  selectedIdRef.current = selectedId;
   useModalFocus(!!modal);
   useEffect(() => {
     if (detailsOpen)
@@ -170,7 +172,7 @@ export default function App() {
     }, 650);
     return () => clearTimeout(timer);
   }, [project]);
-  function closeDetails() {
+  const closeDetails = useCallback(() => {
     setDetailsOpen(false);
     requestAnimationFrame(() => {
       if (
@@ -179,7 +181,9 @@ export default function App() {
       )
         lastFocused.current.focus();
       else {
-        const id = selectedId ? CSS.escape(selectedId) : "";
+        const id = selectedIdRef.current
+          ? CSS.escape(selectedIdRef.current)
+          : "";
         document
           .querySelector<HTMLElement>(
             id
@@ -189,7 +193,7 @@ export default function App() {
           ?.focus({ preventScroll: true });
       }
     });
-  }
+  }, []);
   function goGraph(id = selectedId) {
     setView("graph");
     setDetailsOpen(false);
@@ -527,7 +531,7 @@ export default function App() {
                 <div className="eyebrow">REVISION HISTORY</div>
                 <h1>訂正の経緯を、残す。</h1>
                 <button
-                  disabled={!project.revisions.some((r) => r.kind !== "undo")}
+                  disabled={!canUndo(project)}
                   onClick={() => {
                     try {
                       update(undoLastRevision(project));

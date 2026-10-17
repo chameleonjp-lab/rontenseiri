@@ -77,6 +77,11 @@ function effectiveRevision(project: Project): Revision | undefined {
   return undefined;
 }
 
+/** Whether the latest revision that is not already undone can be restored. */
+export function canUndo(project: Project): boolean {
+  return effectiveRevision(project) !== undefined;
+}
+
 function agendaOf(project: Project, utteranceId: string): Agenda | undefined {
   return project.agendas.find((agenda) =>
     agenda.utteranceIds.includes(utteranceId),

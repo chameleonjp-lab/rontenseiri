@@ -11,6 +11,7 @@
     "preview": "vite preview",
     "test:e2e": "playwright test",
     "test:offline": "playwright test --config=playwright.offline.config.ts",
+    "test:performance:controlled": "node scripts/controlled-performance.mjs",
     "benchmark": "node scripts/benchmark.mjs",
     "evaluate": "node --experimental-strip-types scripts/evaluate.ts evals/cases.json artifacts/evaluation-empty.json artifacts/evaluation-empty.md",
     "format": "prettier --write src tests e2e scripts public *.ts *.json .github/workflows/ci.yml",

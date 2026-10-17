@@ -46,6 +46,11 @@ jobs:
           PLAYWRIGHT_PORT: 4183
           PLAYWRIGHT_REPORT_PATH: artifacts/performance-e2e-results.json
         run: npx playwright test e2e/performance.spec.ts --output=test-results-performance
+      - name: Production latency budget - 3 independent sessions (NOT overall G5)
+        timeout-minutes: 25
+        env:
+          PLAYWRIGHT_PORT: 4193
+        run: npm run test:performance:controlled
       - name: Keep browser evidence
         if: always()
         uses: actions/upload-artifact@v4

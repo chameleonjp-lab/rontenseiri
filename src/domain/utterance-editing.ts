@@ -1,4 +1,5 @@
 import type { Project, Relation, Utterance } from "./types";
+import type { ReasoningGraph } from "./reasoning-types";
 import type {
   LineageLedger,
   LineageRecord,
@@ -79,40 +80,143 @@ function rebuildCoverage(p: ProjectWithLineage, versionId: string) {
   if (source) source.coverage = buildSourceCoverage(source, p.utterances);
 }
 
-/** Keep one provisional source, never duplicate a confirmed claim onto every split target. */
+/**
+ * Preserve reasoning references across a split without silently choosing the
+ * left fragment.  The graph has no character-offset information for an
+ * evidence record, so an old utterance reference is conservatively represented
+ * as spanning both fragments.  Fulfillment that depended on that unresolved
+ * boundary cannot remain a confirmed assertion.
+ */
+export type SplitReferenceDestination =
+  "left" | "right" | "both" | "unresolved";
+export interface SplitUtteranceOptions {
+  at?: number;
+  offset?: number;
+  reason?: string;
+  reasoningDestinations?: Record<string, SplitReferenceDestination>;
+}
+
 function transferReasoningReferences(
   p: ProjectWithLineage,
   oldIds: string[],
   newIds: string[],
+  destinations: Record<string, SplitReferenceDestination> = {},
+  record?: LineageRecord,
 ) {
-  const graph = p.reasoning as Record<string, unknown> | undefined;
+  const graph = p.reasoning as
+    (ReasoningGraph & Record<string, unknown>) | undefined;
   if (!graph) return;
-  for (const value of Object.values(graph))
-    if (Array.isArray(value))
-      for (const entry of value) {
-        if (!entry || typeof entry !== "object") continue;
-        const e = entry as Record<string, unknown>;
-        let changed = false;
-        for (const key of ["utteranceIds", "sourceUtteranceIds"]) {
-          const ids = e[key];
-          if (
-            !Array.isArray(ids) ||
-            !ids.some((x) => oldIds.includes(String(x)))
-          )
-            continue;
-          e[key] = ids.flatMap((x) =>
-            oldIds.includes(String(x)) ? [newIds[0]] : [x],
-          );
+  const old = new Set(oldIds);
+  const targetsFor = (
+    recordId: string,
+  ): { ids: string[]; unresolved: boolean } => {
+    if (record?.operation === "merge")
+      return { ids: [...newIds], unresolved: false };
+    const destination = destinations[recordId] ?? "unresolved";
+    if (destination === "left") return { ids: [newIds[0]], unresolved: false };
+    if (destination === "right") return { ids: [newIds[1]], unresolved: false };
+    if (destination === "both") return { ids: [...newIds], unresolved: false };
+    return { ids: [...newIds], unresolved: true };
+  };
+  const replace = (
+    value: unknown,
+    recordId: string,
+  ): { value: unknown[]; unresolved: boolean } | undefined => {
+    if (!Array.isArray(value) || !value.some((x) => old.has(String(x))))
+      return undefined;
+    const target = targetsFor(recordId);
+    return {
+      value: value.flatMap((x) => (old.has(String(x)) ? target.ids : [x])),
+      unresolved: target.unresolved,
+    };
+  };
+  const addRef = (
+    kind: "evidence" | "other",
+    referenceId: string,
+    unresolved: boolean,
+  ) => {
+    if (!record || record.references.some((r) => r.referenceId === referenceId))
+      return;
+    record.references.push({
+      kind,
+      referenceId,
+      targetIds: targetsFor(referenceId).ids,
+      status: unresolved ? "unresolved" : "applied",
+      note: unresolved
+        ? "分割後の根拠範囲は未確定。両片を原根拠として保持"
+        : record.operation === "merge"
+          ? "統合後の発言へ根拠参照を移送。成立判定は別途確認"
+          : "分割後の根拠移し先を利用者が確認。成立判定は別途確認",
+    });
+  };
+  const evidence = graph.evidence;
+  const changedEvidenceIds = new Set<string>();
+  const unresolvedEvidenceIds = new Set<string>();
+  if (Array.isArray(evidence))
+    for (const entry of evidence) {
+      if (!entry || typeof entry !== "object") continue;
+      const e = entry as unknown as Record<string, unknown>;
+      const next = replace(e.utteranceIds, String(e.id));
+      if (!next) continue;
+      e.utteranceIds = next.value;
+      changedEvidenceIds.add(String(e.id));
+      if (next.unresolved) {
+        unresolvedEvidenceIds.add(String(e.id));
+        if (e.certainty === "confirmed") e.certainty = "uncertain";
+        e.note =
+          typeof e.note === "string"
+            ? `${e.note} 分割境界上の根拠範囲は未確定（両片を保持）`
+            : "分割境界上の根拠範囲は未確定（両片を保持）";
+      }
+      addRef("evidence", String(e.id), next.unresolved);
+    }
+  for (const [key, value] of Object.entries(graph)) {
+    if (!Array.isArray(value) || key === "evidence") continue;
+    for (const entry of value) {
+      if (!entry || typeof entry !== "object") continue;
+      const e = entry as unknown as Record<string, unknown>;
+      const refId = String(e.id ?? "");
+      let changed = false,
+        unresolved = false;
+      for (const field of ["utteranceIds", "sourceUtteranceIds"]) {
+        const next = replace(e[field], refId);
+        if (next) {
+          e[field] = next.value;
           changed = true;
-        }
-        if (changed && e.certainty === "confirmed") {
-          e.certainty = "uncertain";
-          if (typeof e.note === "string")
-            e.note = `${e.note} 発言編集後の暫定参照。要再確認`;
-          else e.note = "発言編集後の暫定参照。要再確認";
+          unresolved ||= next.unresolved;
         }
       }
+      const directlyChanged = changed;
+      const directUnresolved = unresolved;
+      const referencedEvidenceIds = Array.isArray(e.evidenceIds)
+        ? e.evidenceIds.map(String)
+        : [];
+      const affectedEvidenceIds = referencedEvidenceIds.filter((id) =>
+        changedEvidenceIds.has(id),
+      );
+      if (affectedEvidenceIds.length) {
+        changed = true;
+        unresolved ||= affectedEvidenceIds.some((id) =>
+          unresolvedEvidenceIds.has(id),
+        );
+      }
+      if (changed) {
+        // A changed response boundary is never silently retained as fulfilled,
+        // including responses with evidenceIds: [].
+        if (e.fulfillment === "fulfilled") e.fulfillment = "unassessed";
+        if (unresolved && e.certainty === "confirmed")
+          e.certainty = "uncertain";
+        if (unresolved)
+          e.note =
+            typeof e.note === "string"
+              ? `${e.note} 分割後の参照範囲は未確定`
+              : "分割後の参照範囲は未確定";
+        if (refId && directlyChanged) addRef("other", refId, directUnresolved);
+      }
+    }
+  }
 }
+
 function retireRelations(p: ProjectWithLineage, oldIds: string[]) {
   const affected = p.relations.filter(
     (r) =>
@@ -163,6 +267,7 @@ function finalize(
   record: LineageRecord,
   oldIds: string[],
   dependencyRoots: string[],
+  reasoningDestinations: Record<string, SplitReferenceDestination> = {},
 ) {
   for (const agenda of p.agendas) {
     if (agenda.summaryDependencies?.some((id) => oldIds.includes(id))) {
@@ -179,7 +284,13 @@ function finalize(
       agenda.needsReview = true;
     }
   }
-  transferReasoningReferences(p, oldIds, record.newIds);
+  transferReasoningReferences(
+    p,
+    oldIds,
+    record.newIds,
+    reasoningDestinations,
+    record,
+  );
   const invalidated = invalidateDependents(p, [
     ...oldIds,
     ...record.newIds,
@@ -198,7 +309,7 @@ function finalize(
 export function splitUtterance(
   project: Project,
   utteranceId: string,
-  offset: number | { at?: number; offset?: number; reason?: string },
+  offset: number | SplitUtteranceOptions,
   reason?: string,
 ): Project {
   const p = checked(project),
@@ -259,7 +370,14 @@ export function splitUtterance(
       before.__projectSnapshot.reasoning,
     ),
   };
-  return finalize(p, before, record, [u.id], dependencyRoots);
+  return finalize(
+    p,
+    before,
+    record,
+    [u.id],
+    dependencyRoots,
+    typeof offset === "object" ? (offset.reasoningDestinations ?? {}) : {},
+  );
 }
 
 export interface MergeUtteranceOptions {
@@ -383,7 +501,7 @@ export function resolveLineageTransfer(
   lineageId: string,
   referenceId: string,
   targetIds: string[],
-  status: Exclude<TransferStatus, "pending" | "unresolved"> = "applied",
+  status: Exclude<TransferStatus, "pending"> = "applied",
   note = "利用者が移し先を確認",
 ): Project {
   const p = checked(project);
@@ -400,6 +518,7 @@ export function resolveLineageTransfer(
   if (!ref) throw new Error("lineage reference not found");
   if (!targetIds.every((x) => lineageTargetIds(p, record.id).includes(x)))
     throw new Error("target is not a new utterance");
+  if (status === "unresolved") targetIds = lineageTargetIds(p, record.id);
   const before = snapshot(p);
   const priorTargets = [...ref.targetIds];
   const original = record.undoSnapshot?.originalRelations?.find(
@@ -435,6 +554,49 @@ export function resolveLineageTransfer(
       p.relations.push({ ...original, from, to, evidenceIds });
     }
   }
+  if (
+    (ref.kind === "evidence" || ref.kind === "other") &&
+    status !== "conflict"
+  ) {
+    const reasoning = p.reasoning as
+      (ReasoningGraph & Record<string, unknown>) | undefined;
+    const originalGraph = record.undoSnapshot?.originalReasoning as
+      ReasoningGraph | undefined;
+    const original =
+      originalGraph &&
+      (Object.values(originalGraph)
+        .flatMap((x) => (Array.isArray(x) ? x : []))
+        .find((x) => (x as { id?: unknown }).id === referenceId) as
+        Record<string, unknown> | undefined);
+    const current =
+      reasoning &&
+      (Object.values(reasoning)
+        .flatMap((x) => (Array.isArray(x) ? x : []))
+        .find((x) => (x as { id?: unknown }).id === referenceId) as
+        Record<string, unknown> | undefined);
+    if (current && original)
+      for (const field of ["utteranceIds", "sourceUtteranceIds"])
+        if (Array.isArray(original[field]) && Array.isArray(current[field]))
+          current[field] = (original[field] as unknown[]).flatMap((x) =>
+            record.oldIds.includes(String(x)) ? targetIds : [x],
+          );
+    if (current && status === "unresolved")
+      current.note =
+        typeof current.note === "string"
+          ? `${current.note} 分割境界は未確定（両片を保持）`
+          : "分割境界は未確定（両片を保持）";
+    if (current && status === "unresolved" && current.certainty === "confirmed")
+      current.certainty = "uncertain";
+    if (current?.fulfillment === "fulfilled")
+      current.fulfillment = "unassessed";
+    if (reasoning && ref.kind === "evidence")
+      for (const response of reasoning.responses)
+        if (
+          response.evidenceIds.includes(referenceId) &&
+          response.fulfillment === "fulfilled"
+        )
+          response.fulfillment = "unassessed";
+  }
   if (ref.kind === "summary" && status === "applied") {
     const agenda = p.agendas.find((a) => `summary:${a.id}` === referenceId);
     if (!agenda) throw new Error("要約が見つかりません");
@@ -448,7 +610,11 @@ export function resolveLineageTransfer(
   ref.note = note.trim();
   record.status = record.references.every((x) => x.status === "applied")
     ? "applied"
-    : "conflict";
+    : record.references.some((x) => x.status === "conflict")
+      ? "conflict"
+      : record.references.some((x) => x.status === "unresolved")
+        ? "unresolved"
+        : "pending";
   const revisionId = id("revision");
   p.revisions.push({
     id: revisionId,
