@@ -227,6 +227,15 @@ test.describe("mobile touch emulation (not iPhone real-device certification)", (
     page,
   }) => {
     await sample(page);
+    await page.getByRole("button", { name: "拡大", exact: true }).tap();
+    await expect(page.getByText("96%", { exact: true })).toBeVisible();
+    await touchPanCanvas(page);
+    const hit = await nodeHitCenter(page, "U01");
+    await page.touchscreen.tap(hit.x, hit.y);
+    await expect(
+      page.getByRole("complementary", { name: "選択した発言の詳細" }),
+    ).toContainText("選択中：議題01 → U01");
+    await page.getByRole("button", { name: "詳細を閉じる", exact: true }).tap();
     await page.getByRole("button", { name: "メニュー", exact: true }).tap();
     await page.getByRole("button", { name: "振り返り", exact: true }).tap();
     await expect(page.locator(".next-action")).toBeVisible();
@@ -329,3 +338,90 @@ test("folded branches are unavailable for limited export and dialog focus is tra
   await page.keyboard.press("Escape");
   await expect(dialog).not.toBeVisible();
 });
+
+test("pointer selection reaches nodes and agenda headers while blank space pans", async ({
+  page,
+}) => {
+  await sample(page);
+  await page.getByRole("button", { name: "全体表示", exact: true }).click();
+  const node = page.getByRole("button", {
+    name: "U08 Aさん 採用や育成の制度全体も考えたいですね。 詳細を開く",
+    exact: true,
+  });
+  await node.click();
+  await expect(
+    page.getByRole("complementary", { name: "選択した発言の詳細" }),
+  ).toContainText("U08");
+  await page.getByRole("button", { name: "詳細を閉じる", exact: true }).click();
+  await page
+    .getByRole("button", {
+      name: "議題02 次回会議の日程 議題を選択",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.locator('[data-id="agenda-議題02"] .agenda-frame'),
+  ).toHaveClass(/selected-agenda/);
+  const flow = page.locator(".flow-container");
+  const box = (await flow.boundingBox())!;
+  const viewport = page.locator(".react-flow__viewport");
+  const before = await viewport.getAttribute("style");
+  await page.mouse.move(box.x + 25, box.y + 70);
+  await page.mouse.down();
+  await page.mouse.move(box.x + 105, box.y + 95, { steps: 8 });
+  await page.mouse.up();
+  await expect(viewport).not.toHaveAttribute("style", before!);
+  await expect(
+    page.getByRole("complementary", { name: "選択した発言の詳細" }),
+  ).not.toBeVisible();
+  await page.getByRole("button", { name: "拡大", exact: true }).click();
+  const hit = await nodeHitCenter(page, "U01");
+  await page.mouse.click(hit.x, hit.y);
+  await expect(
+    page.getByRole("complementary", { name: "選択した発言の詳細" }),
+  ).toContainText("選択中：議題01 → U01");
+});
+
+async function nodeHitCenter(
+  page: import("@playwright/test").Page,
+  id: string,
+) {
+  const node = page.getByRole("button", { name: new RegExp(`^${id} `) });
+  await expect
+    .poll(() =>
+      node.evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return (
+          document
+            .elementFromPoint(r.x + r.width / 2, r.y + r.height / 2)
+            ?.closest("button") === el
+        );
+      }),
+    )
+    .toBe(true);
+  const rect = (await node.boundingBox())!;
+  return { x: rect.x + rect.width / 2, y: rect.y + rect.height / 2 };
+}
+async function touchPanCanvas(page: import("@playwright/test").Page) {
+  const box = (await page.locator(".flow-container").boundingBox())!;
+  const viewport = page.locator(".react-flow__viewport");
+  const before = await viewport.getAttribute("style");
+  const cdp = await page.context().newCDPSession(page);
+  const x = box.x + 12,
+    y = box.y + 40;
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchStart",
+    touchPoints: [{ x, y }],
+  });
+  for (let i = 1; i <= 8; i++)
+    await cdp.send("Input.dispatchTouchEvent", {
+      type: "touchMove",
+      touchPoints: [{ x: x + i * 3, y: y + i * 2 }],
+    });
+  await cdp.send("Input.dispatchTouchEvent", {
+    type: "touchEnd",
+    touchPoints: [],
+  });
+  await cdp.detach();
+  await expect(viewport).not.toHaveAttribute("style", before!);
+}

@@ -89,7 +89,7 @@ const AgendaFrame = memo(function AgendaFrame({
   return (
     <div className={`agenda-frame ${data.selected ? "selected-agenda" : ""}`}>
       <button
-        className="agenda-frame-title"
+        className="agenda-frame-title nodrag nopan"
         onClick={() => data.onSelect(data.id)}
         aria-label={`${data.id} ${data.title} 議題を選択`}
       >

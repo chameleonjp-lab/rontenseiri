@@ -893,6 +893,7 @@ a {
   box-shadow: 0 0 0 5px #21838e0c;
 }
 .speech-hit {
+  pointer-events: auto;
   display: block;
   width: 100%;
   min-height: 126px;
