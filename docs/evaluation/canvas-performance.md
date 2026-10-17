@@ -58,3 +58,14 @@ iPhone Safari／Mac／Windows、実GPU、実機資源は未完了。Linux Chromi
 独立レビューにより折り畳み中の選択でhidden edgeまで新規生成する漏れを確認し、immutableなfolded graph／selected nodeの派生キャッシュを追加した。加えてSpeechの不変dataに対応するReact要素をWeakMapで保持し、展開時に同じmarkupを再構築する負荷を抑えた。意味データ・座標・native event動作は変えない。
 
 観測protocol v2では**計時開始／終了位置、100操作、200ms、成功条件を維持**し、DOM成功確認をブラウザー内のrAFへ集約する。従来の複数RPCと100/250ms刻みのassertion backoffを避け、選択class／Inspector ID／canvas可視／3 stable framesを同じframeで確認する。開閉は期待ID集合／件数／相対配置を3回連続で確認する（従来の単発assert後のframe待機より厳しい）。これは観測分解能の変更であり、旧方式の数値と混ぜて改善率を算出しない。製品自体の改善は同一CDP手順のprofileと別に確認する。
+
+## ローカル残差への三段目の対処
+
+a48c0e2のCI p95は117.3／128.4／130.9msで全て予算内だったが、ローカルは216.0／234.3／279.8msで失敗した。CI成功だけで全環境合格とせず改善を継続した。
+
+- ReactFlowの`hidden`は枝node/Handle/edgeをunmountするため、展開時の再mountコストが残った。folded variantではDOMを保持し、nodeのCSS visibility:hidden・pointer-events:none・native inert・aria-hiddenで視覚/操作/AXから除外する。非main辺に加え、隠れた端点へ接続するmain辺もSVG group単位で隠す。MiniMapのfill/strokeを透過し、全体表示の対象も可視集合へ限定する。data/座標/寸法は保持し、Semantic Projectには新しいUI属性を保存しない。
+- `onMove`とBackground/MiniMapのReact elementsを安定化し、検索入力や倍率表示だけで親からReactFlow subtreeを再描画しないようにする。
+- protocol 2.1は100回・200ms・marker位置を維持する。選択前のsearch/議題clickは従来から準備であり、その後も3 stable frames待って閉じたInspectorのresize処理を計時へ混入させない。検索textbox roleもcanvas-search内にscopeし、無関係な全DOM走査を避ける。これら観測条件の変化を明記し、旧値との純粋な改善率は主張しない。
+- 成功確認は可視ID/件数/座標に加え、**全500 retained nodeのID/座標、隠れた枝の実CSS visibility・inert・AX非表示を3回連続で確認**する。DOM総数ではなく可視集合を確認するのは実装方式の変更に対応するもので、隠れていない枝をARIAだけで除外して測ることは許さない。
+
+追加E2Eは同一DOM・座標の再利用、隠れた枝のfocus拒否/role除外、隠すべき辺の全IDとCSS/AX、可視ID集合を検査する。DOMを保持するので折り畳みによるDOM総数削減はしないが、初期500ノードの数を増やさず各操作でも総ID/件数を固定する。heap全体や実機メモリ合格までは称しない。

@@ -37,3 +37,11 @@
   opacity: 1;
   stroke-width: 2;
 }
+
+/* Preserve mounted branch subtrees: hidden is visual, inert and AX-hidden.
+   ReactFlow `hidden` unmounts nodes/handles/edges and makes re-expansion costly. */
+.react-flow__node.view-collapsed,
+.react-flow__edge.view-collapsed {
+  visibility: hidden;
+  pointer-events: none;
+}

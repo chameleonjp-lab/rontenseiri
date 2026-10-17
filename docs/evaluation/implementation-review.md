@@ -1,3 +1,5 @@
+> この文書は段階ごとの実装・検証履歴です。各段落の数値はその段階の結果であり、現HEADの合否は[PR #3の最新検証表](https://github.com/chameleonjp-lab/rontenseiri/pull/3)と同SHAのartifactを参照してください。Draft維持、G5全体・実機・AI品質は未完了です。
+
 # 実装検証結果と公開条件
 
 ## 結論
@@ -85,3 +87,7 @@ G0–G8のdecisionは [R01–R33実装状況](requirements-status.md) に登録�
 ### 二段目の性能修正
 
 3a98e47では機能回帰は成功したが、CI開閉229.3ms、ローカル全群で200msを超過し、性能ゲートは正しく失敗した。折り畳み中のhidden edge identity漏れを独立レビューで修正し、folded graph/selected nodeとSpeech markupをcacheした。参照再利用の回帰を追加。観測protocol v2は計時位置・回数・閾値を変えず、同等以上の成功条件をframe単位で確認し、無関係500ノードのrole走査やcoarse assertion backoffを回避する。旧観測との改善率を製品コードだけへ帰属させず、同じCDP手順の切り分け証拠と分離した。
+
+### ローカル200ms超過への三段目
+
+CIだけ成功したa48c0e2でもlocal全群が未達だったため、枝DOMをunmountせずCSS/inert/AXで保持する方式と、ReactFlowのonMove/装飾要素安定化を実装した。非main辺・隠れた端点のmain辺、MiniMap、全体表示を可視状態へ揃え、意味・原文・履歴・DTOにUI属性を持ち込まない。protocol2.1の準備完了barrier/局所role走査を明示し、500全nodeのID/配置と可視/非可視CSS/inert/AXを確認してから計時終了する。直前の機能E2Eは24成功・標準offline1skip（専用offlineで別実行）。

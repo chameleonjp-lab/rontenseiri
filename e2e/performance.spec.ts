@@ -100,6 +100,10 @@ async function settleNode(page: Page, id: string, requireSelection = false) {
           !!r &&
           !!c &&
           r.width > 0 &&
+          getComputedStyle(hit).visibility !== "hidden" &&
+          !hit.closest<HTMLElement>(".react-flow__node")!.inert &&
+          hit.closest(".react-flow__node")?.getAttribute("aria-hidden") !==
+            "true" &&
           r.x >= c.x - 1 &&
           r.y >= c.y - 1 &&
           r.right <= c.right + 1 &&
@@ -132,35 +136,62 @@ async function settleNode(page: Page, id: string, requireSelection = false) {
 async function settleFold(
   page: Page,
   expected: { id: string; transform: string }[],
+  baseline: { id: string; transform: string }[],
 ) {
-  await page.evaluate(async (expected) => {
-    let stable = 0;
-    const deadline = performance.now() + 15000;
-    for (let frame = 0; frame < 900 && performance.now() < deadline; frame++) {
-      const actual = Array.from(
-        document.querySelectorAll(".speech-hit"),
-        (el) => {
-          const n = el.closest<HTMLElement>(".react-flow__node")!;
-          return { id: n.dataset.id!, transform: n.style.transform };
-        },
-      ).sort((a, b) => a.id.localeCompare(b.id));
-      const valid =
-        actual.length === expected.length &&
-        document.querySelectorAll(".speech-node").length === expected.length &&
-        actual.every(
-          (n, i) =>
-            n.id === expected[i].id && n.transform === expected[i].transform,
+  await page.evaluate(
+    async ({ expected, baseline }) => {
+      let stable = 0;
+      const deadline = performance.now() + 15000;
+      const visibleIds = new Set(expected.map((n) => n.id));
+      for (
+        let frame = 0;
+        frame < 900 && performance.now() < deadline;
+        frame++
+      ) {
+        const all = Array.from(
+          document.querySelectorAll(".speech-hit"),
+          (el) => {
+            const n = el.closest<HTMLElement>(".react-flow__node")!;
+            return {
+              id: n.dataset.id!,
+              transform: n.style.transform,
+              visibility: getComputedStyle(el).visibility,
+              inert: n.inert,
+              aria: n.getAttribute("aria-hidden"),
+            };
+          },
+        ).sort((a, b) => a.id.localeCompare(b.id));
+        const actual = all.filter((n) => n.aria !== "true");
+        const valid =
+          all.length === baseline.length &&
+          all.every(
+            (n, i) =>
+              n.id === baseline[i].id &&
+              n.transform === baseline[i].transform &&
+              (visibleIds.has(n.id)
+                ? n.visibility !== "hidden" && !n.inert && n.aria !== "true"
+                : n.visibility === "hidden" && n.inert && n.aria === "true"),
+          ) &&
+          actual.length === expected.length &&
+          document.querySelectorAll(
+            '.react-flow__node:not([aria-hidden="true"]) .speech-node',
+          ).length === expected.length &&
+          actual.every(
+            (n, i) =>
+              n.id === expected[i].id && n.transform === expected[i].transform,
+          );
+        stable = valid ? stable + 1 : 0;
+        if (stable >= 3) return;
+        await new Promise<void>((resolve) =>
+          requestAnimationFrame(() => resolve()),
         );
-      stable = valid ? stable + 1 : 0;
-      if (stable >= 3) return;
-      await new Promise<void>((resolve) =>
-        requestAnimationFrame(() => resolve()),
+      }
+      throw new Error(
+        "fold visible IDs/count/positions and retained-hidden CSS/inert/AX/positions did not settle",
       );
-    }
-    throw new Error(
-      "fold expected IDs/count/relative positions did not settle",
-    );
-  }, expected);
+    },
+    { expected, baseline },
+  );
 }
 
 async function measure(
@@ -266,12 +297,16 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
       buffer: Buffer.from(exportProject(project, "json", undefined, true)),
     });
     await expect(page.locator(".flow-container")).toBeVisible();
-    await expect(page.locator(".speech-node")).toHaveCount(500);
+    await expect(
+      page.locator('.react-flow__node:not([aria-hidden="true"]) .speech-node'),
+    ).toHaveCount(500);
     const searchButton = page.getByRole("button", {
       name: "発言を検索",
       exact: true,
     });
-    const searchBox = page.getByRole("textbox", { name: "発言を検索" });
+    const searchBox = page
+      .locator(".canvas-search")
+      .getByRole("textbox", { name: "発言を検索" });
     const agendaButton = page.locator(".sidebar-agendas > button").first();
     for (let i = 0; i < COUNT; i++) {
       const id = ids[i % ids.length];
@@ -354,7 +389,9 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
           })
           .sort((a, b) => a.id.localeCompare(b.id)),
       );
-    let previousVisible = await page.locator(".speech-node").count();
+    let previousVisible = await page
+      .locator('.react-flow__node:not([aria-hidden="true"]) .speech-node')
+      .count();
     for (let i = 0; i < COUNT; i++) {
       const before = previousVisible;
       activeStep = {
@@ -383,10 +420,12 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
           await foldButton.click();
         },
         async () => {
-          await settleFold(page, expectedPositions);
+          await settleFold(page, expectedPositions, baselinePositions);
         },
       );
-      previousVisible = await page.locator(".speech-node").count();
+      previousVisible = await page
+        .locator('.react-flow__node:not([aria-hidden="true"]) .speech-node')
+        .count();
       values.fold.push(duration);
       log("fold", i, duration, {
         beforeVisibleNodes: before,

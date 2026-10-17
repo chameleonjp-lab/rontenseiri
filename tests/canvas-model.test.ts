@@ -34,7 +34,12 @@ describe("canvas geometry and UI state separation", () => {
       const branch =
         node.data.classification === "derived" ||
         node.data.classification === "drift";
-      expect(rendered.hidden).toBe(branch);
+      expect(rendered.className === "view-collapsed").toBe(branch);
+      expect(rendered.hidden).toBe(false);
+      if (branch) {
+        expect(rendered.domAttributes?.["aria-hidden"]).toBe(true);
+        expect(rendered.domAttributes?.inert).toBe(true);
+      }
       expect(rendered.data).toBe(node.data);
       expect(rendered.position).toBe(node.position);
       if (!branch) expect(rendered).toBe(node);
@@ -42,8 +47,22 @@ describe("canvas geometry and UI state separation", () => {
     }
     for (const edge of base.edges) {
       const rendered = folded.edges.find((e) => e.id === edge.id)!;
-      expect(rendered.hidden).toBe(edge.data?.kind !== "main");
-      if (edge.data?.kind === "main") expect(rendered).toBe(edge);
+      const hiddenIds = new Set(
+        base.nodes
+          .filter(
+            (n) =>
+              n.type === "speech" &&
+              (n.data.classification === "derived" ||
+                n.data.classification === "drift"),
+          )
+          .map((n) => n.id),
+      );
+      const hidden =
+        edge.data?.kind !== "main" ||
+        hiddenIds.has(edge.source) ||
+        hiddenIds.has(edge.target);
+      expect(rendered.className === "view-collapsed").toBe(hidden);
+      if (!hidden) expect(rendered).toBe(edge);
     }
     const expanded = projectCanvasState(base, null, p.selectedAgendaId, false);
     expect(expanded.edges).toBe(base.edges);

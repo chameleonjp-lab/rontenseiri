@@ -42,3 +42,16 @@ node scripts/profile-canvas.mjs candidate
 後続の100操作測定はprotocol v2のframe単位確認を明記する。marker位置・閾値・回数は維持し、成功条件は同等以上。旧方式との数値比較を、全て製品コードだけの改善だと扱わない。
 
 [二段目raw JSON](profiles/candidate-variant-cache.json)も同じ8操作×3のCDP手順で記録した。test-driverのrole探索等もCPUに含まれるため、profile wall値をp95として扱わない。最終観測ではfold buttonのrole探索を同じcanvas-tools内にscopeし、無関係な500ノードのaccessible name走査を避ける。計時開始位置・実クリック・成功条件は維持する。
+
+## ローカル残差への三段目の対処
+
+a48c0e2のCI p95は117.3／128.4／130.9msで全て予算内だったが、ローカルは216.0／234.3／279.8msで失敗した。CI成功だけで全環境合格とせず改善を継続した。
+
+- ReactFlowの`hidden`は枝node/Handle/edgeをunmountするため、展開時の再mountコストが残った。folded variantではDOMを保持し、nodeのCSS visibility:hidden・pointer-events:none・native inert・aria-hiddenで視覚/操作/AXから除外する。非main辺に加え、隠れた端点へ接続するmain辺もSVG group単位で隠す。MiniMapのfill/strokeを透過し、全体表示の対象も可視集合へ限定する。data/座標/寸法は保持し、Semantic Projectには新しいUI属性を保存しない。
+- `onMove`とBackground/MiniMapのReact elementsを安定化し、検索入力や倍率表示だけで親からReactFlow subtreeを再描画しないようにする。
+- protocol 2.1は100回・200ms・marker位置を維持する。選択前のsearch/議題clickは従来から準備であり、その後も3 stable frames待って閉じたInspectorのresize処理を計時へ混入させない。検索textbox roleもcanvas-search内にscopeし、無関係な全DOM走査を避ける。これら観測条件の変化を明記し、旧値との純粋な改善率は主張しない。
+- 成功確認は可視ID/件数/座標に加え、**全500 retained nodeのID/座標、隠れた枝の実CSS visibility・inert・AX非表示を3回連続で確認**する。DOM総数ではなく可視集合を確認するのは実装方式の変更に対応するもので、隠れていない枝をARIAだけで除外して測ることは許さない。
+
+追加E2Eは同一DOM・座標の再利用、隠れた枝のfocus拒否/role除外、隠すべき辺の全IDとCSS/AX、可視ID集合を検査する。DOMを保持するので折り畳みによるDOM総数削減はしないが、初期500ノードの数を増やさず各操作でも総ID/件数を固定する。heap全体や実機メモリ合格までは称しない。
+
+三段目の専用CDP比較は未実施。前段のCPU表を三段目sourceの値へ読み替えない。三段目の100操作は公開HEAD自身のartifactへ記録する。追加キーボード回帰ではTab/Shift+Tabを各24回、折り畳み中のパン・ズーム、選択した枝への自動展開・復帰も検証する。

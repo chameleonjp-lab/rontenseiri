@@ -1,5 +1,6 @@
 import {
   buildCanvasGraph,
+  isCanvasHidden,
   projectCanvasState,
   type SpeechData,
   type AgendaData,
@@ -15,6 +16,7 @@ import {
   Position,
   type Node,
   type NodeProps,
+  type OnMove,
 } from "@xyflow/react";
 import {
   Minus,
@@ -102,13 +104,17 @@ const AgendaFrame = memo(function AgendaFrame({
 const nodeTypes = { speech: Speech, agenda: AgendaFrame };
 
 const miniMapNodeColor = (n: Node) =>
-  n.type === "agenda"
-    ? "#75b9b5"
-    : n.data?.classification === "derived"
-      ? "#8874d0"
-      : n.data?.classification === "drift"
-        ? "#d29b2e"
-        : "#16888d";
+  isCanvasHidden(n)
+    ? "transparent"
+    : n.type === "agenda"
+      ? "#75b9b5"
+      : n.data?.classification === "derived"
+        ? "#8874d0"
+        : n.data?.classification === "drift"
+          ? "#d29b2e"
+          : "#16888d";
+const miniMapNodeStrokeColor = (n: Node) =>
+  isCanvasHidden(n) ? "transparent" : "#ffffff";
 const proOptions = { hideAttribution: true };
 
 interface Props {
@@ -128,6 +134,26 @@ function CanvasContent({
   const flow = useReactFlow();
   const [collapsed, setCollapsed] = useState(false);
   const [zoom, setZoom] = useState(0.8);
+  const onMove = useCallback<OnMove>(
+    (_, viewport) => setZoom(viewport.zoom),
+    [],
+  );
+  const decorations = useMemo(
+    () => (
+      <>
+        <Background gap={24} color="#d1e0e4" />
+        <MiniMap
+          pannable
+          zoomable
+          nodeColor={miniMapNodeColor}
+          nodeStrokeColor={miniMapNodeStrokeColor}
+          maskColor="rgba(235,241,244,0.7)"
+          ariaLabel="全体のミニマップ。ドラッグで表示位置を移動"
+        />
+      </>
+    ),
+    [],
+  );
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchMessage, setSearchMessage] = useState("");
@@ -274,6 +300,7 @@ function CanvasContent({
             aria-label="全体表示"
             onClick={() =>
               void flow.fitView({
+                nodes: flow.getNodes().filter((n) => !isCanvasHidden(n)),
                 padding: 0.1,
                 duration: 300,
                 minZoom: 0.001,
@@ -382,19 +409,11 @@ function CanvasContent({
           minZoom={0.001}
           maxZoom={2}
           defaultViewport={{ x: 25, y: 10, zoom: 0.8 }}
-          onMove={(_, v) => setZoom(v.zoom)}
+          onMove={onMove}
           proOptions={proOptions}
           aria-label="議題の発言関係図"
         >
-          <Background gap={24} color="#d1e0e4" />
-          <MiniMap
-            pannable
-            zoomable
-            nodeColor={miniMapNodeColor}
-            nodeStrokeColor="#ffffff"
-            maskColor="rgba(235,241,244,0.7)"
-            ariaLabel="全体のミニマップ。ドラッグで表示位置を移動"
-          />
+          {decorations}
         </ReactFlow>
         <div className="canvas-hand-hint">
           <Hand size={20} />

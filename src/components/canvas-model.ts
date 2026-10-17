@@ -139,21 +139,59 @@ export function buildCanvasGraph(
   }
   return { nodes, edges };
 }
+export function isCanvasHidden(item: { className?: string }): boolean {
+  return item.className?.split(/\s+/).includes("view-collapsed") ?? false;
+}
 const foldedGraphs = new WeakMap<CanvasGraph, CanvasGraph>();
 const selectedNodes = new WeakMap<Node, Node>();
 function foldedGraph(base: CanvasGraph): CanvasGraph {
   let cached = foldedGraphs.get(base);
   if (!cached) {
+    const hiddenIds = new Set(
+      base.nodes
+        .filter(
+          (n) =>
+            n.type === "speech" &&
+            (n.data.classification === "derived" ||
+              n.data.classification === "drift"),
+        )
+        .map((n) => n.id),
+    );
     cached = {
       nodes: base.nodes.map((node) =>
         node.type === "speech" &&
         (node.data.classification === "derived" ||
           node.data.classification === "drift")
-          ? { ...node, hidden: true }
+          ? {
+              ...node,
+              className: [node.className, "view-collapsed"]
+                .filter(Boolean)
+                .join(" "),
+              style: {
+                ...node.style,
+                visibility: "hidden",
+                pointerEvents: "none",
+              },
+              domAttributes: {
+                ...node.domAttributes,
+                "aria-hidden": true,
+                inert: true,
+              },
+            }
           : node,
       ),
       edges: base.edges.map((edge) =>
-        edge.data?.kind !== "main" ? { ...edge, hidden: true } : edge,
+        edge.data?.kind !== "main" ||
+        hiddenIds.has(edge.source) ||
+        hiddenIds.has(edge.target)
+          ? {
+              ...edge,
+              className: [edge.className, "view-collapsed"]
+                .filter(Boolean)
+                .join(" "),
+              domAttributes: { ...edge.domAttributes, "aria-hidden": true },
+            }
+          : edge,
       ),
     };
     foldedGraphs.set(base, cached);
