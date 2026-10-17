@@ -1,3 +1,5 @@
+import { recordMetric } from "../diagnostics/metrics";
+import { buildSourceCoverage } from "../domain/coverage";
 import type {
   InputItem,
   ParseResult,
@@ -124,6 +126,7 @@ function cues(text: string, format: string): Cue[] {
   return out;
 }
 export async function parseInputs(items: InputItem[]): Promise<ParseResult> {
+  const started = performance.now();
   if (!Array.isArray(items) || !items.length) throw Error("入力がありません");
   if (items.length > LIMITS.maxFiles)
     throw Error(`入力は${LIMITS.maxFiles}ファイルまでです`);
@@ -200,6 +203,15 @@ export async function parseInputs(items: InputItem[]): Promise<ParseResult> {
         `${item.name}: Markdownは実行せずプレーンテキストとして扱いました`,
       );
   }
+  for (const source of sources) {
+    source.coverage = buildSourceCoverage(source, utterances);
+    const pending = source.coverage.filter((s) => s.kind === "unclassified");
+    if (pending.length)
+      warnings.push(
+        `${source.name}: 発言化前の未対応範囲が${pending.length}件あります。原文対応で確認してください`,
+      );
+  }
+  recordMetric("input", performance.now() - started);
   return { sources, utterances, warnings };
 }
 export async function readInputFile(

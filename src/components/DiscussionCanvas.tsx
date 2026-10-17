@@ -1,3 +1,4 @@
+import { relationLabel } from "../domain/relation-label";
 import { memo, useMemo, useState, useCallback, useEffect } from "react";
 import {
   ReactFlow,
@@ -30,6 +31,7 @@ import type { Project, Classification } from "../domain/types";
 import { labels } from "../domain/types";
 import { layoutProject } from "../domain/layout";
 import "@xyflow/react/dist/style.css";
+import "./canvas-compact.css";
 
 type SpeechData = {
   utteranceId: string;
@@ -229,17 +231,11 @@ function CanvasContent({
         target: relation.to,
         type: "default",
         animated: false,
-        label:
-          positions.get(relation.from)?.agendaId !==
-          positions.get(relation.to)?.agendaId
-            ? "議題の切替"
-            : relation.kind === "return"
-              ? "本筋へ復帰"
-              : relation.kind === "derived"
-                ? "派生"
-                : relation.kind === "drift"
-                  ? "ずれ候補"
-                  : "",
+        label: relationLabel(
+          relation,
+          positions.get(relation.from)?.agendaId,
+          positions.get(relation.to)?.agendaId,
+        ),
         markerEnd: {
           type: MarkerType.ArrowClosed,
           color,
@@ -275,6 +271,41 @@ function CanvasContent({
     },
     [flow, selectedId, project.selectedAgendaId],
   );
+  useEffect(() => {
+    const focusNode = (event: Event) => {
+      const id = (event as CustomEvent<string>).detail;
+      if (
+        typeof id !== "string" ||
+        !project.utterances.some((u) => u.id === id)
+      )
+        return;
+      setCollapsed(false);
+      requestAnimationFrame(() => {
+        const target = flow.getNode(id);
+        if (!target) return;
+        void flow
+          .fitView({
+            nodes: [target],
+            includeHiddenNodes: true,
+            padding: 0.5,
+            maxZoom: 1.1,
+            duration: 0,
+          })
+          .then(() =>
+            requestAnimationFrame(() =>
+              document
+                .querySelector<HTMLElement>(
+                  `[data-id="${CSS.escape(id)}"] .speech-hit`,
+                )
+                ?.focus({ preventScroll: true }),
+            ),
+          );
+      });
+    };
+    window.addEventListener("rontenseiri:focus-node", focusNode);
+    return () =>
+      window.removeEventListener("rontenseiri:focus-node", focusNode);
+  }, [flow, project.id, project.utterances]);
   function search() {
     const found = project.utterances.find((u) =>
       `${u.id} ${u.speaker} ${u.quote}`
@@ -320,7 +351,14 @@ function CanvasContent({
           </div>
           <button
             aria-label="全体表示"
-            onClick={() => void flow.fitView({ padding: 0.1, duration: 300 })}
+            onClick={() =>
+              void flow.fitView({
+                padding: 0.1,
+                duration: 300,
+                minZoom: 0.001,
+                maxZoom: 1.1,
+              })
+            }
           >
             <Maximize size={15} />
             <span>全体表示</span>
@@ -420,7 +458,7 @@ function CanvasContent({
           zoomOnScroll
           paneClickDistance={8}
           nodeClickDistance={8}
-          minZoom={0.12}
+          minZoom={0.001}
           maxZoom={2}
           defaultViewport={{ x: 25, y: 10, zoom: 0.8 }}
           onMove={(_, v) => setZoom(v.zoom)}
@@ -431,7 +469,16 @@ function CanvasContent({
           <MiniMap
             pannable
             zoomable
-            nodeColor={(n) => (n.type === "agenda" ? "#dceeee" : "#77afb5")}
+            nodeColor={(n) =>
+              n.type === "agenda"
+                ? "#75b9b5"
+                : n.data?.classification === "derived"
+                  ? "#8874d0"
+                  : n.data?.classification === "drift"
+                    ? "#d29b2e"
+                    : "#16888d"
+            }
+            nodeStrokeColor="#ffffff"
             maskColor="rgba(235,241,244,0.7)"
             ariaLabel="全体のミニマップ。ドラッグで表示位置を移動"
           />

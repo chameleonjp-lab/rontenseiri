@@ -17,7 +17,11 @@ test("home, fixed agenda fixture and no unsolicited external request", async ({
   page.on("pageerror", (e) => failures.push(e.message));
   page.on("request", (r) => {
     if (
-      !r.url().startsWith("http://127.0.0.1:4173") &&
+      !r
+        .url()
+        .startsWith(
+          new URL(test.info().project.use.baseURL as string).origin,
+        ) &&
       !r.url().startsWith("data:")
     )
       external.push(r.url());

@@ -1,8 +1,12 @@
+import type { CoverageSpan } from "./coverage";
+import type { ReasoningGraph } from "./reasoning-types";
+import type { LineageLedger } from "./lineage-types";
 export type SourceRole = "conversation" | "reference" | "later-explanation";
 export type Extent = "full" | "excerpt" | "unknown";
 export type Classification = "main" | "derived" | "drift" | "unknown";
 export type Decision = "undecided" | "conditional" | "decided";
 export interface Source {
+  coverage?: CoverageSpan[];
   id: string;
   versionId: string;
   name: string;
@@ -31,6 +35,7 @@ export interface Utterance {
   returnStatus?: "unknown" | "none";
 }
 export interface Agenda {
+  summaryDependencies?: string[];
   id: string;
   title: string;
   utteranceIds: string[];
@@ -45,6 +50,8 @@ export interface Agenda {
   needsReview: boolean;
 }
 export interface Relation {
+  /** Explicit semantic dependency; absent/false means a navigation/chronology link only. */
+  dependency?: boolean;
   id: string;
   from: string;
   to: string;
@@ -69,7 +76,10 @@ export interface AnalysisRun {
   note: string;
 }
 export interface Project {
+  storageRevision?: number;
   schemaVersion: 1;
+  reasoning?: ReasoningGraph;
+  lineage?: LineageLedger;
   id: string;
   title: string;
   createdAt: string;

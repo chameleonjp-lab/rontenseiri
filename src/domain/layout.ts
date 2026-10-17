@@ -16,6 +16,10 @@ export interface LayoutBlock {
   utteranceIds: string[];
 }
 const X_STEP = 260;
+const MAIN_Y = 64;
+const ROW_STEP = 92;
+const CARD_HEIGHT = 96;
+const BLOCK_PADDING = 24;
 function order(value: number): number {
   return Number.isFinite(value) ? Math.max(0, Math.min(3_000_000, value)) : 0;
 }
@@ -64,14 +68,16 @@ export function layoutProject(project: Project): {
     id: u.id,
     agendaId: membership.get(u.id)!,
     x: 35 + order(u.order) * X_STEP,
+    // The main/unknown band stays compact. Only a real branch relation adds
+    // another row; classification alone must not manufacture vertical space.
     y:
-      u.classification === "main"
-        ? 145 + jitter(u.id)
-        : u.classification === "derived"
-          ? 315
-          : u.classification === "drift"
-            ? 485 + (depth(u.id) - 1) * 85
-            : 655,
+      MAIN_Y +
+      (u.classification === "derived"
+        ? ROW_STEP
+        : u.classification === "drift"
+          ? depth(u.id) * ROW_STEP
+          : 0) +
+      (u.classification === "main" ? jitter(u.id) : 0),
   });
   const nodes = speeches.map(point);
   const nodeMap = new Map(nodes.map((n) => [n.id, n]));
@@ -96,7 +102,10 @@ export function layoutProject(project: Project): {
       x: first - 25,
       y: 30,
       width: Math.max(255, last - first + 255),
-      height: Math.max(300, ...points.map((p) => p.y + 180)),
+      height: Math.max(
+        MAIN_Y + CARD_HEIGHT + BLOCK_PADDING,
+        ...points.map((p) => p.y + CARD_HEIGHT + BLOCK_PADDING),
+      ),
       utteranceIds: utterances.map((u) => u.id),
     };
   });

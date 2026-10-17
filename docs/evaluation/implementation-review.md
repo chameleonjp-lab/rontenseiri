@@ -2,50 +2,56 @@
 
 ## 結論
 
-議題キャンバス・原文訂正・振り返り・端末内保存・明示選択した発言の出力まで、操作できる設計検証版を実装した。**計画書全体の完成、P0合格、AI品質合格、正式公開の承認を意味しない。**
+議題キャンバス・原文訂正・振り返り・端末内保存・明示選択した発言の出力に加え、原文span coverage可視化、現行／履歴容量の分離、reasoning基盤、lineageと関係移送、共通snapshot Undo、fixed point依存無効化、許可DTO export、解析session checkpoint、Web Locks所有権、保存namespace、ReadinessPanel、明示的な静的オフライン準備を実装した**設計検証版**である。**計画書全体の完成、検証完了、P0合格、AI品質合格、正式公開の承認を意味しない。**
 
-この環境のChromiumではWebGPU APIは存在するが、`navigator.gpu.requestAdapter()` は実行デバイスを返さなかった。日本語AIの実推論は未実施。モデル取得条件も未確定のため、UIのAI開始は無効のままとした。外部AIへのフォールバックや、サンプルを実解析に見せる処理はない。
+AIはdisabled（開始不可）である。この環境のChromiumではWebGPU APIは存在したが、`requestAdapter()`は実行デバイスを返さなかった。日本語AIの実推論、モデル取得量、GPUメモリ、実Mac/Windows/iPhoneは未確認で、外部AIフォールバックやサンプルの実解析表示はない。
 
-## 確認した操作
+## 実装上の確認範囲
 
-- 時間は左から右。本筋は上段、派生・ずれは下段。ずれの連続は下へ深くなる。
-- 起点議題を単位にまとめ、A→B→Aは同じAのIDを引き継いだ別区間として描く。無関係なBをまたぐ大きな枠は作らない。
-- 空白ドラッグ、拡大縮小、折り畳みと隠れ件数、全体表示、検索、選択ノードへ戻る操作。
-- 図・原文・振り返りの共通ID、画面を切り替えた後の表示位置・選択の保持。
-- 分類だけの訂正で、原文・発言順・所属先・他の発言を変えないこと。
-- 所属先だけの変更、議題分割／結合、変更理由とUndo。本文の分割とは別の操作であること。
-- 原文訂正は旧版を残し、後の発言の原文位置を更新。影響するまとめを要再確認にすること。
-- 復帰先の「なし」と「未確定」を分け、未確定では推測の線を引かないこと。
-- 保存前は一時作業、明示保存後はブラウザ保存、再読み込みからの復元。
-- 限定出力は発言の明示選択が必須。選んだ本文の含有と、未選択・折り畳み・他議題・履歴・全体まとめの除外を両方向から試験。
+- 全原文spanをcoverageとして追跡し、未確定を可視化。未確定を確定済みと表示しない。
+- `capacity.ts`で現行入力、履歴本文、revision、project、full backupを別計数。
+- `reasoning.ts`／`reasoning-types.ts`で問い版、応答種別、充足、複数根拠、条件・例外、排他的解釈候補、立場APIを分離。一部フォームをReasoningPanelへ統合したが、UI全体・品質は未完了。
+- 分割／統合のlineageと明示した関係移送、共通snapshot Undo、混合依存のfixed point再計算を実装。
+- 限定出力は許可DTOと発言allowlistに限定。
+- `analysis/session.ts`は停止・再開・checkpoint・source hash照合を持つ。ただし現Worker/UI経路への完全統合は未了。
+- `analysis/ownership.ts`はWeb Locksを必須とし、非対応／取得不能時にfail-closed。保存namespaceも導入。
+- ReadinessPanelは容量・工程・明示オフライン準備を表示。production Service Workerは静的アセットだけをcontent hashとscope確認後にprecacheし、本文・DB・モデルをcacheしない。
 
-## 実行した検証
+## 検証した固有数
 
-| 検証 | 結果 | 証拠 |
-|---|---|---|
-| 単体・回帰・受入契約 | 35件通過 | `tests/*.test.ts` |
-| ブラウザE2E | 9件通過 | `e2e/app.spec.ts`、ローカル `artifacts/e2e-results.json` |
-| 厳格TypeScript・本番ビルド | 通過 | `npm run build` |
-| npm依存監査 | 脆弱性0件 | `npm audit`、ローカル `artifacts/npm-audit.json` |
-| 無関係なHostによる開発サーバー参照 | HTTP 403で拒否 | ローカルHostと指定プレビューHostは200 |
-| WebGPU実行デバイス | 取得不可 | Chromiumの `requestAdapter()` がnull |
-
-ブラウザ試験はLinux上のChromiumで実行した。スマホ幅390×844のタッチエミュレーションは含むが、iPhone Safari実機の証明ではない。E2Eは起動・サンプル・折り畳み・キーボードのスコープ・訂正・保存・限定出力・スマホ振り返り・A→B→A・Undo・ダイアログ内のフォーカス循環を扱う。
-
-通信0件のE2Eは**AIを使わない起動・サンプル操作に限定した確認**であり、モデル取得時の全通信を検証したものではない。オフライン再起動や支援技術も合格扱いにしない。
-
-PDF／DOCXの依存は除去し、安全な抽出を評価するまで入力を拒否する。SVGはスクリプト・外部資源・foreignObjectを含めず、本文をエスケープし、全議題を含むviewBoxで出力する。人物ラベルの仮名化は原文の匿名化ではない。
+| 検証                  |                            結果 | 証拠・限界                                                                            |
+| --------------------- | ------------------------------: | ------------------------------------------------------------------------------------- |
+| 単体・回帰合計        | 100件通過（文書実験10件を含む） | ローカル差分。公開版の正本は同一SHAのCI artifact                                      |
+| 文書実験テスト        |                        10件通過 | `documents.test.ts`等。通常UI対応を意味しない                                         |
+| ブラウザE2E           |           同一SHAのCI結果を参照 | Linux Chromium。iPhone Safari実機ではない                                             |
+| 500node表示・パン     |                ローカル確認済み | 50,000文字。選択・検索・折り畳み各100回のp95とは別                                    |
+| production offline    |                         1件通過 | 静的shellの明示準備。完全なオフライン再起動保証ではない                               |
+| 架空日本語評価        |      21ケース、実予測0、not-run | `artifacts/evaluation-empty.*`。品質合格値なし                                        |
+| ソフトウェアbenchmark |         50,000字・500node・20回 | `artifacts/software-benchmark.json`。Node/Linuxのみの入出力p95、G4/G5品質合格ではない |
 
 ## 合格扱いにしないこと
 
-1. **AIの成立性と意味の品質。** 日本語の問い・回答・関係・立場変化・捏造・不確かな解釈・公平性・prompt injectionの固定評価は未実施。問いと回答の精密な多対多モデル、解釈候補の伝播、差分再解析も未実装。
-2. **実機と性能。** Mac／Windows／iPhone、合法最大入力、初回取得量、追加メモリ、10,000文字解析、500ノード操作のp95、長時間・複数タブ・停止再開は未測定。500ノードのレイアウト単体試験は描画性能を保証しない。
-3. **保存と配布。** IndexedDBはブラウザ・オリジン単位。暗号化、公開オリジンの隔離、オフライン再起動、権利者確認、正式ライセンス・モデル配布条件、利用者比較G8は未完了。
+1. **AIと意味品質:** 日本語の問い・応答・複数根拠・条件・立場変化・排他的解釈・捏造・公平性・prompt injectionの実モデル評価は未実施。型/APIやnot-runハーネスを品質合格としない。
+2. **実機と資源:** Mac／Windows／iPhone、GPUメモリ、モデル取得、合法最大入力、取消・停止再開の実Worker/UI、500node操作p95、最大履歴は未測定。
+3. **入力境界:** PDF／DOCXは通常UI未結線。PDFブラウザはfail closed。`src/input/documents.ts`／`docx.ts`は実験API、docx streamingは同期処理で正式採用前のWorker隔離が必要。同じDraft PR内の未結線実験として隔離で通常入力対応を宣言しない。
+4. **保存・配布:** namespaceはあるが公開オリジンの完全隔離、暗号化、権利者・LICENSE・モデル配布条件、公開承認は未確認。offlineは静的アセット限定。
+5. **利用者評価:** G8被験者比較は未実施。
 
-G0–G8の判定は [R01–R33実装状況](requirements-status.md) に登録する。未測定を合格とせず、このPRは設計検証版として扱う。
+G0–G8のdecisionは [R01–R33実装状況](requirements-status.md) に登録する。**いずれも総合合格へ変更していない。**
 
-## ポインター選択の追加回帰
+## 主要な未実装・未統合
 
-実画面の最終確認で、キーボードでは開けるがマウス入力はReact Flowのpaneに遮られる不具合を検出した。クリック失敗を再現する試験を追加してから、発言ボタンを `pointer-events: auto` にし、議題タイトルをパン対象から除外した。
+- AI開始の有効化、モデル取得・日本語品質・GPUメモリの実証。
+- reasoningの全画面UI、質問／応答／立場の精密な多対多品質、再解析・解釈候補の完全伝播。
+- checkpointとWeb Locksの現Worker/UI完全統合、実機複数タブの停止再開。
+- 各100回の操作p95測定・比較、最大履歴・実機p95、G8被験者試験。
+- PDF/DOCX通常入力、OCR等。docx streamingのWorker隔離。
+- LICENSE／権利者／配布承認、公開オリジン隔離。
 
-マウスとタッチの両方でズーム・パン後に発言の表示中心を取得し、`elementFromPoint` がその発言ボタンと一致することを検証。その座標へ実クリック／タップを送り、詳細の `選択中：議題01 → U01` と一致するところまで確認する。タッチのパンはブラウザのネイティブtouchイベントで検証し、アプリの内部状態を直接書き換えていない。
+同じDraft PR #3に基盤と未結線の文書実験をまとめる。`test:offline`、`benchmark`、`evaluate`はpackage scriptsとCIに登録済み。未達ゲートを総合合格へ変更しない。
+
+## 公開HEADと証拠の対応
+
+ローカル検証と公開HEADは区別する。GitHub CIはPR headをcheckoutし、`artifacts/verified-sha.txt`へ実際の`git rev-parse HEAD`を記録。ブラウザJSON、性能JSON、オフライン復元画像、Node入出力ベンチマークを同じrunのartifactに保存する。チェック通過と計測条件を添えず「完成」と呼ばない。
+
+追加した失敗再現は `public-review-fixtures.test.ts` と `review-blockers.test.ts`、永続化・復帰・保存競合の実ブラウザ経路は `e2e/` にある。各100操作のp95≤200ms判定は `canvas-performance.json` を正本とし、G5全体（実機を含む）は引き続き未合格。

@@ -1,4 +1,6 @@
 import { defineConfig } from "@playwright/test";
+const port = process.env.PLAYWRIGHT_PORT || "4173";
+const baseURL = `http://127.0.0.1:${port}`;
 export default defineConfig({
   testDir: "./e2e",
   timeout: 30_000,
@@ -6,7 +8,7 @@ export default defineConfig({
   workers: 1,
   reporter: [["list"], ["json", { outputFile: "artifacts/e2e-results.json" }]],
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL,
     viewport: { width: 1440, height: 980 },
     headless: true,
     trace: "retain-on-failure",
@@ -18,8 +20,8 @@ export default defineConfig({
     },
   },
   webServer: {
-    command: "npm run dev -- --port 4173",
-    url: "http://127.0.0.1:4173",
+    command: `npm run dev -- --port ${port} --strictPort`,
+    url: baseURL,
     reuseExistingServer: !process.env.CI,
   },
 });

@@ -1,9 +1,11 @@
+import { projectCoverageComplete } from "../domain/coverage";
+import { recordMetric } from "../diagnostics/metrics";
 import type { Agenda, Project, Source, Utterance } from "../domain/types";
 import { validateProject } from "../domain/project";
 import { projectSvg } from "./svg";
+import { fullBackupEnvelope, MAX_BACKUP_BYTES } from "../domain/capacity";
 
-const MAX = 50 * 1024 * 1024;
-const clone = <T>(x: T): T => structuredClone(x);
+const MAX = MAX_BACKUP_BYTES;
 const bytes = (s: string) => new TextEncoder().encode(s).byteLength;
 function pseudonymMap(utterances: Utterance[]): Map<string, string> {
   const m = new Map<string, string>();
@@ -11,14 +13,124 @@ function pseudonymMap(utterances: Utterance[]): Map<string, string> {
     if (!m.has(u.speaker)) m.set(u.speaker, `話者${m.size + 1}`);
   return m;
 }
+function sourceDto(source: Source, includeCoverage = false): Source {
+  const result: Source = {
+    id: source.id,
+    versionId: source.versionId,
+    name: source.name,
+    text: source.text,
+    role: source.role,
+    format: source.format,
+    createdAt: source.createdAt,
+    warnings: [...source.warnings],
+    hash: source.hash,
+  };
+  if (includeCoverage && source.coverage !== undefined)
+    result.coverage = structuredClone(source.coverage);
+  return result;
+}
+function utteranceDto(u: Utterance): Utterance {
+  const result: Utterance = {
+    id: u.id,
+    sourceId: u.sourceId,
+    sourceVersionId: u.sourceVersionId,
+    start: u.start,
+    end: u.end,
+    quote: u.quote,
+    speaker: u.speaker,
+    order: u.order,
+    line: u.line,
+    classification: u.classification,
+    coverage: u.coverage,
+    important: u.important,
+  };
+  if (u.time !== undefined) result.time = u.time;
+  if (u.returnStatus !== undefined) result.returnStatus = u.returnStatus;
+  return result;
+}
+function agendaDto(a: Agenda): Agenda {
+  return {
+    id: a.id,
+    title: a.title,
+    utteranceIds: [...a.utteranceIds],
+    boundary: a.boundary,
+    decision: a.decision,
+    answer: a.answer,
+    agreement: a.agreement,
+    verification: a.verification,
+    arrival: a.arrival,
+    unresolved: [...a.unresolved],
+    nextAction: a.nextAction,
+    needsReview: a.needsReview,
+    ...(a.summaryDependencies === undefined
+      ? {}
+      : { summaryDependencies: [...a.summaryDependencies] }),
+  };
+}
+function relationDto(
+  r: Project["relations"][number],
+): Project["relations"][number] {
+  return {
+    id: r.id,
+    from: r.from,
+    to: r.to,
+    kind: r.kind,
+    ...(r.dependency !== undefined ? { dependency: r.dependency } : {}),
+    evidenceIds: [...r.evidenceIds],
+  };
+}
+function projectDto(p: Project, includeAdvanced = false): Project {
+  const result: Project = {
+    schemaVersion: p.schemaVersion,
+    id: p.id,
+    title: p.title,
+    createdAt: p.createdAt,
+    updatedAt: p.updatedAt,
+    extent: p.extent,
+    sources: p.sources.map((source) => sourceDto(source)),
+    utterances: p.utterances.map(utteranceDto),
+    agendas: p.agendas.map(agendaDto),
+    relations: p.relations.map(relationDto),
+    revisions: p.revisions.map((r) => ({
+      id: r.id,
+      at: r.at,
+      targetId: r.targetId,
+      kind: r.kind,
+      before: structuredClone(r.before),
+      after: structuredClone(r.after),
+      reason: r.reason,
+    })),
+    runs: p.runs.map((r) => ({
+      id: r.id,
+      at: r.at,
+      engine: r.engine,
+      model: r.model,
+      status: r.status,
+      note: r.note,
+    })),
+    selectedAgendaId: p.selectedAgendaId,
+    saved: p.saved,
+  };
+  if (p.storageRevision !== undefined)
+    result.storageRevision = p.storageRevision;
+  if (includeAdvanced) {
+    if (p.reasoning !== undefined)
+      result.reasoning = structuredClone(p.reasoning);
+    if (p.lineage !== undefined) result.lineage = structuredClone(p.lineage);
+    result.sources = p.sources.map((source) => sourceDto(source, true));
+  }
+  return result;
+}
 function limitedProject(
   p: Project,
   agenda: Agenda,
   selectedIds: string[],
 ): Project {
-  const selected = selectedIds.map((id) =>
-    p.utterances.find((u) => u.id === id)!,
-  );
+  const selected = selectedIds.map((id) => {
+    const u = p.utterances.find((x) => x.id === id);
+    if (!u) throw new Error("selected utterance not found");
+    return u;
+  });
   const groups = new Map<string, Utterance[]>();
   for (const u of selected)
     groups.set(u.sourceVersionId, [
@@ -36,29 +148,52 @@ function limitedProject(
     const limitedVersion = `${sourceId}-v1`;
     let offset = 0;
     for (const sourceUtterance of group) {
-      const u = clone(sourceUtterance);
       if (offset) offset++;
-      u.start = offset;
-      u.end = offset + u.quote.length;
-      u.sourceId = sourceId;
-      u.sourceVersionId = limitedVersion;
-      utterances.push(u);
-      offset = u.end;
+      const quote = sourceUtterance.quote;
+      utterances.push(
+        utteranceDto({
+          id: sourceUtterance.id,
+          sourceId,
+          sourceVersionId: limitedVersion,
+          start: offset,
+          end: offset + quote.length,
+          quote,
+          speaker: sourceUtterance.speaker,
+          order: sourceUtterance.order,
+          line: sourceUtterance.line,
+          ...(sourceUtterance.time === undefined
+            ? {}
+            : { time: sourceUtterance.time }),
+          classification: sourceUtterance.classification,
+          coverage: sourceUtterance.coverage,
+          important: sourceUtterance.important,
+          ...(sourceUtterance.returnStatus === undefined
+            ? {}
+            : { returnStatus: sourceUtterance.returnStatus }),
+        }),
+      );
+      offset += quote.length;
     }
-    sources.push({
-      ...clone(original),
-      id: sourceId,
-      versionId: limitedVersion,
-      name: "選択発言の原文",
-      text: group.map((u) => u.quote).join("\n"),
-      warnings: [],
-      hash: `limited-${sourceIndex}`,
-    });
+    sources.push(
+      sourceDto({
+        id: sourceId,
+        versionId: limitedVersion,
+        name: "選択発言の原文",
+        text: group.map((u) => u.quote).join("\n"),
+        role: original.role,
+        format: original.format,
+        createdAt: original.createdAt,
+        warnings: [],
+        hash: `limited-${sourceIndex}`,
+      }),
+    );
   }
   const idSet = new Set(selectedIds);
-  const limitedAgenda: Agenda = {
-    ...clone(agenda),
+  const limitedAgenda = agendaDto({
+    id: agenda.id,
+    title: agenda.title,
     utteranceIds: [...selectedIds],
+    boundary: agenda.boundary,
     decision: "undecided",
     answer: "none",
     agreement: "unknown",
@@ -67,10 +202,14 @@ function limitedProject(
     unresolved: [],
     nextAction: "",
     needsReview: false,
-  };
-  return {
-    ...clone(p),
+  });
+  return projectDto({
+    schemaVersion: p.schemaVersion,
+    id: p.id,
     title: agenda.title,
+    createdAt: p.createdAt,
+    updatedAt: p.updatedAt,
+    extent: "excerpt",
     sources,
     utterances: utterances.sort((a, b) => a.order - b.order),
     agendas: [limitedAgenda],
@@ -82,12 +221,13 @@ function limitedProject(
           idSet.has(r.to) &&
           r.evidenceIds.every((id) => idSet.has(id)),
       )
-      .map(clone),
+      .map(relationDto),
     revisions: [],
     runs: [],
     saved: false,
-  };
+  });
 }
+
 function markdown(
   p: Project,
   agenda: Agenda | undefined,
@@ -146,14 +286,16 @@ function markdown(
   }
   return lines.join("\n");
 }
-export function exportProject(
+function exportProjectCore(
   project: Project,
   format: "json" | "md" | "svg",
   agendaId?: string,
   pseudonymize = false,
   utteranceIds?: string[],
 ): string {
+  const started = performance.now();
   const p = validateProject(project);
+  recordMetric("output-validation", performance.now() - started);
   const hasAgenda = agendaId !== undefined;
   if (!hasAgenda && utteranceIds !== undefined)
     throw new Error("全体出力ではutteranceIdsを指定できません");
@@ -181,7 +323,9 @@ export function exportProject(
           p.utterances.find((u) => u.id === b)!.order,
       )
     : p.utterances.map((u) => u.id);
-  const scoped = agenda ? limitedProject(p, agenda, selectedIds) : clone(p);
+  const scoped = agenda
+    ? limitedProject(p, agenda, selectedIds)
+    : projectDto(p, true);
   const scopedAgenda = agenda ? scoped.agendas[0] : undefined;
   const names = pseudonymize ? pseudonymMap(scoped.utterances) : undefined;
   if (format === "json") {
@@ -190,23 +334,26 @@ export function exportProject(
         ...u,
         speaker: names!.get(u.speaker)!,
       }));
-    const text = JSON.stringify({
-      scope: agenda ? "agenda" : "full",
-      manifest: agenda
-        ? {
+    const envelope = agenda
+      ? {
+          scope: "agenda",
+          manifest: {
             schemaVersion: 1,
             limited: true,
             allowedUtteranceIds: [...selectedIds],
             fullBackup: false,
             historyIncluded: false,
-          }
-        : {
-            schemaVersion: 1,
-            limited: false,
-            fullBackup: true,
-            historyIncluded: true,
           },
-      project: scoped,
+          project: scoped,
+        }
+      : fullBackupEnvelope(scoped);
+    const text = JSON.stringify({
+      ...envelope,
+      manifest: {
+        ...envelope.manifest,
+        sourceCoverageComplete: agenda ? false : projectCoverageComplete(p),
+        organizationComplete: false,
+      },
     });
     if (bytes(text) > MAX) throw new Error("出力が50MiBを超えています");
     return text;
@@ -242,7 +389,8 @@ export function importProject(text: string): Project {
       !Array.isArray(wrapper.manifest.allowedUtteranceIds))
   )
     throw new Error("限定出力manifestが不正です");
-  const p = validateProject(wrapper.project);
+  const validated = validateProject(wrapper.project);
+  const p = projectDto(validated, wrapper.scope === "full");
   if (wrapper.scope === "agenda") {
     const allowed = wrapper.manifest!.allowedUtteranceIds as unknown[];
     if (
@@ -264,4 +412,15 @@ export function importProject(text: string): Project {
     saved: false,
     updatedAt: new Date().toISOString(),
   };
+}
+
+export function exportProject(
+  ...args: Parameters<typeof exportProjectCore>
+): string {
+  const start = performance.now();
+  try {
+    return exportProjectCore(...args);
+  } finally {
+    recordMetric("output", performance.now() - start);
+  }
 }

@@ -1,3 +1,6 @@
+import { semanticSnapshot } from "../domain/snapshot";
+import UtteranceBoundaryEditor from "./UtteranceBoundaryEditor";
+import { invalidateDependents } from "../domain/invalidation";
 import { useEffect, useState } from "react";
 import { ArrowRight, Check, X } from "lucide-react";
 import type { Classification, Project } from "../domain/types";
@@ -8,7 +11,7 @@ import {
   reviseSource,
   splitAgenda,
 } from "../domain/project";
-import { moveUtterance } from "../domain/revisions";
+import { correctReturn, moveUtterance } from "../domain/revisions";
 interface Props {
   project: Project;
   utteranceId: string;
@@ -19,13 +22,6 @@ interface Props {
   onGraph: () => void;
   onError: (s: string) => void;
 }
-const semanticSnapshot = (p: Project) =>
-  structuredClone({
-    utterances: p.utterances,
-    agendas: p.agendas,
-    relations: p.relations,
-    selectedAgendaId: p.selectedAgendaId,
-  });
 export default function Inspector({
   project,
   utteranceId,
@@ -41,8 +37,14 @@ export default function Inspector({
   const existingReturn = project.relations.find(
     (r) => r.from === u.id && r.kind === "return",
   );
-  const returnValue =
-    existingReturn?.to || (u.returnStatus === "none" ? "" : "__unknown");
+  const returnValue = existingReturn
+    ? existingReturn.to
+    : u.returnStatus === "none"
+      ? ""
+      : "__unknown";
+  const incomingReturn = project.relations.find(
+    (r) => r.to === u.id && r.kind === "return",
+  );
   const [classification, setClassification] = useState(u.classification);
   const [speaker, setSpeaker] = useState(u.speaker);
   const [important, setImportant] = useState(u.important);
@@ -52,6 +54,9 @@ export default function Inspector({
     "classification",
   );
   const [returnTo, setReturnTo] = useState(returnValue);
+  const [incomingReturnAction, setIncomingReturnAction] = useState<
+    "" | "keep" | "remove"
+  >("");
   const [targetAgenda, setTargetAgenda] = useState(agenda?.id || "");
   const [boundaryReason, setBoundaryReason] = useState("");
   useEffect(() => {
@@ -60,8 +65,9 @@ export default function Inspector({
     setImportant(u.important);
     setQuote(u.quote);
     setReturnTo(returnValue);
+    setIncomingReturnAction("");
     setTargetAgenda(agenda?.id || "");
-  }, [u, returnValue, agenda?.id]);
+  }, [utteranceId]);
   const source = project.sources.find((s) => s.versionId === u.sourceVersionId);
   const userCorrection = project.revisions.some(
     (r) =>
@@ -90,48 +96,47 @@ export default function Inspector({
         if (important !== u.important) patch.important = important;
         if (Object.keys(patch).length)
           next = reviseProject(project, u.id, patch, reason);
+        if (
+          incomingReturn &&
+          classification !== u.classification &&
+          classification !== "main" &&
+          incomingReturnAction === "remove"
+        ) {
+          for (const relation of project.relations.filter(
+            (r) => r.kind === "return" && r.to === u.id,
+          ))
+            next = correctReturn(next, relation.from, "__unknown", reason);
+        }
+        if (
+          incomingReturn &&
+          classification !== u.classification &&
+          classification !== "main" &&
+          incomingReturnAction === ""
+        ) {
+          throw Error(
+            "復帰先の分類が変わります。線を残すか外すか選択してください。",
+          );
+        }
         if (returnTo !== returnValue) {
-          const before = semanticSnapshot(next);
-          next = structuredClone(next);
-          const relatedIds = new Set([
-            u.id,
-            ...project.relations
-              .filter((r) => r.from === u.id && r.kind === "return")
-              .map((r) => r.to),
-            returnTo,
-          ]);
-          next.relations = next.relations.filter(
-            (r) => !(r.from === u.id && r.kind === "return"),
-          );
-          if (returnTo && returnTo !== "__unknown")
-            next.relations.push({
-              id: crypto.randomUUID(),
-              from: u.id,
-              to: returnTo,
-              kind: "return",
-              evidenceIds: [u.id, returnTo],
-            });
-          next.utterances = next.utterances.map((t) =>
-            t.id === u.id
-              ? { ...t, returnStatus: returnTo === "" ? "none" : "unknown" }
-              : t,
-          );
-          next.agendas = next.agendas.map((a) =>
-            a.utteranceIds.some((id) => relatedIds.has(id))
-              ? { ...a, needsReview: true }
-              : a,
-          );
-          next.revisions.push({
+          next = correctReturn(next, u.id, returnTo, reason);
+        }
+        if (next === project) throw Error("変更がありません。");
+      }
+      next = invalidateDependents(next, [u.id]);
+      if (next.revisions.length > project.revisions.length + 1) {
+        const after = semanticSnapshot(next);
+        next.revisions = [
+          ...project.revisions,
+          {
             id: crypto.randomUUID(),
             at: new Date().toISOString(),
             targetId: u.id,
-            kind: "return-correction",
-            before,
-            after: semanticSnapshot(next),
+            kind: "inspector-correction",
+            before: semanticSnapshot(project),
+            after,
             reason,
-          });
-        }
-        if (next === project) throw Error("変更がありません。");
+          },
+        ];
       }
       onUpdate(next);
       setReason("");
@@ -264,6 +269,17 @@ export default function Inspector({
                 >
                   <option value="__unknown">未確定 — 線を引かない</option>
                   <option value="">復帰先なし</option>
+                  {existingReturn &&
+                    !project.utterances.some(
+                      (t) =>
+                        t.id === existingReturn.to &&
+                        t.order > u.order &&
+                        t.classification === "main",
+                    ) && (
+                      <option value={existingReturn.to}>
+                        {existingReturn.to} · 現在の復帰先（要確認）
+                      </option>
+                    )}
                   {project.utterances
                     .filter(
                       (t) => t.order > u.order && t.classification === "main",
@@ -275,6 +291,35 @@ export default function Inspector({
                     ))}
                 </select>
               </label>
+              {incomingReturn &&
+                classification !== u.classification &&
+                classification !== "main" && (
+                  <fieldset className="field">
+                    <legend>この発言を復帰先から分類変更します</legend>
+                    <p className="fineprint">
+                      {incomingReturn.from}{" "}
+                      からの線をどう扱うか明示してください。未選択のままでは保存できません。
+                    </p>
+                    <label className="checkbox">
+                      <input
+                        type="radio"
+                        name={`incoming-return-${u.id}`}
+                        checked={incomingReturnAction === "keep"}
+                        onChange={() => setIncomingReturnAction("keep")}
+                      />
+                      線を残して要確認
+                    </label>
+                    <label className="checkbox">
+                      <input
+                        type="radio"
+                        name={`incoming-return-${u.id}`}
+                        checked={incomingReturnAction === "remove"}
+                        onChange={() => setIncomingReturnAction("remove")}
+                      />
+                      線を外して未確定
+                    </label>
+                  </fieldset>
+                )}
               <p className="fineprint">
                 復帰は後の本筋への関係です。「なし」と「未確定」は分けて記録し、推測で線を引きません。
               </p>
@@ -293,6 +338,20 @@ export default function Inspector({
               <p className="warning-text">
                 原文は新しい版として追加し、旧版・変更前後・理由を残します。本文を別の発言へ分割する操作とは異なります。
               </p>
+              <button
+                onClick={() => {
+                  const url = URL.createObjectURL(
+                    new Blob([quote], { type: "text/plain;charset=utf-8" }),
+                  );
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = "編集中の原文.txt";
+                  a.click();
+                  setTimeout(() => URL.revokeObjectURL(url), 1000);
+                }}
+              >
+                入力中の原文をテキストで退避
+              </button>
             </>
           )}
           <label className="field">
@@ -369,6 +428,12 @@ export default function Inspector({
             議題を分けても、発言の本文は分割しません。操作を取り消す場合は訂正履歴のUndoを使えます。
           </p>
         </details>
+        <UtteranceBoundaryEditor
+          project={project}
+          utteranceId={u.id}
+          onUpdate={onUpdate}
+          onError={onError}
+        />
         <div className="detail-return-actions">
           <button onClick={onGraph}>選択した発言の図へ戻る</button>
           <button className="review-link" onClick={onSummary}>

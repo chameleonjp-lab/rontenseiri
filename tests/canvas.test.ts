@@ -64,11 +64,31 @@ describe("layoutProject", () => {
     const result = layoutProject(project());
     expect(result.nodes.find((n) => n.id === "U1")?.x).toBe(35);
     expect(result.nodes.find((n) => n.id === "U2")?.x).toBe(295);
-    expect(result.nodes.find((n) => n.id === "U3")?.y).toBe(315);
-    expect(result.nodes.find((n) => n.id === "U5")?.y).toBe(570);
-    expect(result.nodes.find((n) => n.id === "U7")?.y).toBe(655);
+    expect(result.nodes.find((n) => n.id === "U3")?.y).toBe(156);
+    expect(result.nodes.find((n) => n.id === "U5")?.y).toBe(248);
+    expect(result.nodes.find((n) => n.id === "U7")?.y).toBe(64);
     expect(result.blocks[0].x).toBeLessThanOrEqual(35);
     expect(result.blocks[0].width).toBeGreaterThan(260);
+    expect(result.blocks[0].height).toBe(368);
+  });
+
+  it("does not stack siblings or add height without a real branch depth", () => {
+    const input = project(4);
+    input.utterances[1].classification = "derived";
+    input.utterances[2].classification = "derived";
+    input.relations = [];
+    const result = layoutProject(input);
+    expect(result.nodes.find((n) => n.id === "U2")?.y).toBe(
+      result.nodes.find((n) => n.id === "U3")?.y,
+    );
+    expect(result.blocks[0].height).toBe(276);
+
+    const noBranch = project(4);
+    noBranch.utterances.forEach((utterance) => {
+      utterance.classification = "main";
+    });
+    noBranch.relations = [];
+    expect(layoutProject(noBranch).blocks[0].height).toBeLessThan(220);
   });
 
   it("does not let return relations change semantic coordinates", () => {

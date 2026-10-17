@@ -10,3 +10,7 @@ test-results/
 artifacts/*.png
 artifacts/*.json
 *.tsbuildinfo
+
+test-results-offline/
+
+test-results-*/

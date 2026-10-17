@@ -2627,3 +2627,43 @@ a {
   gap: 8px;
   margin-top: 16px;
 }
+
+.coverage-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px;
+  background: #f0f7f7;
+  border-radius: 10px;
+  margin: 18px 0;
+}
+.coverage-source {
+  margin: 24px 0;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.coverage-ranges {
+  padding-left: 24px;
+}
+.coverage-ranges li {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.coverage-ranges pre,
+.coverage-source pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 250px;
+  overflow: auto;
+}
+.coverage-ranges button {
+  margin: 6px;
+}
+.lineage-record {
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.lineage-record strong {
+  overflow-wrap: anywhere;
+}

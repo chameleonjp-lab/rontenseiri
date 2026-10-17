@@ -1,3 +1,8 @@
+import { projectCoverageComplete } from "./domain/coverage";
+import { exportProject } from "./export/project";
+import ReasoningPanel from "./components/ReasoningPanel";
+import CoveragePanel from "./components/CoveragePanel";
+import ReadinessPanel from "./components/ReadinessPanel";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   GitBranch,
@@ -42,7 +47,12 @@ import {
   validateProject,
 } from "./domain/project";
 import { parseInputs, readInputFile } from "./input/parse";
-import { listProjects, saveProject, deleteProject } from "./storage/projects";
+import {
+  listProjects,
+  loadProject,
+  saveProject,
+  deleteProject,
+} from "./storage/projects";
 import { importProject } from "./export/project";
 import { sampleProject } from "./analysis/sample";
 import {
@@ -51,7 +61,14 @@ import {
   applySuggestion,
 } from "./analysis/client";
 
-type View = "graph" | "transcript" | "summary" | "history";
+type View =
+  | "graph"
+  | "transcript"
+  | "summary"
+  | "history"
+  | "reasoning"
+  | "coverage"
+  | "readiness";
 function Status({
   children,
   kind = "",
@@ -78,6 +95,8 @@ export default function App() {
   const importRef = useRef<HTMLInputElement>(null);
   const lastFocused = useRef<HTMLElement | null>(null);
   const savedProjectRef = useRef<Project | null>(null);
+  const activeProjectRef = useRef(project);
+  activeProjectRef.current = project;
   useModalFocus(!!modal);
   useEffect(() => {
     if (detailsOpen)
@@ -109,9 +128,32 @@ export default function App() {
     if (!project?.saved || project === savedProjectRef.current) return;
     const timer = setTimeout(() => {
       saveProject(project)
-        .then(() => {
-          savedProjectRef.current = project;
-          setSavedAt(new Date().toLocaleTimeString("ja-JP"));
+        .then((persisted) => {
+          const current = activeProjectRef.current;
+          if (!current || current.id !== project.id) return;
+          setRecent((records) => [
+            persisted,
+            ...records.filter((record) => record.id !== persisted.id),
+          ]);
+          if (
+            current === project ||
+            current.storageRevision === project.storageRevision
+          ) {
+            savedProjectRef.current = persisted;
+            setProject(
+              current === project
+                ? persisted
+                : {
+                    ...current,
+                    storageRevision: persisted.storageRevision,
+                    saved: true,
+                  },
+            );
+            setSavedAt(new Date().toLocaleTimeString("ja-JP"));
+          } else {
+            // Preserve the newer in-memory edit; its effect will save next.
+            savedProjectRef.current = persisted;
+          }
         })
         .catch((e: Error) =>
           setError(`保存失敗：${e.message}。JSONをダウンロードしてください。`),
@@ -127,10 +169,28 @@ export default function App() {
         lastFocused.current.getClientRects().length
       )
         lastFocused.current.focus();
-      else
+      else {
+        const id = selectedId ? CSS.escape(selectedId) : "";
         document
-          .querySelector<HTMLElement>('.sidebar button[aria-current="page"]')
-          ?.focus();
+          .querySelector<HTMLElement>(
+            id
+              ? `.speech-hit[aria-label^="${id} "]`
+              : '.sidebar button[aria-current="page"]',
+          )
+          ?.focus({ preventScroll: true });
+      }
+    });
+  }
+  function goGraph(id = selectedId) {
+    setView("graph");
+    setDetailsOpen(false);
+    if (!id) return;
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.dispatchEvent(
+          new CustomEvent("rontenseiri:focus-node", { detail: id }),
+        );
+      });
     });
   }
   useEffect(() => {
@@ -173,21 +233,75 @@ export default function App() {
   }
   async function save() {
     if (!project) return;
+    const submitted = project;
     try {
-      const next = { ...project, saved: true };
-      await saveProject(next);
-      savedProjectRef.current = next;
-      setProject(next);
+      const persisted = await saveProject({ ...submitted, saved: true });
+      setRecent((records) => {
+        const existing = records.find((r) => r.id === persisted.id);
+        const latest =
+          (existing?.storageRevision ?? 0) > (persisted.storageRevision ?? 0)
+            ? existing!
+            : persisted;
+        return [latest, ...records.filter((r) => r.id !== persisted.id)];
+      });
+      const current = activeProjectRef.current;
+      if (current?.id !== submitted.id) return;
+      savedProjectRef.current = persisted;
+      if (current === submitted) setProject(persisted);
+      else if (current.storageRevision === submitted.storageRevision)
+        setProject({
+          ...current,
+          saved: true,
+          storageRevision: persisted.storageRevision,
+        });
       setSavedAt(new Date().toLocaleTimeString("ja-JP"));
-      tell("このブラウザに保存しました。復旧用JSONも保管してください。");
-      setRecent(await listProjects());
-    } catch (e) {
-      setError(`保存できません：${String(e)}。出力からJSONを保管できます。`);
+      tell(
+        current === submitted
+          ? "このブラウザに保存しました。復旧用JSONも保管してください。"
+          : "保存しました。保存中の新しい編集は自動保存へ引き継ぎます。",
+      );
+    } catch (error) {
+      setError(
+        `保存できません：${String(error)}。出力からJSONを保管できます。`,
+      );
     }
   }
+  function downloadLastSaved() {
+    if (!savedProjectRef.current) {
+      setError(
+        "まだ明示保存したデータがありません。入力中の原文は詳細画面からテキストで退避できます。",
+      );
+      return;
+    }
+    const text = exportProject(
+      savedProjectRef.current,
+      "json",
+      undefined,
+      true,
+    );
+    const url = URL.createObjectURL(
+      new Blob([text], { type: "application/json" }),
+    );
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "rontenseiri-last-saved.json";
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
   function update(next: Project) {
-    const owner = selectedId
-      ? next.agendas.find((a) => a.utteranceIds.includes(selectedId))
+    let effectiveId = selectedId;
+    if (selectedId && !next.utterances.some((u) => u.id === selectedId)) {
+      effectiveId =
+        [...(next.lineage?.records ?? [])]
+          .reverse()
+          .find((r) => r.oldIds.includes(selectedId))
+          ?.newIds.find((id) => next.utterances.some((u) => u.id === id)) ??
+        null;
+      setSelectedId(effectiveId);
+      setDetailsOpen(!!effectiveId);
+    }
+    const owner = effectiveId
+      ? next.agendas.find((a) => a.utteranceIds.includes(effectiveId!))
       : undefined;
     setProject(
       validateProject({
@@ -271,6 +385,11 @@ export default function App() {
           </div>
         )}
       </header>
+      {project && error && (
+        <button className="recovery-button" onClick={downloadLastSaved}>
+          直前に保存したJSONを退避
+        </button>
+      )}
       {project ? (
         <div className="workspace">
           <nav
@@ -283,6 +402,9 @@ export default function App() {
                 { id: "graph", text: "議題の流れ", icon: GitBranch },
                 { id: "transcript", text: "発言と原文", icon: FileText },
                 { id: "summary", text: "振り返り", icon: LayoutDashboard },
+                { id: "reasoning", text: "問い・根拠", icon: MessageSquare },
+                { id: "coverage", text: "原文対応", icon: FileText },
+                { id: "readiness", text: "端末・保存", icon: ShieldCheck },
                 { id: "history", text: "訂正履歴", icon: History },
               ] as const
             ).map((item) => (
@@ -367,8 +489,27 @@ export default function App() {
                 agenda={agenda}
                 onUpdate={update}
                 onSelect={select}
-                onGraph={() => setView("graph")}
+                onGraph={() => goGraph()}
               />
+            )}
+            {view === "reasoning" && (
+              <ReasoningPanel
+                project={project}
+                onUpdate={update}
+                onError={setError}
+                onSelect={select}
+              />
+            )}
+            {view === "coverage" && (
+              <CoveragePanel
+                project={project}
+                onUpdate={update}
+                onError={setError}
+                onSelect={select}
+              />
+            )}
+            {view === "readiness" && (
+              <ReadinessPanel project={project} onError={setError} />
             )}
             {view === "history" && (
               <div className="reading-view">
@@ -434,10 +575,7 @@ export default function App() {
               onClose={closeDetails}
               onTranscript={() => setView("transcript")}
               onSummary={() => setView("summary")}
-              onGraph={() => {
-                setView("graph");
-                closeDetails();
-              }}
+              onGraph={() => goGraph(selectedId)}
               onError={setError}
             />
           )}
@@ -576,7 +714,13 @@ export default function App() {
                   <article key={p.id}>
                     <button
                       className="recent-open"
-                      onClick={() => openProject(p)}
+                      onClick={async () => {
+                        try {
+                          openProject(await loadProject(p.id));
+                        } catch (e) {
+                          setError(String(e));
+                        }
+                      }}
                     >
                       <GitBranch size={20} />
                       <strong>{p.title}</strong>
@@ -1054,8 +1198,9 @@ function Summary({
   onSelect: (id: string) => void;
   onGraph: () => void;
 }) {
+  type SummaryAgenda = Agenda & { summaryDependencies?: string[] };
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState<Agenda | undefined>(agenda);
+  const [draft, setDraft] = useState<SummaryAgenda | undefined>(agenda);
   const [reason, setReason] = useState("");
   const [localError, setLocalError] = useState("");
   useEffect(() => {
@@ -1087,6 +1232,9 @@ function Summary({
             unresolved: draft!.unresolved,
             nextAction: draft!.nextAction,
             needsReview: false,
+            summaryDependencies:
+              (draft as SummaryAgenda).summaryDependencies ??
+              draft!.utteranceIds,
           },
           reason,
         ),
@@ -1112,6 +1260,11 @@ function Summary({
     ));
   return (
     <div className="reading-view summary-view">
+      {!projectCoverageComplete(project) && (
+        <p className="notice">
+          原文に未割当区間があります。整理完了ではありません。「原文の対応」で位置を確認できます。
+        </p>
+      )}
       <div className="eyebrow">REVIEW THE AGENDA</div>
       <h1>何が進み、何が残った？</h1>
       <div className="summary-agenda">
@@ -1124,6 +1277,42 @@ function Summary({
           </div>
           <Status kind="decision">{labels.decision[agenda.decision]}</Status>
         </div>
+        {!!project.reasoning?.items.filter((item) =>
+          item.utteranceIds.some((id) => agenda.utteranceIds.includes(id)),
+        ).length && (
+          <section className="summary-arrival">
+            <h3>条件・例外・異論を含む記録</h3>
+            {project.reasoning.items
+              .filter((item) =>
+                item.utteranceIds.some((id) =>
+                  agenda.utteranceIds.includes(id),
+                ),
+              )
+              .map((item) => (
+                <article key={item.id}>
+                  <p>
+                    {item.kind}：{item.text}
+                  </p>
+                  <small>
+                    {item.certainty === "confirmed"
+                      ? "利用者の確認記録あり（外部確認ではありません）"
+                      : item.certainty === "retracted"
+                        ? "撤回された記録"
+                        : "推定・未確定。要再確認"}{" "}
+                    · 対象時点 {item.time.asOf} / 登録時点{" "}
+                    {item.time.recordedAt}
+                  </small>
+                  <div>
+                    {item.utteranceIds.map((id) => (
+                      <button key={id} onClick={() => onSelect(id)}>
+                        根拠原文 {id}へ
+                      </button>
+                    ))}
+                  </div>
+                </article>
+              ))}
+          </section>
+        )}
         {agenda.needsReview && (
           <div className="summary-warning">
             <AlertTriangle size={18} />
@@ -1301,6 +1490,39 @@ function Summary({
                 }
               />
             </label>
+            <details>
+              <summary>要約の根拠原文を選ぶ</summary>
+              <p className="fineprint">
+                未指定の議題は従来どおり議題内の全発言を根拠にします。何も選ばない場合も、手動メモとして保存し自動で無効化しません。
+              </p>
+              <div className="summary-dependency-list">
+                {project.utterances.map((u) => {
+                  const dependencies =
+                    (draft as SummaryAgenda).summaryDependencies ??
+                    draft.utteranceIds;
+                  return (
+                    <label className="checkbox" key={u.id}>
+                      <input
+                        type="checkbox"
+                        checked={dependencies.includes(u.id)}
+                        onChange={(e) => {
+                          const next = e.target.checked
+                            ? [...dependencies, u.id]
+                            : dependencies.filter((id) => id !== u.id);
+                          setDraft({
+                            ...(draft as SummaryAgenda),
+                            summaryDependencies: next,
+                          });
+                        }}
+                      />
+                      <span>
+                        {u.id} · {u.quote}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </details>
             <div className="form-row">
               <label className="field">
                 回答

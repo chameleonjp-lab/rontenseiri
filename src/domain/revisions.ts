@@ -1,3 +1,6 @@
+import { invalidateDependents } from "./invalidation";
+import { semanticSnapshot } from "./snapshot";
+import { buildSourceCoverage } from "./coverage";
 import type { Agenda, Project, Revision, Utterance } from "./types";
 import { validateProject } from "./project";
 
@@ -11,16 +14,11 @@ type SemanticSnapshot = {
   agendas: Agenda[];
   relations: Project["relations"];
   selectedAgendaId: string;
+  reasoning?: Project["reasoning"];
+  lineage?: Project["lineage"];
 };
 
-function snapshot(project: Project): SemanticSnapshot {
-  return clone({
-    utterances: project.utterances,
-    agendas: project.agendas,
-    relations: project.relations,
-    selectedAgendaId: project.selectedAgendaId,
-  });
-}
+const snapshot = semanticSnapshot;
 
 function restore(project: Project, value: unknown): boolean {
   if (!value || typeof value !== "object") return false;
@@ -39,6 +37,10 @@ function restore(project: Project, value: unknown): boolean {
   project.agendas = clone(v.agendas);
   project.relations = clone(v.relations);
   project.selectedAgendaId = v.selectedAgendaId;
+  if (v.reasoning !== undefined) project.reasoning = clone(v.reasoning);
+  else delete project.reasoning;
+  if (v.lineage !== undefined) project.lineage = clone(v.lineage);
+  else delete project.lineage;
   return true;
 }
 
@@ -122,11 +124,23 @@ export function moveUtterance(
   };
   p.revisions.push(revision);
   p.updatedAt = now();
-  return validateProject(p);
+  for (const source of p.sources) {
+    if (p.utterances.some((u) => u.sourceVersionId === source.versionId))
+      source.coverage = buildSourceCoverage(source, p.utterances);
+  }
+  return validateProject(invalidateDependents(p, [utteranceId]));
 }
 
 function restoreLegacy(project: Project, revision: Revision): boolean {
   const before = revision.before as any;
+  if (revision.kind === "source-coverage" && before?.versionId) {
+    const source = project.sources.find(
+      (s) => s.versionId === before.versionId,
+    );
+    if (!source) return false;
+    source.coverage = clone(before.coverage);
+    return true;
+  }
   if (
     (revision.kind === "復帰先の訂正" ||
       revision.kind === "return-correction") &&
@@ -217,5 +231,58 @@ export function undoLastRevision(project: Project): Project {
     reason: `Undo: ${target.reason}`,
   });
   p.updatedAt = now();
+  for (const source of p.sources) {
+    if (p.utterances.some((u) => u.sourceVersionId === source.versionId))
+      source.coverage = buildSourceCoverage(source, p.utterances);
+  }
   return validateProject(p);
+}
+
+export function correctReturn(
+  project: Project,
+  utteranceId: string,
+  target: string,
+  reason: string,
+): Project {
+  const p = clone(validateProject(project));
+  const u = p.utterances.find((u) => u.id === utteranceId);
+  if (!u || !reason.trim()) throw new Error("復帰関係と変更理由が必要です");
+  if (
+    target &&
+    target !== "__unknown" &&
+    !p.utterances.some((t) => t.id === target && t.order > u.order)
+  )
+    throw new Error("復帰先は後の既知の発言を指定してください");
+  const before = semanticSnapshot(p);
+  const removed = p.relations.filter(
+    (r) => r.kind === "return" && r.from === u.id,
+  );
+  p.relations = p.relations.filter(
+    (r) => !(r.kind === "return" && r.from === u.id),
+  );
+  if (target && target !== "__unknown")
+    p.relations.push({
+      id: makeId("relation"),
+      from: u.id,
+      to: target,
+      kind: "return",
+      evidenceIds: [u.id, target],
+    });
+  u.returnStatus = target === "" ? "none" : "unknown";
+  p.updatedAt = now();
+  const result = invalidateDependents(p, [
+    u.id,
+    ...removed.map((r) => r.to),
+    ...(target && target !== "__unknown" ? [target] : []),
+  ]);
+  result.revisions.push({
+    id: makeId("revision"),
+    at: now(),
+    targetId: u.id,
+    kind: "return-correction",
+    before,
+    after: semanticSnapshot(result),
+    reason,
+  });
+  return validateProject(result);
 }

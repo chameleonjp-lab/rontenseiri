@@ -1,3 +1,4 @@
+import { relationLabel } from "../domain/relation-label";
 import type { Project } from "../domain/types";
 import { labels } from "../domain/types";
 import { layoutProject } from "../domain/layout";
@@ -41,20 +42,11 @@ export function projectSvg(
         to = nodes.get(r.to);
       if (!from || !to) return "";
       const x1 = from.x + 225,
-        y1 = from.y + 58,
+        y1 = from.y + 48,
         x2 = to.x,
-        y2 = to.y + 58,
+        y2 = to.y + 48,
         mid = (x1 + x2) / 2;
-      const label =
-        from.agendaId !== to.agendaId
-          ? "議題切替"
-          : r.kind === "return"
-            ? "本筋へ復帰"
-            : r.kind === "derived"
-              ? "派生"
-              : r.kind === "drift"
-                ? "ずれ候補"
-                : "";
+      const label = relationLabel(r, from.agendaId, to.agendaId);
       return `<g><path d="M ${x1} ${y1} C ${mid} ${y1}, ${mid} ${y2}, ${x2} ${y2}" fill="none" stroke="${color[r.kind]}" stroke-width="2"${r.kind === "drift" ? ' stroke-dasharray="6 5"' : ""}/><path d="M ${x2 - 6} ${y2 - 4} L ${x2} ${y2} L ${x2 - 6} ${y2 + 4}" fill="none" stroke="${color[r.kind]}"/><text x="${mid}" y="${(y1 + y2) / 2 - 7}" font-size="10" fill="${color[r.kind]}">${esc(label)}</text></g>`;
     })
     .join("");
@@ -63,13 +55,13 @@ export function projectSvg(
       const u = project.utterances.find((item) => item.id === n.id)!;
       const chars = Array.from(u.quote);
       const lines: string[] = [];
-      for (let i = 0; i < Math.min(chars.length, 54); i += 18)
+      for (let i = 0; i < Math.min(chars.length, 36); i += 18)
         lines.push(
           chars.slice(i, i + 18).join("") +
-            (i === 36 && chars.length > 54 ? "…" : ""),
+            (i === 18 && chars.length > 36 ? "…" : ""),
         );
       const speaker = names?.get(u.speaker) || u.speaker;
-      return `<g><title>${esc(`${u.id} ${speaker}: ${u.quote}`)}</title><rect x="${n.x}" y="${n.y}" width="225" height="128" rx="9" fill="white" stroke="${color[u.classification]}"/><text x="${n.x + 12}" y="${n.y + 22}" font-size="11" fill="#546e78">${esc(`${u.id} · ${speaker}`)}</text><text x="${n.x + 12}" y="${n.y + 46}" font-size="11" fill="#234653">${lines.map((line, i) => `<tspan x="${n.x + 12}" dy="${i ? 19 : 0}">${esc(line)}</tspan>`).join("")}</text><text x="${n.x + 12}" y="${n.y + 114}" font-size="11" fill="${color[u.classification]}">${esc(labels.classification[u.classification])} · 原文ID ${esc(u.id)}</text></g>`;
+      return `<g><title>${esc(`${u.id} ${speaker}: ${u.quote}`)}</title><rect x="${n.x}" y="${n.y}" width="225" height="96" rx="9" fill="white" stroke="${color[u.classification]}"/><text x="${n.x + 12}" y="${n.y + 22}" font-size="11" fill="#546e78">${esc(`${u.id} · ${speaker}`)}</text><text x="${n.x + 12}" y="${n.y + 46}" font-size="11" fill="#234653">${lines.map((line, i) => `<tspan x="${n.x + 12}" dy="${i ? 19 : 0}">${esc(line)}</tspan>`).join("")}</text><text x="${n.x + 12}" y="${n.y + 84}" font-size="11" fill="${color[u.classification]}">${esc(labels.classification[u.classification])} · 原文ID ${esc(u.id)}</text></g>`;
     })
     .join("");
   return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="${Math.ceil((1200 * maxY) / width)}" viewBox="${minX} 0 ${width} ${maxY}" role="img" aria-label="${esc(project.title)}"><title>${esc(project.title)} — 発言順は左から右。本文の全文は各要素のtitle、またはJSON/Markdownで確認できます。</title><rect x="${minX}" width="${width}" height="${maxY}" fill="#edf4f6"/>${frames}${edges}${cards}</svg>`;

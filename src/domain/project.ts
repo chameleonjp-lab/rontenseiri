@@ -1,3 +1,9 @@
+import { invalidateDependents } from "./invalidation";
+import { projectCapacity, MAX_BACKUP_BYTES, activeSources } from "./capacity";
+import { semanticSnapshot } from "./snapshot";
+import { auditSourceCoverage, buildSourceCoverage } from "./coverage";
+import { validateReasoning } from "./reasoning-validation";
+import { validateLineage } from "./lineage-validation";
 import type {
   Agenda,
   Extent,
@@ -11,19 +17,11 @@ const now = () => new Date().toISOString();
 const id = (p: string) =>
   `${p}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 const clone = <T>(v: T): T => structuredClone(v);
-const snapshot = (p: Project) =>
-  clone({
-    utterances: p.utterances,
-    agendas: p.agendas,
-    relations: p.relations,
-    selectedAgendaId: p.selectedAgendaId,
-  });
+const snapshot = semanticSnapshot;
 const isString = (v: unknown): v is string => typeof v === "string";
 const enumOf = (v: unknown, xs: readonly string[]) =>
   isString(v) && xs.includes(v);
 const unique = (xs: string[]) => new Set(xs).size === xs.length;
-const byteSize = (v: unknown) =>
-  new TextEncoder().encode(JSON.stringify(v)).byteLength;
 const sourceRoles = ["conversation", "reference", "later-explanation"] as const;
 const classifications = ["main", "derived", "drift", "unknown"] as const;
 const coverages = ["unorganized", "mapped", "collapsed", "failed"] as const;
@@ -49,7 +47,10 @@ function check(p: Project): Project {
   ) {
     throw new Error("Project schema is invalid");
   }
-  if (byteSize(p) > 50 * 1024 * 1024) throw new Error("Project exceeds 50MiB");
+  if (projectCapacity(p).backupBytes > MAX_BACKUP_BYTES)
+    throw new Error(
+      "完全バックアップが50MiBを超えます。編集中の内容をテキストで退避してください",
+    );
   if (
     p.sources.length > 100 ||
     p.revisions.length > 1000 ||
@@ -60,7 +61,6 @@ function check(p: Project): Project {
   const sourceIds = new Set<string>();
   const versionIds = new Set<string>();
   const sourceByVersion = new Map<string, Source>();
-  const activeSourceIds = new Set<string>();
   for (const s of p.sources) {
     if (
       !s ||
@@ -80,14 +80,9 @@ function check(p: Project): Project {
     sourceIds.add(s.id);
     versionIds.add(s.versionId);
     sourceByVersion.set(s.versionId, s);
-    activeSourceIds.add(s.id);
   }
-  let activeChars = 0;
-  for (const sid of activeSourceIds) {
-    const versions = p.sources.filter((s) => s.id === sid);
-    activeChars += Array.from(versions[versions.length - 1]?.text ?? "").length;
-  }
-  if (activeSourceIds.size > 10 || activeChars > 50000)
+  const capacity = projectCapacity(p);
+  if (capacity.activeFiles > 10 || capacity.activeCodePoints > 50000)
     throw new Error("active source limit exceeded");
 
   const uttIds = new Set<string>();
@@ -176,6 +171,19 @@ function check(p: Project): Project {
   if (!isString(p.selectedAgendaId) || !agendaIds.has(p.selectedAgendaId))
     throw new Error("selected agenda missing");
 
+  for (const a of p.agendas)
+    if (
+      a.summaryDependencies !== undefined &&
+      (!Array.isArray(a.summaryDependencies) ||
+        !unique(a.summaryDependencies) ||
+        !a.summaryDependencies.every((id) => uttIds.has(id)))
+    )
+      throw new Error("invalid summary dependencies");
+  if (
+    p.storageRevision !== undefined &&
+    (!Number.isSafeInteger(p.storageRevision) || p.storageRevision < 0)
+  )
+    throw new Error("invalid storage revision");
   const relationIds = new Set<string>();
   const nodes = new Set([...uttIds, ...agendaIds]);
   for (const r of p.relations) {
@@ -186,6 +194,7 @@ function check(p: Project): Project {
       !isString(r.from) ||
       !isString(r.to) ||
       !enumOf(r.kind, relationKinds) ||
+      (r.dependency !== undefined && typeof r.dependency !== "boolean") ||
       !Array.isArray(r.evidenceIds) ||
       !r.evidenceIds.every(isString) ||
       !unique(r.evidenceIds) ||
@@ -205,8 +214,6 @@ function check(p: Project): Project {
     if (!from || !to) throw new Error("relation endpoints must be utterances");
     if (from.order >= to.order)
       throw new Error("relation cycle or reversed chronology rejected");
-    if (r.kind === "return" && to.classification !== "main")
-      throw new Error("return target must be main");
   }
   const revisionIds = new Set<string>();
   for (const r of p.revisions) {
@@ -239,6 +246,15 @@ function check(p: Project): Project {
       throw new Error("invalid analysis run");
     runIds.add(run.id);
   }
+  for (const source of activeSources(p)) {
+    if (
+      source.coverage &&
+      auditSourceCoverage(source, p.utterances).issues.length
+    )
+      throw new Error("原文の全範囲対応が不正です");
+  }
+  validateReasoning(p);
+  validateLineage(p);
   return clone(p);
 }
 
@@ -312,6 +328,7 @@ const allowedAg = new Set([
   "agreement",
   "verification",
   "arrival",
+  "summaryDependencies",
   "unresolved",
   "nextAction",
   "needsReview",
@@ -330,12 +347,7 @@ export function reviseProject(
   const target = (u ?? a)!;
   const before = {
     ...clone(target),
-    __projectSnapshot: clone({
-      utterances: p.utterances,
-      agendas: p.agendas,
-      relations: p.relations,
-      selectedAgendaId: p.selectedAgendaId,
-    }),
+    __projectSnapshot: semanticSnapshot(p),
   };
   const allowed = u ? allowedUt : allowedAg;
   for (const [key, value] of Object.entries(patch)) {
@@ -352,6 +364,13 @@ export function reviseProject(
       case "needsReview":
         valid = typeof value === "boolean";
         break;
+      case "summaryDependencies": {
+        const ids = new Set(p.utterances.map((u) => u.id));
+        valid =
+          Array.isArray(value) &&
+          value.every((v) => typeof v === "string" && ids.has(v));
+        break;
+      }
       case "unresolved":
         valid = Array.isArray(value) && value.every(isString);
         break;
@@ -361,8 +380,7 @@ export function reviseProject(
     if (!valid) throw new Error(`invalid field type: ${key}`);
   }
   Object.assign(target, clone(patch));
-  if (u)
-    p.agendas.find((x) => x.utteranceIds.includes(u.id))!.needsReview = true;
+
   p.revisions.push({
     id: id("revision"),
     at: now(),
@@ -373,7 +391,7 @@ export function reviseProject(
     reason,
   });
   p.updatedAt = now();
-  return check(p);
+  return check(u ? invalidateDependents(p, [u.id]) : p);
 }
 export function reviseSource(
   project: Project,
@@ -385,12 +403,7 @@ export function reviseSource(
     u = p.utterances.find((x) => x.id === utteranceId);
   if (!u || !reason.trim() || !newQuote)
     throw new Error("utterance/reason required");
-  const snapshot = clone({
-    utterances: p.utterances,
-    agendas: p.agendas,
-    relations: p.relations,
-    selectedAgendaId: p.selectedAgendaId,
-  });
+  const snapshot = semanticSnapshot(p);
   const old = p.sources.find((s) => s.versionId === u.sourceVersionId)!;
   const at = u.start;
   const oldEnd = u.end;
@@ -429,8 +442,16 @@ export function reviseSource(
     (x) => x.sourceVersionId === ns.versionId,
   ))
     x.line = (ns.text.slice(0, x.start).match(/\r\n|\n|\r/g) || []).length + 1;
-  const agenda = p.agendas.find((x) => x.utteranceIds.includes(u.id));
-  if (agenda) agenda.needsReview = true;
+  if (old.coverage)
+    ns.coverage = old.coverage
+      .filter((s) => s.end <= at || s.start >= oldEnd)
+      .map((s) =>
+        s.start >= oldEnd
+          ? { ...s, start: s.start + delta, end: s.end + delta }
+          : { ...s },
+      );
+  ns.coverage = buildSourceCoverage(ns, p.utterances);
+
   p.revisions.push({
     id: id("revision"),
     at: now(),
@@ -443,7 +464,7 @@ export function reviseSource(
     reason,
   });
   p.updatedAt = now();
-  return check(p);
+  return check(invalidateDependents(p, [utteranceId]));
 }
 function hash(s: string) {
   let h = 2166136261;

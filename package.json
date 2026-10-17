@@ -10,14 +10,20 @@
     "test:watch": "vitest",
     "preview": "vite preview",
     "test:e2e": "playwright test",
-    "format": "prettier --write src tests e2e *.ts *.json .github/workflows/ci.yml",
-    "check:format": "prettier --check src tests e2e *.ts *.json .github/workflows/ci.yml"
+    "test:offline": "playwright test --config=playwright.offline.config.ts",
+    "benchmark": "node scripts/benchmark.mjs",
+    "evaluate": "node --experimental-strip-types scripts/evaluate.ts evals/cases.json artifacts/evaluation-empty.json artifacts/evaluation-empty.md",
+    "format": "prettier --write src tests e2e scripts public *.ts *.json .github/workflows/ci.yml",
+    "check:format": "prettier --check src tests e2e scripts public *.ts *.json .github/workflows/ci.yml"
   },
   "dependencies": {
     "@mlc-ai/web-llm": "0.2.86",
+    "@xmldom/xmldom": "^0.9.12",
     "@xyflow/react": "12.12.0",
+    "fflate": "^0.8.3",
     "idb": "8.0.3",
     "lucide-react": "^0.577.0",
+    "pdfjs-dist": "^6.4.299",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
