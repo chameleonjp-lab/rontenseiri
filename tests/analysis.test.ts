@@ -1,0 +1,158 @@
+import { afterEach, describe, expect, it, vi } from "vitest";
+import type { Project } from "../src/domain/types";
+import {
+  MODEL_OPTIONS,
+  analyzeLocally,
+  applySuggestion,
+} from "../src/analysis/client";
+import { sampleProject } from "../src/analysis/sample";
+
+const project = (): Project => sampleProject();
+
+afterEach(() => {
+  vi.restoreAllMocks();
+});
+
+describe("local analysis adapter safety boundaries", () => {
+  it("exposes only catalogued candidates and sample preserves exact quotes/offsets", () => {
+    expect(MODEL_OPTIONS).toHaveLength(2);
+    const sample = project();
+    for (const utterance of sample.utterances)
+      expect(sample.sources[0].text.slice(utterance.start, utterance.end)).toBe(
+        utterance.quote,
+      );
+    expect(sample.utterances.find((u) => u.id === "U10")?.classification).toBe(
+      "main",
+    );
+  });
+
+  it("rejects unknown model without creating a worker", async () => {
+    const worker = vi.fn();
+    vi.stubGlobal("Worker", worker);
+    await expect(
+      analyzeLocally(
+        project(),
+        "not-a-model",
+        vi.fn(),
+        new AbortController().signal,
+      ),
+    ).rejects.toThrow("未登録");
+    expect(worker).not.toHaveBeenCalled();
+  });
+
+  it("validates mocked output IDs and supports abort termination", async () => {
+    let instance: {
+      onmessage?: (event: MessageEvent) => void;
+      onerror?: (event: ErrorEvent) => void;
+      terminate: ReturnType<typeof vi.fn>;
+      postMessage: ReturnType<typeof vi.fn>;
+    };
+    class FakeWorker {
+      onmessage?: (event: MessageEvent) => void;
+      onerror?: (event: ErrorEvent) => void;
+      terminate = vi.fn();
+      postMessage = vi.fn(() =>
+        setTimeout(
+          () =>
+            this.onmessage?.({
+              data: {
+                type: "result",
+                suggestion: {
+                  agendas: [],
+                  classifications: [
+                    { utteranceId: "NOPE", classification: "main" },
+                  ],
+                  relations: [],
+                },
+              },
+            } as MessageEvent),
+          0,
+        ),
+      );
+      constructor() {
+        instance = this;
+      }
+    }
+    vi.stubGlobal("Worker", FakeWorker);
+    await expect(
+      analyzeLocally(
+        project(),
+        MODEL_OPTIONS[0].id,
+        vi.fn(),
+        new AbortController().signal,
+      ),
+    ).rejects.toThrow("未知のutterance ID");
+    expect(instance!.terminate).toHaveBeenCalled();
+
+    const controller = new AbortController();
+    const pending = analyzeLocally(
+      project(),
+      MODEL_OPTIONS[0].id,
+      vi.fn(),
+      controller.signal,
+    );
+    controller.abort();
+    await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+  });
+
+  it("does not call fetch from the UI adapter (only the worker may fetch model artifacts)", async () => {
+    class FakeWorker {
+      onmessage?: (event: MessageEvent) => void;
+      onerror?: (event: ErrorEvent) => void;
+      terminate = vi.fn();
+      postMessage = vi.fn(() =>
+        setTimeout(
+          () =>
+            this.onmessage?.({
+              data: {
+                type: "result",
+                suggestion: { agendas: [], classifications: [], relations: [] },
+              },
+            } as MessageEvent),
+          0,
+        ),
+      );
+    }
+    const fetchSpy = vi.spyOn(globalThis, "fetch");
+    vi.stubGlobal("Worker", FakeWorker);
+    await analyzeLocally(
+      project(),
+      MODEL_OPTIONS[0].id,
+      vi.fn(),
+      new AbortController().signal,
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+  });
+
+  it("applySuggestion preserves source text and replaces agendas with a complete candidate partition", () => {
+    const original = project();
+    const result = applySuggestion(
+      original,
+      {
+        agendas: [
+          {
+            title: "候補",
+            utteranceIds: ["U01"],
+            arrival: "",
+            unresolved: [],
+            nextAction: "",
+          },
+        ],
+        classifications: [{ utteranceId: "U01", classification: "main" }],
+        relations: [{ from: "U09", to: "U10", kind: "return" }],
+      },
+      MODEL_OPTIONS[0].id,
+    );
+    expect(result.sources[0].text).toBe(original.sources[0].text);
+    expect(result.agendas).not.toEqual(original.agendas);
+    expect(new Set(result.agendas.flatMap((a) => a.utteranceIds)).size).toBe(
+      original.utterances.length,
+    );
+    expect(result.agendas.flatMap((a) => a.utteranceIds)).toHaveLength(
+      original.utterances.length,
+    );
+    expect(result.revisions).toHaveLength(original.revisions.length + 1);
+    expect(result.relations.at(-1)?.kind).toBe("return");
+    expect(result.runs.at(-1)?.note).toContain("実験的");
+  });
+});
