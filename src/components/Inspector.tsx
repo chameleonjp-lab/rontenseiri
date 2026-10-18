@@ -3,7 +3,12 @@ import { semanticSnapshot } from "../domain/snapshot";
 import UtteranceBoundaryEditor from "./UtteranceBoundaryEditor";
 import LazyDetails from "./LazyDetails";
 import { invalidateDependents } from "../domain/invalidation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  sourceDraftKey,
+  changeSourceDraft,
+  type SourceEditDraft,
+} from "./source-drafts";
 import { ArrowRight, Check, X } from "lucide-react";
 import type { Classification, Project } from "../domain/types";
 import { labels } from "../domain/types";
@@ -20,6 +25,7 @@ import {
 } from "../domain/revisions";
 interface Props {
   project: Project;
+  sourceDrafts?: Map<string, SourceEditDraft>;
   utteranceId: string;
   onUpdate: (p: Project) => void;
   onClose: () => void;
@@ -30,6 +36,7 @@ interface Props {
 }
 export default function Inspector({
   project,
+  sourceDrafts,
   utteranceId,
   onUpdate,
   onClose,
@@ -70,11 +77,45 @@ export default function Inspector({
   const [classification, setClassification] = useState(u.classification);
   const [speaker, setSpeaker] = useState(u.speaker);
   const [important, setImportant] = useState(u.important);
-  const [reason, setReason] = useState("");
-  const [quote, setQuote] = useState(u.quote);
-  const [mode, setMode] = useState<"classification" | "source">(
-    "classification",
+  const [classificationReason, setClassificationReason] = useState("");
+  const source = project.sources.find((s) => s.versionId === u.sourceVersionId);
+  const [cueSpanIndex, setCueSpanIndex] = useState(0);
+  const editingCueIndex = Math.min(
+    cueSpanIndex,
+    Math.max(0, (u.cueSpans?.length ?? 1) - 1),
   );
+  const editingSpan = u.cueSpans?.[editingCueIndex];
+  const editableQuote =
+    editingSpan && source
+      ? source.text.slice(editingSpan.start, editingSpan.end)
+      : u.quote;
+  const localSourceDrafts = useRef(new Map<string, SourceEditDraft>());
+  const drafts = sourceDrafts ?? localSourceDrafts.current;
+  const context = {
+    projectId: project.id,
+    utteranceId: u.id,
+    sourceId: u.sourceId,
+    bodyId: `${editingSpan?.cueId ?? "scalar"}:${editingCueIndex}`,
+    originalQuote: editableQuote,
+  };
+  const draftKey = sourceDraftKey(context);
+  const [, refreshDraft] = useState(0);
+  const sourceDraft = drafts.get(draftKey);
+  const quote = sourceDraft?.quote ?? editableQuote;
+  const [mode, setMode] = useState<"classification" | "source">(
+    sourceDraft ? "source" : "classification",
+  );
+  const reason =
+    mode === "source" ? (sourceDraft?.reason ?? "") : classificationReason;
+  function updateSourceDraft(patch: Partial<SourceEditDraft>) {
+    changeSourceDraft(drafts, context, patch);
+    refreshDraft((n) => n + 1);
+  }
+  const setQuote = (value: string) => updateSourceDraft({ quote: value });
+  const setReason = (value: string) =>
+    mode === "source"
+      ? updateSourceDraft({ reason: value })
+      : setClassificationReason(value);
   const [returnTo, setReturnTo] = useState(returnValue);
   const [incomingReturnAction, setIncomingReturnAction] = useState<
     "" | "keep" | "remove"
@@ -91,9 +132,6 @@ export default function Inspector({
     setImportant(u.important);
   }, [utteranceId, u.important]);
   useEffect(() => {
-    setQuote(u.quote);
-  }, [utteranceId, u.quote]);
-  useEffect(() => {
     setReturnTo(returnValue);
   }, [utteranceId, returnValue]);
   useEffect(() => {
@@ -102,7 +140,6 @@ export default function Inspector({
   useEffect(() => {
     setIncomingReturnAction("");
   }, [utteranceId, u.classification, incomingReturnSignature]);
-  const source = project.sources.find((s) => s.versionId === u.sourceVersionId);
   const userCorrection = project.revisions.some(
     (r) =>
       r.targetId === u.id &&
@@ -120,8 +157,14 @@ export default function Inspector({
       if (!reason.trim()) throw Error("変更理由を入力してください。");
       let next = project;
       if (mode === "source") {
-        if (quote === u.quote) throw Error("原文に変更がありません。");
-        next = reviseSource(project, u.id, quote, reason);
+        if (quote === editableQuote) throw Error("原文に変更がありません。");
+        next = reviseSource(
+          project,
+          u.id,
+          quote,
+          reason,
+          u.cueSpans ? editingCueIndex : undefined,
+        );
       } else {
         const patch: Record<string, unknown> = {};
         if (classification !== u.classification)
@@ -170,7 +213,10 @@ export default function Inspector({
         ];
       }
       onUpdate(next);
-      setReason("");
+      if (mode === "source") {
+        drafts.delete(draftKey);
+        refreshDraft((n) => n + 1);
+      } else setClassificationReason("");
     } catch (e) {
       onError(String(e));
     }
@@ -241,6 +287,27 @@ export default function Inspector({
             <p className="warning-text">訂正の影響：振り返りは要再確認</p>
           )}
         </div>
+        {u.cueSpans && source?.cueLedger && (
+          <details className="cue-provenance">
+            <summary>字幕cueの出典対応</summary>
+            <p>
+              字幕cueは話者の発言境界を自動で断定するものではありません。複数本文の間の表示改行に原文位置はありません。
+            </p>
+            <ol>
+              {u.cueSpans.map((span) => {
+                const cue = source.cueLedger!.find(
+                  (item) => item.id === span.cueId,
+                )!;
+                return (
+                  <li key={`${span.cueId}-${span.start}`}>
+                    {cue.id} · 入力ID：{cue.rawId ?? "未指定"} · {cue.time} ·
+                    UTF-16本文位置 {span.start}–{span.end}
+                  </li>
+                );
+              })}
+            </ol>
+          </details>
+        )}
         <div className="correction-panel">
           <h3>議題内の発言を訂正</h3>
           <div className="segmented">
@@ -400,8 +467,35 @@ export default function Inspector({
             </>
           ) : (
             <>
+              {u.cueSpans && u.cueSpans.length > 1 && (
+                <label className="field">
+                  訂正する字幕本文
+                  <select
+                    aria-label="訂正する字幕本文"
+                    value={editingCueIndex}
+                    onChange={(e) => setCueSpanIndex(Number(e.target.value))}
+                  >
+                    {u.cueSpans.map((span, i) => (
+                      <option key={`${span.cueId}-${span.start}`} value={i}>
+                        本文{i + 1} · {span.cueId} ·{" "}
+                        {
+                          source?.cueLedger?.find(
+                            (cue) => cue.id === span.cueId,
+                          )?.time
+                        }
+                      </option>
+                    ))}
+                  </select>
+                  <small>
+                    選んだ本文spanだけを訂正します。区切り・時刻・ほかのcue本文は書き換えません。
+                  </small>
+                </label>
+              )}
               <label className="field">
                 訂正後の原文
+                <small>
+                  未適用の原文と理由は、この作業を開いている間、発言・字幕本文ごとに保持します。適用前の下書きは端末保存・JSONに含みません。
+                </small>
                 <textarea
                   aria-label="訂正後の原文"
                   rows={5}
@@ -409,6 +503,18 @@ export default function Inspector({
                   onChange={(e) => setQuote(e.target.value)}
                 />
               </label>
+              {sourceDraft && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    drafts.delete(draftKey);
+                    refreshDraft((n) => n + 1);
+                  }}
+                >
+                  この本文の下書きを破棄
+                </button>
+              )}
+
               <p className="warning-text">
                 原文は新しい版として追加し、旧版・変更前後・理由を残します。本文を別の発言へ分割する操作とは異なります。
               </p>

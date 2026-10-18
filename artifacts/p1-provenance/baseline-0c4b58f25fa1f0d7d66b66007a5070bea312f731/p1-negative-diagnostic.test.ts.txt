@@ -1,0 +1,74 @@
+import { describe, expect, test } from "vitest";
+import { parseInputs } from "../src/input/parse";
+import { createProject, validateProject } from "../src/domain/project";
+import { mergeUtterances } from "../src/domain/utterance-editing";
+import { exportProject, importProject } from "../src/export/project";
+import type { Project } from "../src/domain/types";
+
+describe("P1 baseline negative diagnostics (expected to fail on 0c4b58f)", () => {
+  test("preserves VTT raw provenance through merge", async () => {
+    const text =
+      "WEBVTT\r\n\r\n" +
+      "raw-a\r\n" +
+      "00:00:00.000 --> 00:00:02.000\r\n" +
+      "first line\r\n" +
+      "first continuation\r\n\r\n" +
+      "NOTE raw-a\r\n" +
+      "metadata between cues\r\n\r\n" +
+      "raw-a\r\n" +
+      "00:00:02.000 --> 00:00:04.000\r\n" +
+      "second body\r\n";
+    const parsed = await parseInputs([
+      { name: "duplicate.vtt", format: "vtt", role: "conversation", text },
+    ]);
+    const source = parsed.sources[0];
+    const project = createProject(parsed, "baseline provenance", "full");
+    const [first, second] = project.utterances;
+
+    // Existing per-utterance source slices are the invariant that already passes.
+    expect(source.text.slice(first.start, first.end)).toBe(first.quote);
+    expect(source.text.slice(second.start, second.end)).toBe(second.quote);
+
+    const merged = mergeUtterances(project, [first.id, second.id], "diagnostic merge");
+    const expectedQuote = `${first.quote}\n${second.quote}`;
+    expect(merged.utterances).toHaveLength(1);
+    expect.soft(merged.utterances[0].quote).toBe(expectedQuote);
+    expect.soft(merged.utterances[0].time).toBeUndefined();
+    expect.soft(
+      (merged.utterances[0] as unknown as { cueLedger?: unknown[] }).cueLedger,
+    ).toHaveLength(2);
+  });
+
+  test("preserves typed omissions in a full JSON round trip", async () => {
+    const parsed = await parseInputs([
+      {
+        name: "excerpt.txt",
+        format: "txt",
+        role: "conversation",
+        text: "Excerpt evidence",
+      },
+    ]);
+    const base = createProject(parsed, "omissions", "excerpt");
+    const omissions = [
+      {
+        id: "omission-1",
+        kind: "missing-context",
+        excerpt: "omitted source context",
+        reason: "diagnostic omission",
+      },
+    ];
+    const withOmissions = {
+      ...base,
+      omissions,
+    } as Project & { omissions: typeof omissions };
+    const validated = validateProject(withOmissions) as Project & {
+      omissions?: typeof omissions;
+    };
+    expect(validated.omissions).toEqual(omissions);
+
+    const restored = importProject(exportProject(withOmissions, "json")) as Project & {
+      omissions?: typeof omissions;
+    };
+    expect(restored.omissions).toEqual(omissions);
+  });
+});

@@ -1,0 +1,88 @@
+
+Running 2 tests using 1 worker
+
+  ✘  1 e2e/source-draft-navigation.spec.ts:23:1 › 未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない (7.5s)
+  ✘  2 e2e/source-draft-navigation.spec.ts:51:1 › 複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する (6.9s)
+
+
+  1) e2e/source-draft-navigation.spec.ts:23:1 › 未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない ─────
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true })
+    Expected: "最初の未適用draft😀"
+    Received: "最初の字幕"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true }) with timeout 5000ms
+      - waiting for getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true })
+        14 × locator resolved to <textarea rows="5" aria-label="訂正後の原文">最初の字幕</textarea>
+           - unexpected value "最初の字幕"
+
+
+      33 |   await page.keyboard.press("Escape");
+      34 |   panel = await source(page, "U01");
+    > 35 |   await expect(panel.getByLabel("訂正後の原文", { exact: true })).toHaveValue("最初の未適用draft😀");
+         |                                                             ^
+      36 |   await expect(panel.getByLabel("変更理由", { exact: true })).toHaveValue("第1draftの理由");
+      37 |   await panel.getByRole("button", { name: "訂正を保存", exact: true }).press("Enter");
+      38 |   await page.keyboard.press("Escape");
+        at /workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts:35:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results-p1-draft-before/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results-p1-draft-before/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-p1-draft-before/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-p1-draft-before/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) e2e/source-draft-navigation.spec.ts:51:1 › 複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する ───────────────
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true })
+    Expected: ""
+    Received: "第1cue理由"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true }) with timeout 5000ms
+      - waiting for getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true })
+        14 × locator resolved to <textarea rows="2" aria-label="変更理由" placeholder="なぜ訂正するかを記録">第1cue理由</textarea>
+           - unexpected value "第1cue理由"
+
+
+      57 |   await choice.selectOption("1");
+      58 |   await expect(panel.getByLabel("訂正後の原文", { exact: true })).toHaveValue("次の字幕");
+    > 59 |   await expect(panel.getByLabel("変更理由", { exact: true })).toHaveValue("");
+         |                                                           ^
+      60 |   await panel.getByLabel("訂正後の原文", { exact: true }).fill("第2cueのdraft");
+      61 |   await panel.getByLabel("変更理由", { exact: true }).fill("第2cue理由");
+      62 |   await choice.selectOption("0");
+        at /workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts:59:59
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results-p1-draft-before/source-draft-navigation-複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results-p1-draft-before/source-draft-navigation-複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-p1-draft-before/source-draft-navigation-複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-p1-draft-before/source-draft-navigation-複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    e2e/source-draft-navigation.spec.ts:23:1 › 未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない ──────
+    e2e/source-draft-navigation.spec.ts:51:1 › 複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する ────────────────

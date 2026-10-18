@@ -1,0 +1,47 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 e2e/source-draft-navigation.spec.ts:23:1 › 未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない (7.3s)
+
+
+  1) e2e/source-draft-navigation.spec.ts:23:1 › 未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない ─────
+
+    Error: expect(locator).toHaveValue(expected) failed
+
+    Locator:  getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true })
+    Expected: "最初の未適用draft😀"
+    Received: "最初の字幕"
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toHaveValue" getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true }) with timeout 5000ms
+      - waiting for getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true })
+        14 × locator resolved to <textarea rows="5" aria-label="訂正後の原文">最初の字幕</textarea>
+           - unexpected value "最初の字幕"
+
+
+      33 |   await page.keyboard.press("Escape");
+      34 |   panel = await source(page, "U01");
+    > 35 |   await expect(panel.getByLabel("訂正後の原文", { exact: true })).toHaveValue("最初の未適用draft😀");
+         |                                                             ^
+      36 |   await expect(panel.getByLabel("変更理由", { exact: true })).toHaveValue("第1draftの理由");
+      37 |   await panel.getByRole("button", { name: "訂正を保存", exact: true }).press("Enter");
+      38 |   await page.keyboard.press("Escape");
+        at /workspace/rontenseiri-p1-baseline-audit/e2e/source-draft-navigation.spec.ts:35:61
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results-p1-draft-baseline/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results-p1-draft-baseline/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results-p1-draft-baseline/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results-p1-draft-baseline/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e/source-draft-navigation.spec.ts:23:1 › 未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない ──────

@@ -1,0 +1,80 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/workspace/rontenseiri-p1-input-provenance[39m
+
+ [31m❯[39m tests/lineage-history-gap.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m5 failed[39m[2m)[22m[32m 163[2mms[22m[39m
+     [32m✓[39m preserves legal split/merge/resplit/Undo and complete JSON cue ranges[32m 54[2mms[22m[39m
+[31m     [31m×[31m rejects a self-justified ghost old ID without mutating the input[39m[32m 26[2mms[22m[39m
+[31m     [31m×[31m rejects the same unexplained ID at the complete JSON import boundary[39m[32m 27[2mms[22m[39m
+[31m     [31m×[31m does not anchor a ghost with a persisted state having a wrong quote[39m[32m 15[2mms[22m[39m
+[31m     [31m×[31m does not anchor a ghost with a persisted state having a wrong source-version[39m[32m 15[2mms[22m[39m
+[31m     [31m×[31m does not anchor a ghost with a persisted state having a wrong range[39m[32m 16[2mms[22m[39m
+     [32m✓[39m keeps schemaVersion 1 single-time legacy JSON with a legal compact retired snapshot[32m 5[2mms[22m[39m
+     [32m✓[39m keeps schemaVersion 1 single-time legacy JSON with a legal full retired snapshot[32m 4[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 5 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/lineage-history-gap.test.ts[2m > [22mlineage old IDs need independent persisted states[2m > [22mrejects a self-justified ghost old ID without mutating the input
+[31m[1mAssertionError[22m: expected [Function] to throw an error[39m
+
+[32m- Expected:[39m
+null
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/lineage-history-gap.test.ts:[2m51:46[22m[39m
+    [90m 49|[39m     [34mexpect[39m(malformed[33m.[39mutterances)[33m.[39m[34mtoEqual[39m(p[33m.[39mutterances)[33m;[39m
+    [90m 50|[39m     expect(malformed.lineage!.records[0].undoSnapshot).toEqual(p.linea…
+    [90m 51|[39m     expect(() => validateProject(malformed)).toThrow("lineage history …
+    [90m   |[39m                                              [31m^[39m
+    [90m 52|[39m     [34mexpect[39m([33mJSON[39m[33m.[39m[34mstringify[39m(malformed))[33m.[39m[34mtoBe[39m(before)[33m;[39m
+    [90m 53|[39m   })[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lineage-history-gap.test.ts[2m > [22mlineage old IDs need independent persisted states[2m > [22mrejects the same unexplained ID at the complete JSON import boundary
+[31m[1mAssertionError[22m: expected [Function] to throw an error[39m
+
+[32m- Expected:[39m
+null
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/lineage-history-gap.test.ts:[2m57:55[22m[39m
+    [90m 55|[39m     const data = JSON.parse(exportProject(await chain(), "json", undef…
+    [90m 56|[39m     data[33m.[39mproject[33m.[39mlineage[33m![39m[33m.[39mrecords[[34m0[39m][33m.[39moldIds [33m=[39m [[32m"ghost-old-id"[39m][33m;[39m
+    [90m 57|[39m     expect(() => importProject(JSON.stringify(data))).toThrow("lineage…
+    [90m   |[39m                                                       [31m^[39m
+    [90m 58|[39m   })[33m;[39m
+    [90m 59|[39m   for (const mismatch of ["quote", "source-version", "range"] as const…
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/5]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/lineage-history-gap.test.ts[2m > [22mlineage old IDs need independent persisted states[2m > [22mdoes not anchor a ghost with a persisted state having a wrong quote
+[41m[1m FAIL [22m[49m tests/lineage-history-gap.test.ts[2m > [22mlineage old IDs need independent persisted states[2m > [22mdoes not anchor a ghost with a persisted state having a wrong source-version
+[41m[1m FAIL [22m[49m tests/lineage-history-gap.test.ts[2m > [22mlineage old IDs need independent persisted states[2m > [22mdoes not anchor a ghost with a persisted state having a wrong range
+[31m[1mAssertionError[22m: expected [Function] to throw an error[39m
+
+[32m- Expected:[39m
+null
+
+[31m+ Received:[39m
+undefined
+
+[36m [2m❯[22m tests/lineage-history-gap.test.ts:[2m73:48[22m[39m
+    [90m 71|[39m       }
+    [90m 72|[39m       r[33m.[39mundoSnapshot[33m![39m[33m.[39mretiredUtterances[33m![39m[33m.[39m[34mpush[39m(retired)[33m;[39m
+    [90m 73|[39m       expect(() => validateProject(malformed)).toThrow("lineage histor…
+    [90m   |[39m                                                [31m^[39m
+    [90m 74|[39m     })[33m;[39m
+    [90m 75|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/5]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m5 failed[39m[22m[2m | [22m[1m[32m3 passed[39m[22m[90m (8)[39m
+[2m   Start at [22m 14:52:15
+[2m   Duration [22m 592ms[2m (transform 206ms, setup 0ms, import 253ms, tests 163ms, environment 0ms)[22m
+
