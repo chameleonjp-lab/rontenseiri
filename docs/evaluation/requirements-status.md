@@ -78,6 +78,12 @@
 
 PR #11の旧head `7da450f` には、ローカルdev検索の220.4ms／再実行221.3msと選択217.1ms、production round-2-foldの200.5msという200ms超過が残っています。[診断と証跡検証器の修正](pr11-local-performance-diagnosis.md)では、元の失敗を再実行・免責せず、別browser/hostでのCI成功と分離して保存しました。logとraw値の不一致を拒否する修正は証拠整合性の改善であり、遅延原因の解決・G5合格・全P2/R22完了を意味しません。
 
+### PR #12のSHA別CI記録
+
+本追補の親である実装head `f6cbd6a1743385b179d06f47a95329aa19cc41e2` のexact-head CIは、[push 39127695793](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39127695793)と[PR 39127732821](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39127732821)です。本追補時点では両方進行中で、成功とは記載しません。旧head `7da450fd60dd8eb91ca686867c7dbcdaef944e53` の成功run `39125745484`／`39125750810`とは別の結果です。
+
+この文書追補も新しいheadを作るため、上記runを追補後headの実行と読み替えません。最終headとそのpush/PR run ID・完了結果・verified SHAは[PR #12本文](https://github.com/chameleonjp-lab/rontenseiri/pull/12)に別途記録し、各artifactのSHAと照合します。Sapo／Kamekameの確認は `f6cbd6a` に対する静的レビューであり、テスト・計測実行の証拠ではありません。
+
 ## 本質ブロッカーと計画分離
 
 1. モデル成立性（取得量・GPUメモリ・日本語品質、AI disabled）。
