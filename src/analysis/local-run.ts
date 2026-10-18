@@ -3,6 +3,7 @@ import type { Project } from "../domain/types";
 import { AnalysisSession, type AnalysisAdapter } from "./session";
 import { withAnalysisOwnership } from "./ownership";
 import {
+  assertLocalRunRecord,
   claimLocalRun,
   readLocalRun,
   writeLocalRun,
@@ -192,6 +193,13 @@ export async function runLocalTransport(
         await session.inspectCheckpoint(existing?.checkpoint);
         if (signal.aborted) throw new DOMException("cancelled", "AbortError");
         const fingerprint = await session.fingerprint;
+        if (existing)
+          assertLocalRunRecord(existing, {
+            id,
+            runId,
+            fingerprint,
+            total: session.chunks.length,
+          });
         await claimLocalRun(id, owner, session.chunks.length, {
           runId,
           fingerprint,

@@ -284,7 +284,8 @@ export class AnalysisSession {
       checkpointSchema: 2,
       projectSchema: opts.project.schemaVersion,
       parser: opts.parserVersion ?? "input-parser-v1",
-      implementation: opts.analysisVersion ?? "analysis-session-v3",
+      sessionImplementation: "analysis-session-v4",
+      implementation: opts.analysisVersion ?? "generic-json-adapter-v1",
       outputSchema: opts.outputSchemaVersion ?? "generic-json-v1",
       adapter: opts.configId ?? "generic-json-v1",
       maxChars: opts.maxChars ?? 3000,
@@ -356,13 +357,15 @@ export class AnalysisSession {
     )!;
     try {
       guard();
-      const loaded =
-        this.checkpoint ??
-        this.opts.initialCheckpoint ??
-        (await cancellable(
-          Promise.resolve(this.opts.checkpointStore?.load(this.id)),
-          combined.signal,
-        ));
+      // Commit may win just before cancellation, while memory still holds the
+      // preceding prefix. A configured durable store is authoritative on EVERY
+      // invocation, including resume() on this same Session instance.
+      const loaded = this.opts.checkpointStore
+        ? ((await cancellable(
+            this.opts.checkpointStore.load(this.id),
+            combined.signal,
+          )) ?? (this.checkpoint ? undefined : this.opts.initialCheckpoint))
+        : (this.checkpoint ?? this.opts.initialCheckpoint);
       guard();
       let checkpoint = await cancellable(
         this.inspectCheckpoint(loaded),

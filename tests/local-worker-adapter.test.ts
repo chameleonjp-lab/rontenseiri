@@ -120,3 +120,68 @@ it("A cancel → B start → A late message cannot settle or mutate B", async ()
   a.dispose();
   b.dispose();
 });
+
+it.each(
+  ["candidate", "reconcile"].flatMap((phase) =>
+    ["runId", "generationId", "requestId"].map((field) => ({ phase, field })),
+  ),
+)(
+  "ignores only-stale $field in $phase without settling the active request",
+  async ({ phase, field }) => {
+    let worker!: FakeWorker;
+    class FakeWorker {
+      onmessage?: (event: MessageEvent) => void;
+      onerror?: (event: ErrorEvent) => void;
+      terminate = vi.fn();
+      postMessage = vi.fn();
+      constructor() {
+        worker = this;
+      }
+    }
+    vi.stubGlobal("Worker", FakeWorker);
+    const ac = new AbortController();
+    const transport = createWorkerAdapter(
+      "run-current",
+      "generation-current",
+      "normal",
+      ac.signal,
+    );
+    const project = sampleProject();
+    const chunk = makeAnalysisChunks(project, project.sources[0].id)[0];
+    const settled = vi.fn();
+    const work =
+      phase === "candidate"
+        ? transport.adapter.analyzeChunk(
+            { chunk, prior: {} as AnalysisCheckpoint },
+            ac.signal,
+          )
+        : transport.adapter.reconcile(
+            {
+              candidates: [],
+              sourceId: chunk.sourceId,
+              sourceVersionId: chunk.sourceVersionId,
+              prior: {} as AnalysisCheckpoint,
+            },
+            ac.signal,
+          );
+    const pending = work.then(settled);
+    const valid = {
+      runId: "run-current",
+      generationId: "generation-current",
+      requestId: 1,
+      value: { valid: true },
+    };
+    worker.onmessage?.({
+      data: {
+        ...valid,
+        [field]: field === "requestId" ? 999 : "stale-only-this-field",
+      },
+    } as MessageEvent);
+    await Promise.resolve();
+    expect(settled).not.toHaveBeenCalled();
+    worker.onmessage?.({ data: valid } as MessageEvent);
+    await pending;
+    expect(settled).toHaveBeenCalledExactlyOnceWith(valid.value);
+    transport.dispose();
+  },
+);

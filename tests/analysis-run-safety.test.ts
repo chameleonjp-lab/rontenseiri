@@ -379,4 +379,40 @@ describe("P2 scoped run safety (deterministic, not model quality)", () => {
       expect(f.writes).toHaveLength(count);
     },
   );
+  it("same-session resume reads the durable prefix committed before cancellation, never older memory", async () => {
+    const f = setup();
+    const processed: string[] = [];
+    let cancelOnce = true;
+    let session: AnalysisSession;
+    session = new AnalysisSession({
+      ...f.opts,
+      adapter: {
+        ...f.opts.adapter,
+        analyzeChunk: async (input, signal) => {
+          processed.push(input.chunk.id);
+          return f.opts.adapter.analyzeChunk(input, signal);
+        },
+      },
+      checkpointStore: {
+        ...f.store,
+        save: async (checkpoint, signal) => {
+          await f.store.save(checkpoint, signal); // Durable commit has already succeeded.
+          if (cancelOnce && checkpoint.nextChunk === 1) {
+            cancelOnce = false;
+            session.cancel();
+          }
+        },
+      },
+    });
+    await expect(session.run()).rejects.toMatchObject({ name: "AbortError" });
+    const durablePrefix = f.get().candidates;
+    expect(durablePrefix).toHaveLength(1);
+    const resumed = await session.resume();
+    expect(processed).toEqual(session.chunks.map((chunk) => chunk.id));
+    expect(resumed.candidates.slice(0, 1)).toEqual(durablePrefix);
+    const cursors = f.writes.map((cp) => cp.nextChunk);
+    expect(
+      cursors.every((cursor, i) => i === 0 || cursor >= cursors[i - 1]),
+    ).toBe(true);
+  });
 });

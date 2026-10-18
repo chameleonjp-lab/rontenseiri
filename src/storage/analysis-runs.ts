@@ -13,6 +13,29 @@ export interface LocalRunRecord {
   error?: string;
   total: number;
 }
+/** Pure preflight shared with the atomic claim: never repair inconsistent metadata. */
+export function assertLocalRunRecord(
+  record: LocalRunRecord,
+  expected: { id: string; runId: string; fingerprint: string; total: number },
+) {
+  if (
+    record.id !== expected.id ||
+    record.runId !== expected.runId ||
+    record.fingerprint !== expected.fingerprint ||
+    !/^[a-f0-9]{64}$/.test(record.fingerprint) ||
+    record.total !== expected.total ||
+    !Number.isInteger(record.total) ||
+    record.total < 1 ||
+    !record.owner ||
+    record.generationId !== record.owner ||
+    !["running", "cancelled", "failed", "completed"].includes(record.state) ||
+    (record.checkpoint &&
+      (record.checkpoint.runId !== record.runId ||
+        record.checkpoint.fingerprint !== record.fingerprint ||
+        record.checkpoint.generationId !== record.generationId))
+  )
+    throw new Error("run record fingerprint/identity mismatch");
+}
 interface RunSchema extends DBSchema {
   runs: { key: string; value: LocalRunRecord };
 }
@@ -115,6 +138,7 @@ export async function claimLocalRun(
         "新runは別IDが必要です。checkpointを明示破棄してください",
       );
     const fingerprint = options.fingerprint ?? old?.fingerprint ?? "";
+    if (old) assertLocalRunRecord(old, { id, runId, fingerprint, total });
     if (old?.checkpoint && old.checkpoint.fingerprint !== fingerprint)
       throw new Error("checkpoint fingerprint mismatch");
     await tx.store.put(

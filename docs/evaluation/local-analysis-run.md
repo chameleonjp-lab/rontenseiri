@@ -10,7 +10,7 @@ sessionは取消を無視するadapterの応答を待ち続け、checkpoint読�
 
 ## 今回の契約
 
-- run開始時にProjectをコピーする。保存原文 `Source.text` のUTF-8 bytes SHA-256、source ID／版、発言構造／訂正ID、parser契約版、Project／checkpoint／出力schema版、解析実装版、キー順を正規化した全解析設定をfingerprintに束ねる。元のアップロードファイルの生bytes保存を主張しない。原文を識別用にcheckpointへ重複保存せず、hash計算も外部へ送信しない。
+- run開始時にProjectをコピーする。保存原文 `Source.text` のUTF-8 bytes SHA-256、source ID／版、発言構造／訂正ID、parser契約版、Project／checkpoint／出力schema版、Session実装版（adapter指定で上書きしない）と解析adapter実装版、キー順を正規化した全解析設定をfingerprintに束ねる。元のアップロードファイルの生bytes保存を主張しない。原文を識別用にcheckpointへ重複保存せず、hash計算も外部へ送信しない。
 - 設定識別子にfixture版・chunk長・overlap・モデルなし／promptなし／推論なし・応答待ち時間を含める。fixtureは160文字、overlap 0、400ms/要求。故障シナリオは結果の意味を変えないfault injectionとして扱い、再開時には通常シナリオへ戻せる。
 - 保存済みの `nextChunk = k` と候補の長さ・順序・chunk IDを厳密に照合する。source・入力・設定・sessionが違うcheckpoint、未検証候補、偽の完了prefixは再開を拒否する。引用spanは現在のsource範囲内で、現在のchunk manifestに厳密一致しなければ拒否する。旧形式checkpointも推測で移行しない。owner claim前にread-only preflightし、不一致／破損時はDBレコード全体を変更しない。
 - 新しいrunはUUIDを持ち、同じcheckpointの再開ではrun IDを維持する。開始／再開試行ごとにgeneration IDを更新する。作業単位のDB logical keyとrun IDは別概念で、明示破棄後の新規開始は別run IDとなる。
@@ -36,7 +36,7 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npx playwright test e2e/lo
 
 追加E2Eは完了済みreload、checkpointなし、同一runのresume／新規run ID、cursorだけ先行／resultだけ残る／source外spanの故障注入とDB不変、A取消→B所有→A旧保存拒否、active transaction取消も検査する。狭いfocus試験は進捗でfocusを動かさないこと、取消／再開、Tab／Shift+Tab、Escape／×、背景inertと起点への復元を検査するが、支援技術の読み上げ実測ではない。
 
-E2EはWorkerを置換せず、native `Worker.prototype.postMessage` を観測するだけで送信chunk IDを記録する。UI開始→取消→reload→再開で、再開要求の全IDと最終候補のk以降が完全一致し、先行chunkとの重複0件を別assertする。networkについても開始前から取消→reload→resume→完了済みreloadまでBrowserContextの実行時request試行とrequestfinished／requestfailed、WebSocket originを記録し、外部要求0・GET以外0・sample原文の先頭30文字probeのURL／body混入0を別assertする。same-origin assetのGETは許容し、失敗や遮断があれば試行から除外しない。通信をrouteで遮断して成功を作らない。開発配信にはactive Service Workerがないため、production SW cache missの要求試行・実送信やOSのpacket観測は未検証とする。既存offline試験だけで今回のWorker経路を代替しない。
+network・k+1再開E2EはWorkerを置換せず、native `Worker.prototype.postMessage` の観測で送信chunk IDを記録する。UI開始→取消→reload→再開で、再開要求の全IDと最終候補のk以降が完全一致し、先行chunkとの重複0件を別assertする。networkについても開始前から取消→reload→resume→完了済みreloadまでBrowserContextの実行時request試行とrequestfinished／requestfailed、WebSocket originを記録し、外部要求0・GET以外0・sample原文の先頭30文字probeのURL／body混入0を別assertする。same-origin assetのGETは許容し、失敗や遮断があれば試行から除外しない。通信をrouteで遮断して成功を作らない。開発配信にはactive Service Workerがないため、production SW cache missの要求試行・実送信やOSのpacket観測は未検証とする。既存offline試験だけで今回のWorker経路を代替しない。
 
 証拠はCIの `browser-evidence` artifact内の `verified-sha.txt`、`unit-results.json`、`e2e-results.json`、`test-results/**/attachments/` のnetwork観測JSON、`artifacts/p2-completed-run.png`。PR本文には検証対象head SHAと同じheadのCI run/artifactを対応させる。開発中の診断実行は最終SHAの証拠と混同しない。
 
@@ -61,3 +61,11 @@ DB module直接呼出だけではUIの取消との接続を代替しない。追
 通信probeはsample原文先頭30文字に限定される。WebSocket payload全体、会話の任意断片・変換済み表現の網羅的な検出、production Service Worker cache miss、OS packet、実モデル通信は未測定であり、G6を合格としない。要求試行0と成功／失敗の記録は、これら全経路の送信ゼロ証明ではない。
 
 focus試験は開始・進捗・取消・再開、Tab／Shift+Tabの局所往復、Escape／×、header inertと起点復元まで。今回固有のdialog Tab全周trap、完了・失敗時focus、全背景inertの網羅、読み上げ通知の支援技術実測、OS実機は未測定。G5総合の合格とはしない。
+
+## 追加静的レビューから再現・修正した境界
+
+同一Sessionのcancel→resumeでは、durable commit成功直後・memory checkpoint更新前に取消すと、旧memoryを優先して確定prefixを巻き戻すことをunit fixtureで再現した。永続storeを設定したSessionは、同一instanceのresumeを含む毎回、durable loadを優先する。保存済みchunkの処理回数1回、cursor非退行、先行prefix完全一致をassertする。通常UIは新Sessionで読み込んでいたため、この件を通常UIで再現した不具合とは断定しない。
+
+外側recordのfingerprintだけ改変した場合、従来は内部checkpointが正しければclaimで外側値を上書きできた。通常UIの故障注入でDB変更を再現し、純粋な外側／内側metadata整合検査をpreflightとtransaction内claimで共用するよう修正した。外側fingerprintのみ改変した再開はWorker要求0、owner／stateを含むrecord全体不変で拒否する。
+
+run／generation／request IDを一つずつ独立に崩す6ケースはcandidate／reconcile双方のadapter unit fixtureで検査する。これを両phaseの全ID組合せを通常UI＋DBで測った結果に置き換えて主張しない。通常UIの保存中取消fixtureは別の証拠である。

@@ -371,6 +371,20 @@ test("IndexedDB: A取消→B所有→A遅延保存拒否、active transaction取
 test("破損cursor/result/引用spanの再開拒否はDB全体を不変にする", async ({
   page,
 }) => {
+  await page.addInitScript(() => {
+    let requests = 0;
+    const post = Worker.prototype.postMessage;
+    Worker.prototype.postMessage = function (
+      message: unknown,
+      ...rest: unknown[]
+    ) {
+      requests++;
+      return Reflect.apply(post, this, [message, ...rest]);
+    };
+    Object.defineProperty(window, "__p2ObservedWorkerRequests", {
+      get: () => requests,
+    });
+  });
   await openSavedSample(page);
   await page
     .getByLabel("動作確認シナリオ", { exact: true })
@@ -380,8 +394,20 @@ test("破損cursor/result/引用spanの再開拒否はDB全体を不変にする
     .click();
   await expect(page.getByTestId("local-run-state")).toContainText("失敗");
   const saved = await readRecord(page);
-  for (const kind of ["cursor-only", "result-only", "outside-span"]) {
+  for (const kind of [
+    "outer-fingerprint",
+    "cursor-only",
+    "result-only",
+    "outside-span",
+  ]) {
     const corrupted = structuredClone(saved);
+    if (kind === "outer-fingerprint")
+      corrupted.fingerprint = "only-outer-fingerprint-corrupted";
+    const beforeRequests = await page.evaluate(
+      () =>
+        (window as unknown as { __p2ObservedWorkerRequests: number })
+          .__p2ObservedWorkerRequests,
+    );
     if (kind === "cursor-only") {
       corrupted.checkpoint!.nextChunk++;
       corrupted.checkpoint!.lastCommittedChunkIndex =
@@ -421,6 +447,13 @@ test("破損cursor/result/引用spanの再開拒否はDB全体を不変にする
     ).toBeEnabled();
     await expect(page.getByTestId("local-run-state")).toContainText("失敗");
     expect(await readRecord(page)).toEqual(corrupted);
+    expect(
+      await page.evaluate(
+        () =>
+          (window as unknown as { __p2ObservedWorkerRequests: number })
+            .__p2ObservedWorkerRequests,
+      ),
+    ).toBe(beforeRequests);
   }
 });
 
