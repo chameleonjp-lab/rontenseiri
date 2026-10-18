@@ -36,7 +36,7 @@ PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npx playwright test e2e/lo
 
 追加E2Eは完了済みreload、checkpointなし、同一runのresume／新規run ID、cursorだけ先行／resultだけ残る／source外spanの故障注入とDB不変、A取消→B所有→A旧保存拒否、active transaction取消も検査する。狭いfocus試験は進捗でfocusを動かさないこと、取消／再開、Tab／Shift+Tab、Escape／×、背景inertと起点への復元を検査するが、支援技術の読み上げ実測ではない。
 
-E2EはWorkerを置換せず、native `Worker.prototype.postMessage` を観測するだけで送信chunk IDを記録する。UI開始→取消→reload→再開で、再開要求の全IDと最終候補のk以降が完全一致し、先行chunkとの重複0件を別assertする。networkについても開始前から取消→reload→resume→完了済みreloadまでBrowserContextの実行時request試行とrequestfinished／requestfailed、WebSocket originを記録し、外部要求0・GET以外0・本文URL／body送信0を別assertする。same-origin assetのGETは許容し、失敗や遮断があれば試行から除外しない。通信をrouteで遮断して成功を作らない。開発配信にはactive Service Workerがないため、production SW cache missの要求試行・実送信やOSのpacket観測は未検証とする。既存offline試験だけで今回のWorker経路を代替しない。
+E2EはWorkerを置換せず、native `Worker.prototype.postMessage` を観測するだけで送信chunk IDを記録する。UI開始→取消→reload→再開で、再開要求の全IDと最終候補のk以降が完全一致し、先行chunkとの重複0件を別assertする。networkについても開始前から取消→reload→resume→完了済みreloadまでBrowserContextの実行時request試行とrequestfinished／requestfailed、WebSocket originを記録し、外部要求0・GET以外0・sample原文の先頭30文字probeのURL／body混入0を別assertする。same-origin assetのGETは許容し、失敗や遮断があれば試行から除外しない。通信をrouteで遮断して成功を作らない。開発配信にはactive Service Workerがないため、production SW cache missの要求試行・実送信やOSのpacket観測は未検証とする。既存offline試験だけで今回のWorker経路を代替しない。
 
 証拠はCIの `browser-evidence` artifact内の `verified-sha.txt`、`unit-results.json`、`e2e-results.json`、`test-results/**/attachments/` のnetwork観測JSON、`artifacts/p2-completed-run.png`。PR本文には検証対象head SHAと同じheadのCI run/artifactを対応させる。開発中の診断実行は最終SHAの証拠と混同しない。
 
@@ -51,3 +51,13 @@ Web Locksが利用できなければこの経路もfail closedとする。複数
 ## 初回CIで見つけた配信側の原因修正
 
 初回head `01a462a` のCIは1件失敗した。traceでは最初の実Worker開始時にVite依存最適化のversionが変わり、UIがホームへ再読込され、1chunkで止まっていた。モデルライブラリを `optimizeDeps.include` に明示して初回Workerで依存グラフを変えない修正を加えた。pollの上限や3秒assertを緩和して通す対処は行わない。旧headの試験を最終headの証拠として扱わない。
+
+## 通常UIでの保存中取消fixture
+
+DB module直接呼出だけではUIの取消との接続を代替しない。追加の1本では、native `IDBObjectStore.put` を実行した2番目chunkのtransactionを、同じtransaction内の実read要求でactiveに保つ。Workerもputも置換せず、transaction.completeのみを競合可能な状態に保つ。native putのsuccessとtransaction未completeを観測してから、通常UIの取消ボタンでabortさせ、held putのabortイベント・complete未発生・確定prefixが1chunkのままを確認する。取消後に有効形式の遅延replyを実adapterのmessage handlerへ再送し、DB不変、reload後も取消済みかつ同一checkpointをassertする。3秒assertは維持する。実モデルの遅延応答を測定したという主張ではない。
+
+## 今回なお検証していないこと
+
+通信probeはsample原文先頭30文字に限定される。WebSocket payload全体、会話の任意断片・変換済み表現の網羅的な検出、production Service Worker cache miss、OS packet、実モデル通信は未測定であり、G6を合格としない。要求試行0と成功／失敗の記録は、これら全経路の送信ゼロ証明ではない。
+
+focus試験は開始・進捗・取消・再開、Tab／Shift+Tabの局所往復、Escape／×、header inertと起点復元まで。今回固有のdialog Tab全周trap、完了・失敗時focus、全背景inertの網羅、読み上げ通知の支援技術実測、OS実機は未測定。G5総合の合格とはしない。

@@ -492,3 +492,216 @@ test("動作確認の取消・再開でfocusを保持し、Tab往復とEscape/×
       .evaluate((el) => (el as HTMLElement).inert),
   ).toBe(false);
 });
+
+test("通常UI cancelが実保存中のputをabortし、遅延応答後・reload後にもcheckpointを追加しない", async ({
+  page,
+}, testInfo) => {
+  await page.addInitScript(() => {
+    const observation = {
+      armed: false,
+      hold: true,
+      aborted: false,
+      completedHeldPut: false,
+      putSucceeded: false,
+      prefix: undefined as unknown,
+      events: [] as Array<{
+        state: string;
+        nextChunk: number | undefined;
+        event: string;
+      }>,
+    };
+    let lastWorker: Worker | undefined;
+    let lastMessage: Record<string, unknown> | undefined;
+    const post = Worker.prototype.postMessage;
+    Worker.prototype.postMessage = function (
+      message: unknown,
+      ...rest: unknown[]
+    ) {
+      const data = message as Record<string, unknown>;
+      if (data.type === "transport-fixture" && data.phase === "candidate") {
+        lastWorker = this;
+        lastMessage = structuredClone(data);
+      }
+      return Reflect.apply(post, this, [message, ...rest]);
+    };
+    const put = IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put = function (
+      value: unknown,
+      ...rest: unknown[]
+    ) {
+      const request = Reflect.apply(put, this, [value, ...rest]) as IDBRequest;
+      if (
+        this.transaction.db.name !== "rontenseiri-analysis-runs-v1" ||
+        this.name !== "runs"
+      )
+        return request;
+      const record = structuredClone(value) as {
+        id: string;
+        state: string;
+        checkpoint?: { nextChunk: number };
+      };
+      const tx = this.transaction;
+      tx.addEventListener("complete", () => {
+        observation.events.push({
+          state: record.state,
+          nextChunk: record.checkpoint?.nextChunk,
+          event: "complete",
+        });
+        if (record.state === "running" && record.checkpoint?.nextChunk === 1)
+          observation.prefix = record;
+      });
+      if (
+        !observation.armed &&
+        record.state === "running" &&
+        record.checkpoint?.nextChunk === 2
+      ) {
+        observation.armed = true;
+        request.addEventListener("success", () => {
+          observation.putSucceeded = true;
+        });
+        tx.addEventListener("abort", () => {
+          observation.aborted = true;
+          observation.hold = false;
+          observation.events.push({
+            state: record.state,
+            nextChunk: 2,
+            event: "abort",
+          });
+        });
+        tx.addEventListener("complete", () => {
+          observation.completedHeldPut = true;
+        });
+        // Keep the REAL transaction active with real read requests. The actual
+        // put above is not mocked or delayed; only transaction.complete is held.
+        const store = this;
+        const keepAlive = () => {
+          if (!observation.hold) return;
+          try {
+            const read = store.get(record.id);
+            read.onsuccess = keepAlive;
+            read.onerror = () => {};
+          } catch {
+            /* the cancelled transaction is inactive */
+          }
+        };
+        keepAlive();
+      }
+      return request;
+    };
+    Object.assign(window, {
+      __p2CommitRace: observation,
+      __p2InjectLateReply: () => {
+        observation.hold = false;
+        if (!lastWorker || !lastMessage)
+          throw new Error("no real Worker request observed");
+        const chunk = lastMessage.chunk as {
+          id: string;
+          sourceVersionId: string;
+          spans: Array<{
+            sourceId: string;
+            sourceVersionId: string;
+            start: number;
+            end: number;
+          }>;
+        };
+        const value = {
+          mode: "transport-only",
+          chunkId: chunk.id,
+          sourceVersionId: chunk.sourceVersionId,
+          spanCount: chunk.spans.length,
+          evidence: chunk.spans.map(
+            ({ sourceId, sourceVersionId, start, end }) => ({
+              sourceId,
+              sourceVersionId,
+              start,
+              end,
+            }),
+          ),
+        };
+        // Deliberately replay a valid-looking late result into the real adapter's
+        // message handler after UI cancellation; do not replace the Worker.
+        lastWorker.dispatchEvent(
+          new MessageEvent("message", {
+            data: {
+              runId: lastMessage.runId,
+              generationId: lastMessage.generationId,
+              requestId: lastMessage.requestId,
+              value,
+            },
+          }),
+        );
+      },
+    });
+  });
+  await openSavedSample(page);
+  await page
+    .getByRole("button", { name: "モデルなしで動作確認を開始", exact: true })
+    .click();
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const race = (
+          window as unknown as {
+            __p2CommitRace: {
+              armed: boolean;
+              putSucceeded: boolean;
+              completedHeldPut: boolean;
+            };
+          }
+        ).__p2CommitRace;
+        return race.armed && race.putSucceeded && !race.completedHeldPut;
+      }),
+    )
+    .toBe(true);
+  const started = performance.now();
+  await page
+    .getByRole("button", { name: "動作確認を取り消す", exact: true })
+    .click();
+  await expect(page.getByTestId("local-run-state")).toContainText("取消済み");
+  const cancellationMs = performance.now() - started;
+  expect(cancellationMs).toBeLessThan(3000);
+  const cancelled = await readRecord(page);
+  expect(cancelled.state).toBe("cancelled");
+  expect(cancelled.checkpoint!.nextChunk).toBe(1);
+  expect(cancelled.checkpoint!.lastCommittedChunkIndex).toBe(0);
+  expect(cancelled.checkpoint!.candidates).toHaveLength(1);
+  const observation = await page.evaluate(() => {
+    const fixture = window as unknown as {
+      __p2CommitRace: {
+        aborted: boolean;
+        putSucceeded: boolean;
+        completedHeldPut: boolean;
+        prefix: LocalRunRecord;
+        events: unknown[];
+      };
+      __p2InjectLateReply: () => void;
+    };
+    fixture.__p2InjectLateReply();
+    return fixture.__p2CommitRace;
+  });
+  expect(observation.putSucceeded).toBe(true);
+  expect(observation.aborted).toBe(true);
+  expect(observation.completedHeldPut).toBe(false);
+  expect(cancelled.checkpoint).toEqual(observation.prefix.checkpoint);
+  expect(await readRecord(page)).toEqual(cancelled);
+  await reloadSaved(page);
+  await expect(page.getByTestId("local-run-state")).toContainText("取消済み");
+  expect(await readRecord(page)).toEqual(cancelled);
+  await testInfo.attach("p2-ui-cancel-during-real-commit", {
+    body: JSON.stringify(
+      {
+        cancellationMs,
+        runId: cancelled.runId,
+        generationId: cancelled.generationId,
+        nextChunk: cancelled.checkpoint!.nextChunk,
+        events: observation.events,
+        nativePutSucceeded: observation.putSucceeded,
+        heldPutAborted: observation.aborted,
+        heldPutCommitted: observation.completedHeldPut,
+      },
+      null,
+      2,
+    ),
+    contentType: "application/json",
+  });
+});
