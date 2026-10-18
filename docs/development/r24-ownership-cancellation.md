@@ -2,7 +2,7 @@
 
 ## この修正の範囲
 
-R22台帳の4件修正PR #15をマージ予定の依存とする、公式計画R24の限定スライス。PR #15の公開head `64d8830abe1b1efa628dbea10456638bbac4fae9` を基点にする。依存PRも本修正も、公開状態が確認されるまでは未マージとして扱う。
+公式計画R24の限定スライス。初期ブランチはR22台帳の4件修正PR #15の公開head `64d8830abe1b1efa628dbea10456638bbac4fae9` を基点とした。PR #15は外部でマージされ、mainは `8d6faa09951c47594df7c671baf3e972487d4d69` となった。本修正は保存競合の追補とは別のPRにし、最新の依存headを通常mergeで取り込む。外部のマージを本作業の実施とは扱わず、マージ済みPRの本文・履歴も変更しない。
 
 所有権の期限だけが先に切れてWeb Lockを解放すると、旧Workerが稼働したまま別タブへ資源を渡すおそれがある。期限切れと呼出側の取消は、まず所有権の `signal` をAbortする。実作業がWorker停止・保存取消・後処理を終え、`withAnalysisOwnership` の `finally` が `release()` してから次の所有者へ渡す。
 
@@ -19,12 +19,14 @@ Web Locksのない環境は従来どおり開始しない。取消に協調せ�
 - `tests/ownership.test.ts`：fake timerで期限切れ後もロックを保持すること、明示解放後だけ次所有者が取得すること、失効後の遅延成功を拒否すること。
 - `tests/analysis.test.ts`：モデルWorkerをモックし、期限切れ時のterminate、AbortError、遅延進捗・結果の抑止、外部fetchゼロを確認する。実モデル品質の検証ではない。
 - `e2e/ownership-lease.spec.ts`：同じブラウザcontextの2タブ、実Web Locks、実Blob Workerで、期限切れと手動取消の両方についてWorker停止・非同期cleanup中のロック保持・cleanup後の引継ぎ・旧成功の拒否を確認する。所有タブを閉じた後の引継ぎも別テストにする。
+- `e2e/ownership-fencing.spec.ts`：期限・取消では実Blob Workerをcommit直前で止め、失効後も意図的に存続させて遅延応答を再開する。実IDBの保存APIがAbortErrorを返してsnapshotと公開回数ゼロを保持すること、cleanup後に新所有者だけが保存・公開できること、旧tokenをsignalなしで再送しても所有者フェンスで拒否されることをassertする。タブ終了では死んだWorkerの再開は不可能なため、終了直前の正確なenvelopeを残存タブから再送し同じ世代フェンスを確認する。旧／新owner・generation・runId・fingerprint・保存前後・公開回数をJSON添付する。
 
 ```sh
 npm run check:format
 npm test
 npm run build
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npx playwright test e2e/ownership-lease.spec.ts
+npx playwright test e2e/ownership-fencing.spec.ts
 npm run test:e2e -- --grep-invert '各100操作で観測する'
 npm run test:offline
 ```
