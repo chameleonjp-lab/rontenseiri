@@ -5,22 +5,10 @@ import {
 } from "../tests/fixtures/manual-repair";
 import { exportProject } from "../src/export/project";
 import type { Project } from "../src/domain/types";
+import { enter, navigate, tabTo } from "./helpers/keyboard-navigation";
 
 // After fixture import, interaction is only Tab/Shift+Tab/Enter/Space/arrow keys
 // and text typing. No locator.focus/click/fill/selectOption in the tested route.
-async function tabTo(page: Page, target: Locator) {
-  for (let i = 0; i < 220; i++) {
-    if (await target.evaluate((el) => el === document.activeElement)) return;
-    await page.keyboard.press("Tab");
-  }
-  throw new Error(
-    `Keyboard could not reach ${(await target.getAttribute("aria-label")) || (await target.textContent())}`,
-  );
-}
-async function enter(page: Page, target: Locator) {
-  await tabTo(page, target);
-  await page.keyboard.press("Enter");
-}
 async function text(page: Page, target: Locator, value: string) {
   await tabTo(page, target);
   await page.keyboard.press("ControlOrMeta+A");
@@ -30,15 +18,6 @@ async function toggle(page: Page, target: Locator) {
   await tabTo(page, target);
   await page.keyboard.press("Space");
   await expect(target).toBeFocused();
-}
-async function navigate(page: Page, name: string) {
-  const target = page.getByRole("button", { name, exact: true });
-  if (!(await target.isVisible()))
-    await enter(
-      page,
-      page.getByRole("button", { name: "メニュー", exact: true }),
-    );
-  await enter(page, target);
 }
 async function stored(page: Page): Promise<Project> {
   return page.evaluate(async () => {

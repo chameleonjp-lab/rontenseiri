@@ -66,3 +66,13 @@ npm run build
 ```
 
 境界試験は各予算の0・直前・ちょうど・1超過、非ASCIIのUTF-8 bytes、停止後の入力／比較hook未呼出し、注入時計の途中失効、再開後の重複・欠落なし、保存前の不正schema／ID／span／重複／counter拒否を対象とします。実際の通過件数・最終SHAはPRと同一SHAのCI artifactを参照してください。
+
+## 既存キーボードE2Eのreadiness競合
+
+初回head `c7ac8a4465827744afac84307c3f2f8026ba7c3b` のpush CIは成功しましたが、[PR CI attempt 1](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39123503648/attempts/1)と[attempt 2](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39123503648/attempts/2)は、既存の1440px手動修復E2Eで失敗しました。両attemptのlog・trace・artifactは過去の失敗証拠として保持し、後続headの成功で読み替えません。
+
+原因は、保存Projectの非同期再読込直後、`navigate` helperが「問い・根拠」ボタンの一度だけの不可視判定をmobile状態と誤認し、desktopではCSSで非表示の「メニュー」を待ったことです。両traceでは、その判定の約20–22ms後に正しい作業画面が記録されました。製品の画面切替や保存データを変更する修正ではなく、テストhelperの表示待ちを修正します。既存のキーボード操作、本文・履歴・保存・focusに関するassert、test timeoutは維持します。
+
+共有helper `e2e/helpers/keyboard-navigation.ts` は、対象ボタンかメニューボタンのどちらかが実際にvisibleになるまでPlaywrightのassertで待ち、それから可視経路を選びます。固定delayやtimeout増加はありません。
+
+`e2e/navigation-readiness.spec.ts` は、native IndexedDBのProject readそのものや保存値を変えず、success通知の配信だけを明示的なgateで保留します。reload後に両入口がまだ存在しない状態を作り、gate解放後の1440px desktop／390px mobileの実DOMとキーボード操作を、それぞれ2回のreloadで検査します。表示を模した代替DOMや時間待ちによる確率的なrace生成ではありません。これはbrowser fixtureのreadiness回帰であり、実機・支援技術・アクセシビリティ全体の測定にはしません。
