@@ -208,10 +208,18 @@ export default function App() {
   }
   useEffect(() => {
     const esc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (modal) setModal(null);
-        else closeDetails();
-      }
+      if (e.key !== "Escape") return;
+      const target = e.target instanceof HTMLElement ? e.target : null;
+      if (
+        e.defaultPrevented ||
+        e.isComposing ||
+        e.keyCode === 229 ||
+        target?.closest("input, textarea, select") ||
+        target?.isContentEditable
+      )
+        return;
+      if (modal) setModal(null);
+      else closeDetails();
     };
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);

@@ -69,7 +69,16 @@ export default function Inspector({
     setReturnTo(returnValue);
     setIncomingReturnAction("");
     setTargetAgenda(agenda?.id || "");
-  }, [utteranceId]);
+  }, [
+    utteranceId,
+    u.classification,
+    u.speaker,
+    u.important,
+    u.quote,
+    returnValue,
+    agenda?.id,
+    incomingReturn?.from,
+  ]);
   const source = project.sources.find((s) => s.versionId === u.sourceVersionId);
   const userCorrection = project.revisions.some(
     (r) =>
