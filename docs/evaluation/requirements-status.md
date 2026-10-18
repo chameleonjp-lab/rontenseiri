@@ -1,6 +1,6 @@
 # R01–R33 実装・検証ステータス
 
-更新: 2026-10-19 03:53 JST。main基点 `8d6faa09951c47594df7c671baf3e972487d4d69`。PR状態は03:48:46、CI APIは03:49:13、artifact取得は03:49:58、生値再検証は03:50:29、#17ローカル追記は03:52:14のsnapshot。後続変更へ自動追従する表ではない。
+更新: 2026-10-19 03:55 JST。main基点 `8d6faa09951c47594df7c671baf3e972487d4d69`。PR状態は03:48:46、CI APIは03:49:13、artifact取得は03:49:58、生値再検証は03:50:29、#17ローカル追記は03:52:14のsnapshot。後続変更へ自動追従する表ではない。
 
 ## 判定の読み方
 
@@ -60,7 +60,7 @@ mainには手動A/B解釈と、モデルを使わない候補台帳が増えた�
 
 上記は外部でマージされた履歴であり、この文書作業によるマージとは扱わない。特に#15は2026-10-18 18:07:40 UTCに外部マージされた時点で最終ローカル検証・本文・artifact内部照合が未完了だった。head `64d8830abe1b1efa628dbea10456638bbac4fae9` の[push 39151777368](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39151777368) / [PR 39151808684](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39151808684) のAPI successを内部照合・全受入に読み替えない。旧収集器はartifact階層不一致で内部検証未完。archive ID 12146115520 / 12145473811とdigestは[#16本文の履歴記録](https://github.com/chameleonjp-lab/rontenseiri/pull/16)に保持される。
 
-#15の最終ローカル結果は作業者報告で総合不合格：500-node各100操作p95 selection233.30ms/search232.40ms/fold215.90ms（上限200ms）、controlled round-3 selection200.10msも不合格。raw log/traceは作業環境に保持された報告であり、この文書作業が第三者の実機再測定を行ったものではない。失敗を後続headのCI成功で取り消さない。
+#15の最終ローカル結果は作業者報告で総合不合格：500-node各100操作p95 selection233.30ms/search232.40ms/fold215.90ms（上限200ms）、controlled round-3 selection200.10msも不合格。raw logは作業環境に保持された報告であり、この文書作業が第三者の実機再測定を行ったものではない。失敗を後続headのCI成功で取り消さない。
 
 ## 未マージの独立Draft：実装・検証・受入を分離
 
@@ -96,6 +96,47 @@ mainには手動A/B解釈と、モデルを使わない候補台帳が増えた�
 #18は製品inventoryManifestを共有した上で独立二重ループにより期待ペアを列挙するため、manifest自体の候補欠落は独立検証できない。reload観測はpage-realmのDB操作試行であり、Worker/別タブ・DB削除/schema変更・commit完了・遅延書込全体は証明しない。Promise.all通知完了はtransaction完了ではない。browser request/Worker/WebSocket観測も実送信・production SW・全通信の不存在を証明しない。Head欄は03:45:15/03:46の公開body3行目で新full SHA一致を確認した。
 
 #19/#20は03:49:13時点でCI進行中、03:46:30時点で各push/PR runの公開artifact数0、内部verified-sha未取得。公開headのローカル対象結果は#19 unit410/保存世代4件、#20 unit420/所有権9件通過で、published full validationとは別。#19の実IDB赤緑は旧563715dで手動/自動Aの2件失敗→新2件通過。最新B成功対照は手動のみで、autosave-B成功とB成功後の低revision A成功は未検証。#20はgrant-vs-cancel/timeout race、null-lock cleanup、release後listenerの直接計数が未検証。FixtureLocksはabort時にrejectするが内部signal listener除去をnative同様に再現しないため、その計数からnative cleanup完了を推論できない。native Web Locksでの直接cleanup証明も未取得。どちらもコード欠陥確定ではなくcoverage残余。合成Workerやfixture公開counter、旧envelope再送を実モデル/実onRecord/死んだWorker再開と混同しない。
+
+### 03:53:58以降の追記：#19/#20のCI完了
+
+03:49のpending表は当時のsnapshotとして残す。その後、次の同一headのpush/PR CIはcompleted/successとなった。archiveを取得してAPI digest・内部verified-sha・unit/browser/通常性能/controlled JSONを照合し、03:55:20までに両run各9群の生値も独立再検証した。ローカル対象4件/9件だけから推測した完了ではない。全ゲート受入や残余coverageの解消ではない。
+
+| PR / exact head | run / result | artifact / 内部SHA一致 | ZIP SHA-256再計算一致 |
+|---|---|---|---|
+| #19 / `1a21fa2d08726ccfbb1bbfe52ffe0304e4089a03` | [push 39155353794](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155353794) completed/success | [12146399999](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155353794/artifacts/12146399999) / verified-sha一致 | `sha256:ba5dd1086e8da26874786b2ad01be948f8da991b919063c2c6d0375ddec22cce` |
+| #19 / `1a21fa2d08726ccfbb1bbfe52ffe0304e4089a03` | [pull_request 39155428748](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155428748) completed/success | [12147097623](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155428748/artifacts/12147097623) / verified-sha一致 | `sha256:2d8c7d052bd3374e749c36f10501ebbc6cc6f8ca63f9ce1a93d07ba466ecefd5` |
+| #20 / `3acf2f1958359852b33ae7b34bc0ec259d14dd4d` | [push 39155416740](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155416740) completed/success | [12147206912](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155416740/artifacts/12147206912) / verified-sha一致 | `sha256:ba4e4afa6c2895871dafad63201422815be4dd29cd0bbb0e59ce8482cdf66f2d` |
+| #20 / `3acf2f1958359852b33ae7b34bc0ec259d14dd4d` | [pull_request 39155470947](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155470947) completed/success | [12146534636](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155470947/artifacts/12146534636) / verified-sha一致 | `sha256:75eb4ba559be1ebb913c26156c65864e847d9496c10126506265127895fa53cc` |
+
+各runで#19はunit410/browser107 passed、#20はunit420/browser114 passed、unexpected/flaky0。通常browserのoffline1 skipped、専用production offline1、通常性能1、controlled9群をそれぞれ確認した。#19/#20の全ローカル検証を実施したという意味ではなく、上記のpublished CIと対象ローカルを分離する。
+
+### R20/G5：#17固有の500-node UI速度失敗の来歴
+
+測定実装は [b78c7f2固定のperformance.spec.ts](https://github.com/chameleonjp-lab/rontenseiri/blob/b78c7f2cc759ceab3bc35f446284c6ecd2776051/e2e/performance.spec.ts)。
+
+**系列は `b78c7f2cc759ceab3bc35f446284c6ecd2776051` のみ。** selection p95 228.40ms、search206.60msで200ms上限に不合格。#11 `7da450fd60dd8eb91ca686867c7dbcdaef944e53`、#15 `64d8830abe1b1efa628dbea10456638bbac4fae9`、#16 `563715de2df26a910643af04490aec7bf8d4216d` の値・環境・系列と統合しない。controlled-production9群とCI成功は別測定で、この失敗を取り消さない。原因は未解決、G5未受入。R23の保存/訂正/限定出力/復元・履歴増大時メモリは別の未測定項目で、このUI速度値をR23の測定にしない。
+
+| 測定契約 / 来歴 | 保存済みrawから確認できる内容 |
+|---|---|
+| 対象 / SHA | `canvas-500-v1`、Project v1、500nodes/50,000codepoints。servedIdentityと開始終了HEADは上記SHA、dirty=false、前後worktree空。rawのpublicPrHeadVerified=falseは公開PR照合を測定単独で証明しない旨で、公開head/CI API照合は別に行った。 |
+| 時刻 / 種別 | 2026-10-18 18:45:04.469–18:46:39.972 UTC。local-only / legacy-development-v2.1、diagnosticOnly=true、eligibleForG5=false。製品予算超過の診断記録であって正式production/実機G5計測ではない。 |
+| 環境 / browser / build | Linux kernel6.18.38+、Intel Xeon @2.50GHz、8 logical cores、memoryBytes25383874560。headless `/usr/bin/chromium` 151.0.7922.34、Playwright1.64.1、1440×980。WebGLはSwiftShader、WebGPU実機未取得。Vite development server（production timingではない）、health応答とdev client/HMRも一致。 |
+| 操作 / 件数 | selection→search→foldの順、1 session、各100観測、warmup0、除外0。8つの時系列分散IDを使用。selectionは検索/焦点準備を計測外にし、選択解除後の実pointer click。searchはtextbox fill+Enter。foldは交互toggleだが、上記2件の失敗値へ混ぜない。 |
+| p95算法 / 時間定義 | 各操作の100個を昇順sortし `sorted[max(0, ceil(n*0.95)-1)]`、補間なし。performance.mark直前→DOM条件確認と次frameまで。selection/searchは3 stable framesも要求。Playwright RPC/action/readiness overheadを含み、paint/実機input latencyではない。 |
+| 再現用の実行条件 | exact SHAのclean checkoutと依存導入後、`PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium PLAYWRIGHT_PORT=4254 PLAYWRIGHT_REPORT_PATH=<new-output>/performance-e2e-results.json npx playwright test e2e/performance.spec.ts --output=<new-output>/performance`。実際はdefault `playwright.config.ts`、workers1/retries0、`npm run dev -- --port 4254 --strictPort`で新規server。先行buildは通過したが測定対象はpreviewではない。未実行の再現手順であり、失敗値が再現する保証や今回の再測定ではない。 |
+| 未制御 / 不明 | operation群間cache隔離なし（selection準備にsearchを含む）、Vite module/OS cacheはwarmの可能性、同時host負荷は未制御。温度/clock・負荷時系列・Node/npm版・heap・実GPUはこのrawに記録がなく不明。環境差を原因と断定せず、免責しない。 |
+| 失敗証拠 / trace境界 | 下記環境内保持先のraw JSONに300操作のvalues/operationLog、performance.logとreportに200ms assertion失敗。failure画像/error-contextあり。full DOM traceは測定汚染を避けoffで、trace.zip存在を主張しない。失敗データを変更・再実行していない。 |
+
+環境内保持先（リポジトリ未収録、GitHub CI runではない）：
+`/workspace/r22-followup-20261019-FpncwY/r24-final-b78c7f2cc759ceab3bc35f446284c6ecd2776051/`
+
+| 証拠ファイル | SHA-256 |
+|---|---|
+| `artifacts-generated/canvas-performance.json` | `dd30d962cce0484fde9714209c38519a7bdae34e2ae2bd387547ca4d848b0e3a` |
+| `performance.log` | `3fab7648caaf7f1aabaa1159042410208404e0e956a7e2aa73d5ff1cc77724b0` |
+| `performance-e2e-results.json` | `2a8f42cb34b4e5c2d0c55e4fa2c33015ae045f27c5d67d4cc062924579998c9a` |
+
+元の`verified-sha.txt`、`head-after.txt`、前後worktree、`SHA256SUMS`も同じ保持先に残す。上の再計算は保存rawの照合であり性能測定の再実行ではない。
 
 ## P2の限定的な経路追加
 
