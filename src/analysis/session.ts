@@ -231,6 +231,16 @@ function jsonValue(value: unknown): unknown {
     throw new Error("invalid result object");
   return JSON.parse(text);
 }
+function isBoundedReconciliation(
+  value: unknown,
+): value is Record<string, unknown> {
+  return (
+    !!value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    (value as Record<string, unknown>).kind === "fixture-bounded-reconciliation"
+  );
+}
 function explicitReconciliationStatus(value: unknown): "complete" | "partial" {
   if (value === null || typeof value !== "object") return "complete";
   const record = value as Record<string, unknown>;
@@ -400,6 +410,9 @@ export class AnalysisSession {
         this.inspectCheckpoint(loaded),
         combined.signal,
       );
+      const resumingBoundedPartial =
+        isBoundedReconciliation(checkpoint.reconciled) &&
+        explicitReconciliationStatus(checkpoint.reconciled) === "partial";
       checkpoint.generationId =
         this.opts.generationId ?? `${this.id}:${generation}`;
       guard();
@@ -420,8 +433,10 @@ export class AnalysisSession {
         checkpoint = next;
         this.checkpoint = structuredClone(next);
       };
-      // Establish a durable empty prefix, so cancellation of the first chunk is resumable.
-      await save(checkpoint);
+      // Establish a durable empty prefix for candidate work. A bounded partial
+      // already has a durable reconcile prefix: do not rewrite even metadata
+      // until the resumed page has passed all continuation checks.
+      if (!resumingBoundedPartial) await save(checkpoint);
       for (let i = checkpoint.nextChunk; i < this.chunks.length; i++) {
         guard();
         const value = await cancellable(
@@ -456,7 +471,8 @@ export class AnalysisSession {
           ? undefined
           : explicitReconciliationStatus(checkpoint.reconciled);
       if (priorReconciliationStatus !== "complete") {
-        await save({ ...checkpoint, phase: "reconcile" });
+        if (!resumingBoundedPartial)
+          await save({ ...checkpoint, phase: "reconcile" });
         const value = await cancellable(
           this.opts.adapter.reconcile(
             {
@@ -470,6 +486,13 @@ export class AnalysisSession {
           combined.signal,
         );
         guard();
+        if (
+          isBoundedReconciliation(checkpoint.reconciled) &&
+          !isBoundedReconciliation(value)
+        )
+          throw new Error(
+            "bounded reconciliation cannot resume with a generic result",
+          );
         const page = this.validateReconciledResult(value);
         const reconciled = this.mergeBoundedReconciliationPage(
           checkpoint.reconciled,
@@ -677,13 +700,13 @@ export class AnalysisSession {
   }
 
   private mergeBoundedReconciliationPage(prior: unknown, page: unknown) {
-    const bounded = (value: unknown): value is Record<string, unknown> =>
-      !!value &&
-      typeof value === "object" &&
-      !Array.isArray(value) &&
-      (value as Record<string, unknown>).kind ===
-        "fixture-bounded-reconciliation";
-    if (!bounded(page)) return page;
+    if (!isBoundedReconciliation(page)) {
+      if (isBoundedReconciliation(prior))
+        throw new Error(
+          "bounded reconciliation cannot resume with a generic result",
+        );
+      return page;
+    }
     const cursor = page.cursor;
     const start = page.pageStartPairIndex;
     if (!cursor || typeof cursor !== "object" || !Number.isSafeInteger(start))
@@ -699,7 +722,7 @@ export class AnalysisSession {
         );
       return page;
     }
-    if (!bounded(prior))
+    if (!isBoundedReconciliation(prior))
       throw new Error(
         "bounded reconciliation cannot resume from a generic result",
       );
@@ -727,6 +750,48 @@ export class AnalysisSession {
       throw new Error(
         "bounded reconciliation page cursor gap or manifest mismatch",
       );
+    const cumulativeFields = [
+      "candidates",
+      "comparisons",
+      "retainedResults",
+      "inputBytes",
+      "outputBytes",
+      "elapsedMs",
+    ];
+    const nonRegressing = (
+      next: unknown,
+      previous: unknown,
+      label: string,
+      fields: readonly string[],
+    ) => {
+      if (
+        !next ||
+        !previous ||
+        typeof next !== "object" ||
+        typeof previous !== "object" ||
+        Array.isArray(next) ||
+        Array.isArray(previous)
+      )
+        throw new Error(`invalid bounded ${label}`);
+      const current = next as Record<string, unknown>;
+      const before = previous as Record<string, unknown>;
+      for (const field of fields) {
+        const n = current[field],
+          p = before[field];
+        const valid = (v: unknown): v is number =>
+          typeof v === "number" &&
+          Number.isFinite(v) &&
+          v >= 0 &&
+          (field === "elapsedMs" || Number.isSafeInteger(v));
+        if (!valid(n) || !valid(p) || n < p)
+          throw new Error(`bounded ${label}.${field} must not regress`);
+      }
+    };
+    nonRegressing(pageCursor, priorCursor, "cursor", [
+      "nextPairIndex",
+      ...cumulativeFields,
+    ]);
+    nonRegressing(page.counters, prior.counters, "counters", cumulativeFields);
     return {
       ...page,
       pageStartPairIndex: 0,

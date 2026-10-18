@@ -11,7 +11,7 @@ import {
   type FixtureCandidate,
 } from "../src/analysis/bounded-reconcile";
 
-function fixture() {
+function fixture(elapsedMs = 0) {
   const project = sampleProject();
   const source = {
     ...project.sources[0],
@@ -32,6 +32,7 @@ function fixture() {
     disposition: i === 2 ? "hold" : "relation",
   }));
   let saved: AnalysisCheckpoint | undefined;
+  let reconcileResponse: unknown;
   const save = vi.fn(async (checkpoint: AnalysisCheckpoint) => {
     saved = structuredClone(checkpoint);
   });
@@ -54,10 +55,16 @@ function fixture() {
       return value;
     },
     validateReconciled: (value: unknown) =>
-      parseBoundedResult(value, candidates),
+      value &&
+      typeof value === "object" &&
+      (value as Record<string, unknown>).kind !==
+        "fixture-bounded-reconciliation"
+        ? value
+        : parseBoundedResult(value, candidates),
     adapter: {
       analyzeChunk,
       async reconcile({ prior }: { prior: AnalysisCheckpoint }) {
+        if (reconcileResponse !== undefined) return reconcileResponse;
         const previous =
           prior.reconciled === undefined
             ? undefined
@@ -74,7 +81,7 @@ function fixture() {
           },
           {
             cursor: previous?.cursor,
-            elapsedMs: () => 0,
+            elapsedMs: () => elapsedMs,
             onCompare: (a, b) => compared.push(`${a.id}|${b.id}`),
           },
         );
@@ -91,6 +98,9 @@ function fixture() {
     get: () => saved!,
     set: (value: AnalysisCheckpoint) => {
       saved = value;
+    },
+    setReconcileResponse: (value: unknown) => {
+      reconcileResponse = value;
     },
   };
 }
@@ -134,6 +144,8 @@ describe("bounded reconciliation through AnalysisSession", () => {
     "invalid-evidence-span",
     "duplicate-results",
     "old-output-schema",
+    "invalid-evidence-source-version",
+    "out-of-range-evidence-span",
   ])(
     "rejects %s before saving or invoking any adapter and leaves persisted state unchanged",
     async (fault) => {
@@ -156,6 +168,24 @@ describe("bounded reconciliation through AnalysisSession", () => {
       if (fault === "duplicate-results")
         result.results.push(structuredClone(result.results[0]));
       if (fault === "old-output-schema") result.version = 0;
+      if (fault === "invalid-evidence-source-version")
+        (
+          checkpoint.candidates[0].value as { evidence: unknown[] }
+        ).evidence[0] = {
+          sourceId: f.project.sources[0].id,
+          sourceVersionId: "old-version",
+          start: 0,
+          end: 1,
+        };
+      if (fault === "out-of-range-evidence-span")
+        (
+          checkpoint.candidates[0].value as { evidence: unknown[] }
+        ).evidence[0] = {
+          sourceId: f.project.sources[0].id,
+          sourceVersionId: f.project.sources[0].versionId,
+          start: 0,
+          end: 999,
+        };
       f.set(checkpoint);
       const before = structuredClone(f.get());
       const projectBefore = structuredClone(f.project);
@@ -231,4 +261,117 @@ describe("session page continuity and persisted aggregate", () => {
     expect(f.save).not.toHaveBeenCalled();
     expect(f.get()).toEqual(before);
   });
+
+  it("rejects a generic resume page without losing the bounded prefix", async () => {
+    const f = fixture(1);
+    const session = new AnalysisSession(f.options);
+    await session.run();
+    const before = structuredClone(f.get());
+    const projectBefore = structuredClone(f.project);
+    f.setReconcileResponse({ value: "generic-complete" });
+    f.save.mockClear();
+    await expect(session.resume()).rejects.toThrow(/bounded.*generic/);
+    expect(session.status).toBe("failed");
+    expect(f.save).not.toHaveBeenCalled();
+    expect(f.get()).toEqual(before);
+    expect(session).toHaveProperty("checkpoint", before);
+    expect(f.project).toEqual(projectBefore);
+  });
+
+  it.each(["cursor", "counters", "both"] as const)(
+    "rejects %s elapsed rollback while preserving the exact committed state",
+    async (which) => {
+      const f = fixture(1);
+      // Individual-block faults deliberately bypass page self-consistency in
+      // the test validator to isolate Session's two independent guards. The
+      // both-block exploit keeps the strict parser: this is a valid standalone
+      // page which must still be rejected relative to the committed cursor.
+      const session = new AnalysisSession({
+        ...f.options,
+        ...(which === "both"
+          ? {}
+          : { validateReconciled: (value: unknown) => value }),
+      });
+      await session.run();
+      const first = parseBoundedResult(f.get().reconciled, f.candidates);
+      expect(first.cursor.elapsedMs).toBeGreaterThan(0);
+      const page = reconcileFixtureCandidates(
+        f.candidates,
+        {
+          maxCandidates: 10,
+          maxComparisons: 1,
+          maxRetainedResults: 10,
+          maxInputBytes: 100_000,
+          maxOutputBytes: 100_000,
+          maxElapsedMs: 10,
+        },
+        { cursor: first.cursor, elapsedMs: () => 1 },
+      );
+      const bad = structuredClone(page) as Record<string, any>;
+      if (which !== "counters") bad.cursor.elapsedMs = 0;
+      if (which !== "cursor") bad.counters.elapsedMs = 0;
+      if (which === "both")
+        expect(parseBoundedResult(bad, f.candidates)).toEqual(bad);
+      f.setReconcileResponse(bad);
+      const before = structuredClone(f.get());
+      const projectBefore = structuredClone(f.project);
+      f.save.mockClear();
+      await expect(session.resume()).rejects.toThrow(/must not regress/);
+      expect(session.status).toBe("failed");
+      expect(f.save).not.toHaveBeenCalled();
+      expect(f.get()).toEqual(before);
+      expect(session).toHaveProperty("checkpoint", before);
+      expect(f.project).toEqual(projectBefore);
+    },
+  );
+
+  it.each(
+    (
+      [
+        "candidates",
+        "comparisons",
+        "retainedResults",
+        "inputBytes",
+        "outputBytes",
+      ] as const
+    ).flatMap((field) =>
+      (["cursor", "counters"] as const).map((which) => ({ field, which })),
+    ),
+  )(
+    "rejects independently decreased $which.$field before any checkpoint save",
+    async ({ which, field }) => {
+      const f = fixture(1);
+      const session = new AnalysisSession({
+        ...f.options,
+        validateReconciled: (value: unknown) => value,
+      });
+      await session.run();
+      const first = parseBoundedResult(f.get().reconciled, f.candidates);
+      expect(first[which][field]).toBeGreaterThan(0);
+      const page = reconcileFixtureCandidates(
+        f.candidates,
+        {
+          maxCandidates: 10,
+          maxComparisons: 1,
+          maxRetainedResults: 10,
+          maxInputBytes: 100_000,
+          maxOutputBytes: 100_000,
+          maxElapsedMs: 10,
+        },
+        { cursor: first.cursor, elapsedMs: () => 1 },
+      );
+      const bad = structuredClone(page) as Record<string, any>;
+      bad[which][field] = 0;
+      f.setReconcileResponse(bad);
+      const before = structuredClone(f.get());
+      const projectBefore = structuredClone(f.project);
+      f.save.mockClear();
+      await expect(session.resume()).rejects.toThrow(/must not regress/);
+      expect(session.status).toBe("failed");
+      expect(f.save).not.toHaveBeenCalled();
+      expect(f.get()).toEqual(before);
+      expect(session).toHaveProperty("checkpoint", before);
+      expect(f.project).toEqual(projectBefore);
+    },
+  );
 });
