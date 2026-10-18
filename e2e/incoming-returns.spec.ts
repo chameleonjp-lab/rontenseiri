@@ -149,3 +149,48 @@ test("複数incomingの保持選択は全edgeのID・順序・根拠を変えな
     .poll(async () => (await stored(page, project.title))?.relations)
     .toEqual(project.relations);
 });
+
+test("確認選択後に原文モードで根拠本文を保存すると選択を無効化し、再承認までは解除しない", async ({
+  page,
+}) => {
+  const { project, panel } = await openFixture(page);
+  await panel.getByLabel("発言の分類").selectOption("derived");
+  await panel.getByLabel("線を外して未確定", { exact: true }).check();
+  await panel.getByRole("button", { name: "発言・原文", exact: true }).click();
+  const updatedQuote =
+    project.utterances.find((u) => u.id === "U10")!.quote +
+    "【更新後の判断根拠】";
+  await panel.getByLabel("訂正後の原文").fill(updatedQuote);
+  await panel
+    .getByLabel("変更理由", { exact: true })
+    .fill("判断根拠となる原文を更新");
+  await panel.getByRole("button", { name: "訂正を保存", exact: true }).click();
+  await expect(panel.locator("blockquote")).toHaveText(updatedQuote);
+  await panel.getByRole("button", { name: "分類・関係", exact: true }).click();
+  await expect(panel.getByLabel("発言の分類")).toHaveValue("derived");
+  const explanation = panel.getByRole("region", { name: "この発言への復帰線" });
+  await expect(explanation).toContainText(`根拠 U10：「${updatedQuote}」`);
+  await expect(
+    panel.getByLabel("線を外して未確定", { exact: true }),
+  ).not.toBeChecked();
+  await expect(
+    panel.getByLabel("線を残して要確認", { exact: true }),
+  ).not.toBeChecked();
+  await panel
+    .getByLabel("変更理由", { exact: true })
+    .fill("更新後の根拠を確認して分類変更");
+  await panel.getByRole("button", { name: "訂正を保存", exact: true }).click();
+  await expect(page.getByRole("alert")).toContainText("線を残すか外すか");
+  await save(page);
+  await expect
+    .poll(async () => (await stored(page, project.title))?.relations)
+    .toEqual(project.relations);
+  await panel.getByLabel("線を外して未確定", { exact: true }).check();
+  await panel.getByRole("button", { name: "訂正を保存", exact: true }).click();
+  await expect(explanation).toHaveCount(0);
+  await expect
+    .poll(async () => (await stored(page, project.title))?.relations)
+    .toEqual(
+      project.relations.filter((r) => !(r.kind === "return" && r.to === "U10")),
+    );
+});

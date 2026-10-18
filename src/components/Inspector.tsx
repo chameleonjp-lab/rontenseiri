@@ -56,10 +56,16 @@ export default function Inspector({
     (r) =>
       r.kind === "return" && r.to !== u.id && incomingSourceIds.has(r.from),
   );
-  const incomingReturnSignature = JSON.stringify([
-    incomingReturns,
-    preservedReturns,
-  ]);
+  const incomingReturnSignature = JSON.stringify(
+    [incomingReturns, preservedReturns].map((relations) =>
+      relations.map((relation) => ({
+        ...relation,
+        evidenceQuotes: relation.evidenceIds.map(
+          (id) => project.utterances.find((item) => item.id === id)?.quote,
+        ),
+      })),
+    ),
+  );
   const [classification, setClassification] = useState(u.classification);
   const [speaker, setSpeaker] = useState(u.speaker);
   const [important, setImportant] = useState(u.important);

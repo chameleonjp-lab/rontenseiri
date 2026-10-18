@@ -7,6 +7,7 @@ import {
   linkResponse,
 } from "../src/domain/reasoning";
 import { exportProject } from "../src/export/project";
+import type { Project } from "../src/domain/types";
 
 type Destination = "left" | "right" | "both" | "unresolved";
 const time = {
@@ -127,10 +128,130 @@ test.describe("発言分割の実選択・保存・復元", () => {
         .getByRole("button", { name: "この発言を2つに分ける", exact: true })
         .click();
       await expect(detail).toContainText("A: l");
+      if (destination === "left") {
+        // Keep the real write transaction open until the test releases it.
+        // A generic toast match must not be mistaken for durable completion.
+        await page.evaluate((title) => {
+          const state = { started: false, release: false };
+          (window as Window & { splitSaveGate?: typeof state }).splitSaveGate =
+            state;
+          const originalPut = IDBObjectStore.prototype.put;
+          IDBObjectStore.prototype.put = function (value, key) {
+            const request = originalPut.call(this, value, key);
+            if (this.name === "projects" && value?.title === title) {
+              const store = this;
+              const keepAlive = () => {
+                state.started = true;
+                if (!state.release) store.get(key!).onsuccess = keepAlive;
+              };
+              store.get(key!).onsuccess = keepAlive;
+            }
+            return request;
+          };
+        }, project.title);
+      }
       await page
         .getByRole("button", { name: "この端末に保存", exact: true })
         .click();
-      await expect(page.getByRole("status")).toContainText("保存");
+      if (destination === "left") {
+        await page.waitForFunction(
+          () =>
+            (window as Window & { splitSaveGate?: { started: boolean } })
+              .splitSaveGate?.started,
+        );
+        await expect(
+          page.getByText("このブラウザに保存しました", { exact: false }),
+        ).toHaveCount(0);
+        await page.evaluate(() => {
+          (
+            window as Window & { splitSaveGate?: { release: boolean } }
+          ).splitSaveGate!.release = true;
+        });
+      }
+      // The import toast also contains 「保存」. Only the completed-save
+      // message plus the committed IndexedDB record authorizes reload.
+      await expect(page.getByRole("status")).toContainText(
+        "このブラウザに保存しました",
+      );
+      await expect
+        .poll(async () => {
+          return page.evaluate(
+            async ({ title, oldId, destination, referenceIds }) => {
+              const db = await new Promise<IDBDatabase>((resolve, reject) => {
+                const request = indexedDB.open("rontenseiri-projects-v1", 1);
+                request.onsuccess = () => resolve(request.result);
+                request.onerror = () => reject(request.error);
+              });
+              try {
+                const tx = db.transaction("projects", "readonly");
+                const done = new Promise<void>((resolve, reject) => {
+                  tx.oncomplete = () => resolve();
+                  tx.onerror = () => reject(tx.error);
+                  tx.onabort = () => reject(tx.error);
+                });
+                const request = tx.objectStore("projects").getAll();
+                const saved = await new Promise<Project | undefined>(
+                  (resolve, reject) => {
+                    request.onsuccess = () =>
+                      resolve(
+                        (request.result as Project[]).find(
+                          (p) => p.title === title,
+                        ),
+                      );
+                    request.onerror = () => reject(request.error);
+                  },
+                );
+                await done;
+                const record = saved?.lineage?.records.find(
+                  (r) => r.operation === "split" && r.oldIds.includes(oldId),
+                );
+                const expected = !record
+                  ? []
+                  : destination === "left"
+                    ? [record.newIds[0]]
+                    : destination === "right"
+                      ? [record.newIds[1]]
+                      : record.newIds;
+                return {
+                  saved: saved?.saved,
+                  storageRevisionValid: (saved?.storageRevision ?? 0) >= 1,
+                  oldUtteranceAbsent:
+                    !!saved && !saved.utterances.some((u) => u.id === oldId),
+                  splitCount: record?.newIds.length,
+                  exactReferences: referenceIds.every((id) => {
+                    const ref = record?.references.find(
+                      (item) => item.referenceId === id,
+                    );
+                    return (
+                      !!ref &&
+                      JSON.stringify(ref.targetIds) ===
+                        JSON.stringify(expected) &&
+                      ref.status ===
+                        (destination === "unresolved"
+                          ? "unresolved"
+                          : "applied")
+                    );
+                  }),
+                };
+              } finally {
+                db.close();
+              }
+            },
+            {
+              title: project.title,
+              oldId: target.id,
+              destination,
+              referenceIds: [evidenceId, responseId, questionVersionId],
+            },
+          );
+        })
+        .toEqual({
+          saved: true,
+          storageRevisionValid: true,
+          oldUtteranceAbsent: true,
+          splitCount: 2,
+          exactReferences: true,
+        });
 
       await page.reload();
       await expect(page.getByText("最近の作業", { exact: true })).toBeVisible();
