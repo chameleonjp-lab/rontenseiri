@@ -22,6 +22,8 @@ async function focusedState(page: Page) {
       tag: element?.tagName ?? null,
       id: element?.getAttribute("data-id") ?? null,
       ariaLabel: element?.getAttribute("aria-label") ?? null,
+      flowNodeId:
+        element?.closest<HTMLElement>(".react-flow__node")?.dataset.id ?? null,
       className: element?.className ?? null,
       body: element === document.body,
       hiddenAncestor: hiddenAncestor?.outerHTML.slice(0, 240) ?? null,
@@ -115,6 +117,13 @@ for (const exit of ["button", "escape"] as const)
   }) => {
     await openSample(page);
     await collapse(page);
+    const hiddenNode = page.locator('[data-id="U03"]');
+    await expect(hiddenNode).toHaveAttribute("aria-hidden", "true");
+    await expect(hiddenNode).toHaveJSProperty("inert", true);
+    await expect(hiddenNode.locator(".speech-hit")).toHaveCSS(
+      "visibility",
+      "hidden",
+    );
 
     // U03 is a derived branch node: transcript remains a legal route to its Inspector
     // even while the graph branch is collapsed.
@@ -139,6 +148,8 @@ for (const exit of ["button", "escape"] as const)
       .isVisible()
       .catch(() => false);
     const focus = await assertUsableFocus(page, "U03");
+    expect(originalVisibleAfterCollapse).toBe(false);
+    expect(focus.flowNodeId).toBe("agenda-議題01");
     observed = {
       result: "focus-recovery-assertion",
       originalId: "U03",
@@ -159,6 +170,7 @@ test("折り畳みなしの表示中ノードはEscapeと閉じるボタンの�
   ).toBeVisible();
   await page.keyboard.press("Escape");
   const escapeFocus = await assertUsableFocus(page, "U01");
+  await expect(page.locator('[data-id="U01"] .speech-hit')).toBeFocused();
 
   await page.locator('[data-id="U01"] .speech-hit').click();
   await expect(
@@ -166,6 +178,7 @@ test("折り畳みなしの表示中ノードはEscapeと閉じるボタンの�
   ).toBeVisible();
   await page.getByRole("button", { name: "詳細を閉じる", exact: true }).click();
   const buttonFocus = await assertUsableFocus(page, "U01");
+  await expect(page.locator('[data-id="U01"] .speech-hit')).toBeFocused();
 
   observed = {
     result: "positive-control",

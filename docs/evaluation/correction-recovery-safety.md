@@ -24,6 +24,12 @@ Inspectorは選択IDが変わった場合だけフォームを同期していた
 
 `e2e/collapsed-focus-recovery.spec.ts`は折り畳み後の閉じるボタンとEscape、可視ノードへの元の復帰経路を検証する。BODY・非表示・inertへの復帰を許さない。新しい下書き・フォーカス回帰の観測はPlaywright添付へ保存し、環境固定パスや過去SHAへの書き込みを恒久テストへ持ち込まない。
 
+折り畳み直後のU03はCSS visibility=hidden・inert=true・aria-hidden=trueを実際にassertし、詳細を閉じた後も非表示であることと、復帰先が所属する`agenda-議題01`であることを厳密比較する。表示中のU01は議題へのfallbackではなく、元のspeech-hitへのフォーカスを確認する。
+
+## モーダル前の背景状態を保持する
+
+`e2e/modal-background-state.spec.ts`では背景workspaceに既存inert=true／aria-hidden=true、headerにinert=false／aria-hidden=falseを設定する。モーダル中は背景がinertとなり、閉じるボタンとEscapeの両方で元の状態配列が完全に戻ること、起点の出力ボタンにフォーカスが戻ることを確認する。同じ状態のまま再オープンも行う。製品側の不具合修正ではなく、既存契約の受入補完であり、実支援技術による成功の代わりにはしない。
+
 ## 実際の別タブ保存競合
 
 `e2e/g5-recovery.spec.ts`では新しいページを本筋から派生へ変更して保存し、古いページを本筋からずれへ実際に訂正して履歴を作る。本筋から本筋へのno-opではない。旧revisionの保存拒否、未保存の話者・理由下書きの保持、古いページ側の競合履歴、検証用ページで新しい保存だけが残ることを確認する。

@@ -1,0 +1,29 @@
+import { defineConfig } from "@playwright/test";
+const mode = process.env.DIAGNOSTIC_MODE;
+if (mode !== "dev" && mode !== "production") throw new Error("DIAGNOSTIC_MODE must be explicit");
+const port = mode === "dev" ? 4231 : 4232;
+const root = "/workspace/rontenseiri-evidence/investigation-5b0ac40";
+export default defineConfig({
+  testDir: ".",
+  testMatch: "latency-diagnostic.spec.ts",
+  fullyParallel: false,
+  workers: 1,
+  retries: 0,
+  outputDir: `${root}/${mode}-test-results`,
+  reporter: [["list"], ["json", { outputFile: `${root}/${mode}-e2e-results.json` }]],
+  projects: [{ name: mode }],
+  use: {
+    baseURL: `http://127.0.0.1:${port}`,
+    viewport: { width: 1440, height: 980 },
+    headless: true,
+    trace: "off",
+    screenshot: "only-on-failure",
+    launchOptions: { executablePath: "/usr/bin/chromium", args: ["--no-sandbox"] },
+  },
+  webServer: {
+    command: `npm run ${mode === "dev" ? "dev" : "preview"} -- --port ${port} --strictPort`,
+    cwd: process.cwd(),
+    url: `http://127.0.0.1:${port}`,
+    reuseExistingServer: false,
+  },
+});

@@ -1,0 +1,286 @@
+{
+  "protocol": "diagnostic-cdp-short-v1",
+  "notAcceptanceBenchmark": true,
+  "noP95Gate": true,
+  "historicalCauseStillUnproven": true,
+  "rows": [
+    {
+      "mode": "dev",
+      "name": "selection-0",
+      "id": "U01",
+      "totalMs": 216.90000000596046,
+      "actionMs": 135.40000000596046,
+      "settleMs": 63.5,
+      "extraFrameAndRpcMs": 18.0,
+      "rafCount": 9,
+      "longTasks": [
+        {
+          "name": "self",
+          "startTime": 2849.300000011921,
+          "duration": 60
+        }
+      ],
+      "cpuMs": {
+        "TaskDuration": 126.12599999999973,
+        "ScriptDuration": 58.095000000000006,
+        "LayoutDuration": 3.2460000000000266,
+        "RecalcStyleDuration": 3.164
+      }
+    },
+    {
+      "mode": "dev",
+      "name": "selection-1",
+      "id": "U167",
+      "totalMs": 165.60000002384186,
+      "actionMs": 86.2000000178814,
+      "settleMs": 64.2999999821186,
+      "extraFrameAndRpcMs": 15.100000023841858,
+      "rafCount": 8,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 85.86699999999992,
+        "ScriptDuration": 43.65299999999994,
+        "LayoutDuration": 3.0449999999999644,
+        "RecalcStyleDuration": 2.9689999999999994
+      }
+    },
+    {
+      "mode": "dev",
+      "name": "selection-2",
+      "id": "U334",
+      "totalMs": 181,
+      "actionMs": 100.10000002384186,
+      "settleMs": 68.59999999403954,
+      "extraFrameAndRpcMs": 12.299999982118607,
+      "rafCount": 9,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 111.43400000000003,
+        "ScriptDuration": 51.33399999999999,
+        "LayoutDuration": 2.9619999999999647,
+        "RecalcStyleDuration": 3.1000000000000054
+      }
+    },
+    {
+      "mode": "dev",
+      "name": "selection-3",
+      "id": "U500",
+      "totalMs": 164.7999999821186,
+      "actionMs": 78.40000000596046,
+      "settleMs": 70.39999997615814,
+      "extraFrameAndRpcMs": 16.0,
+      "rafCount": 9,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 89.04699999999988,
+        "ScriptDuration": 44.20499999999983,
+        "LayoutDuration": 2.7429999999999954,
+        "RecalcStyleDuration": 2.9859999999999958
+      }
+    },
+    {
+      "mode": "dev",
+      "name": "search-0",
+      "id": "U01",
+      "totalMs": 181.5,
+      "actionMs": 99.30000001192093,
+      "settleMs": 65.19999998807907,
+      "extraFrameAndRpcMs": 17.0,
+      "rafCount": 9,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 99.91700000000003,
+        "ScriptDuration": 49.62399999999989,
+        "LayoutDuration": 2.7639999999999887,
+        "RecalcStyleDuration": 3.152000000000002
+      }
+    },
+    {
+      "mode": "dev",
+      "name": "search-1",
+      "id": "U167",
+      "totalMs": 158.09999999403954,
+      "actionMs": 87.90000000596046,
+      "settleMs": 54.0,
+      "extraFrameAndRpcMs": 16.19999998807907,
+      "rafCount": 8,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 94.42200000000022,
+        "ScriptDuration": 48.2269999999998,
+        "LayoutDuration": 2.693999999999974,
+        "RecalcStyleDuration": 3.273999999999999
+      }
+    },
+    {
+      "mode": "dev",
+      "name": "search-2",
+      "id": "U334",
+      "totalMs": 187.39999997615814,
+      "actionMs": 102.5,
+      "settleMs": 69.19999998807907,
+      "extraFrameAndRpcMs": 15.699999988079071,
+      "rafCount": 10,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 114.43599999999998,
+        "ScriptDuration": 55.17900000000009,
+        "LayoutDuration": 2.917000000000003,
+        "RecalcStyleDuration": 3.6670000000000034
+      }
+    },
+    {
+      "mode": "dev",
+      "name": "search-3",
+      "id": "U500",
+      "totalMs": 165.69999998807907,
+      "actionMs": 93.5,
+      "settleMs": 56.900000005960464,
+      "extraFrameAndRpcMs": 15.299999982118607,
+      "rafCount": 8,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 99.38499999999983,
+        "ScriptDuration": 52.381000000000014,
+        "LayoutDuration": 3.477000000000008,
+        "RecalcStyleDuration": 3.5390000000000006
+      }
+    },
+    {
+      "mode": "production",
+      "name": "selection-0",
+      "id": "U01",
+      "totalMs": 185.5,
+      "actionMs": 104.90000000596046,
+      "settleMs": 64.39999997615814,
+      "extraFrameAndRpcMs": 16.200000017881393,
+      "rafCount": 10,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 96.90399999999988,
+        "ScriptDuration": 19.941999999999986,
+        "LayoutDuration": 3.6379999999999746,
+        "RecalcStyleDuration": 4.032000000000001
+      }
+    },
+    {
+      "mode": "production",
+      "name": "selection-1",
+      "id": "U167",
+      "totalMs": 131.90000000596046,
+      "actionMs": 54.29999998211861,
+      "settleMs": 60.400000005960464,
+      "extraFrameAndRpcMs": 17.200000017881393,
+      "rafCount": 8,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 53.539,
+        "ScriptDuration": 12.626999999999999,
+        "LayoutDuration": 2.73000000000001,
+        "RecalcStyleDuration": 2.7889999999999997
+      }
+    },
+    {
+      "mode": "production",
+      "name": "selection-2",
+      "id": "U334",
+      "totalMs": 131.39999997615814,
+      "actionMs": 48.599999994039536,
+      "settleMs": 66.69999998807907,
+      "extraFrameAndRpcMs": 16.099999994039536,
+      "rafCount": 8,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 57.09199999999992,
+        "ScriptDuration": 11.463000000000001,
+        "LayoutDuration": 2.5129999999999875,
+        "RecalcStyleDuration": 2.918999999999998
+      }
+    },
+    {
+      "mode": "production",
+      "name": "selection-3",
+      "id": "U500",
+      "totalMs": 114.69999998807907,
+      "actionMs": 40.900000005960464,
+      "settleMs": 58.400000005960464,
+      "extraFrameAndRpcMs": 15.399999976158142,
+      "rafCount": 7,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 41.17999999999999,
+        "ScriptDuration": 10.884000000000004,
+        "LayoutDuration": 2.6599999999999957,
+        "RecalcStyleDuration": 2.696999999999998
+      }
+    },
+    {
+      "mode": "production",
+      "name": "search-0",
+      "id": "U01",
+      "totalMs": 144.5,
+      "actionMs": 56.900000005960464,
+      "settleMs": 70.80000001192093,
+      "extraFrameAndRpcMs": 16.799999982118607,
+      "rafCount": 9,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 63.998,
+        "ScriptDuration": 14.522000000000034,
+        "LayoutDuration": 2.8810000000000224,
+        "RecalcStyleDuration": 3.1800000000000024
+      }
+    },
+    {
+      "mode": "production",
+      "name": "search-1",
+      "id": "U167",
+      "totalMs": 138.0,
+      "actionMs": 63.19999998807907,
+      "settleMs": 58.400000005960464,
+      "extraFrameAndRpcMs": 16.400000005960464,
+      "rafCount": 9,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 73.70900000000003,
+        "ScriptDuration": 14.114999999999988,
+        "LayoutDuration": 2.9759999999999787,
+        "RecalcStyleDuration": 3.6640000000000006
+      }
+    },
+    {
+      "mode": "production",
+      "name": "search-2",
+      "id": "U334",
+      "totalMs": 136.5,
+      "actionMs": 56.599999994039536,
+      "settleMs": 64.09999999403954,
+      "extraFrameAndRpcMs": 15.800000011920929,
+      "rafCount": 9,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 64.29600000000013,
+        "ScriptDuration": 13.28600000000002,
+        "LayoutDuration": 2.927999999999986,
+        "RecalcStyleDuration": 3.5330000000000084
+      }
+    },
+    {
+      "mode": "production",
+      "name": "search-3",
+      "id": "U500",
+      "totalMs": 137.40000000596046,
+      "actionMs": 55.400000005960464,
+      "settleMs": 66.5,
+      "extraFrameAndRpcMs": 15.5,
+      "rafCount": 9,
+      "longTasks": [],
+      "cpuMs": {
+        "TaskDuration": 70.00000000000028,
+        "ScriptDuration": 14.038999999999968,
+        "LayoutDuration": 2.6670000000000305,
+        "RecalcStyleDuration": 3.7419999999999956
+      }
+    }
+  ]
+}
