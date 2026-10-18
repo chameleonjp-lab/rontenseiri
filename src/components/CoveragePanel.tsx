@@ -4,6 +4,7 @@ import type { Project } from "../domain/types";
 import { labels } from "../domain/types";
 import { activeSources, projectCapacity } from "../domain/capacity";
 import { auditSourceCoverage, classifySourceRange } from "../domain/coverage";
+import { useFormDraftGuard } from "./draft-guard";
 const names = {
   utterance: "発言",
   metadata: "非発言情報",
@@ -23,6 +24,7 @@ export default function CoveragePanel({
 }) {
   const [pages, setPages] = useState<Record<string, number>>({});
   const [reason, setReason] = useState("");
+  const markApplied = useFormDraftGuard(reason, "view");
   const capacity = projectCapacity(project);
   return (
     <section className="reading-view coverage-panel">
@@ -111,6 +113,7 @@ export default function CoveragePanel({
                                   reason,
                                 ),
                               );
+                              markApplied();
                             } catch (e) {
                               onError(String(e));
                             }

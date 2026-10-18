@@ -23,9 +23,19 @@ import {
   correctReturn,
   moveUtterance,
 } from "../domain/revisions";
+export interface InspectorFormDraft {
+  classification: Classification;
+  speaker: string;
+  important: boolean;
+  classificationReason: string;
+  returnTo: string;
+  targetAgenda: string;
+  boundaryReason: string;
+}
 interface Props {
   project: Project;
   sourceDrafts?: Map<string, SourceEditDraft>;
+  formDrafts?: Map<string, InspectorFormDraft>;
   utteranceId: string;
   onUpdate: (p: Project) => void;
   onClose: () => void;
@@ -33,10 +43,12 @@ interface Props {
   onSummary: () => void;
   onGraph: () => void;
   onError: (s: string) => void;
+  onDraftChange?: (dirty: boolean) => void;
 }
 export default function Inspector({
   project,
   sourceDrafts,
+  formDrafts,
   utteranceId,
   onUpdate,
   onClose,
@@ -44,9 +56,12 @@ export default function Inspector({
   onSummary,
   onGraph,
   onError,
+  onDraftChange,
 }: Props) {
   const u = project.utterances.find((item) => item.id === utteranceId)!;
   const agenda = project.agendas.find((a) => a.utteranceIds.includes(u.id));
+  const formKey = `${project.id}:${u.id}`;
+  const cachedForm = formDrafts?.get(formKey);
   const existingReturn = project.relations.find(
     (r) => r.from === u.id && r.kind === "return",
   );
@@ -74,10 +89,16 @@ export default function Inspector({
       })),
     ),
   });
-  const [classification, setClassification] = useState(u.classification);
-  const [speaker, setSpeaker] = useState(u.speaker);
-  const [important, setImportant] = useState(u.important);
-  const [classificationReason, setClassificationReason] = useState("");
+  const [classification, setClassification] = useState(
+    cachedForm?.classification ?? u.classification,
+  );
+  const [speaker, setSpeaker] = useState(cachedForm?.speaker ?? u.speaker);
+  const [important, setImportant] = useState(
+    cachedForm?.important ?? u.important,
+  );
+  const [classificationReason, setClassificationReason] = useState(
+    cachedForm?.classificationReason ?? "",
+  );
   const source = project.sources.find((s) => s.versionId === u.sourceVersionId);
   const [cueSpanIndex, setCueSpanIndex] = useState(0);
   const editingCueIndex = Math.min(
@@ -116,27 +137,78 @@ export default function Inspector({
     mode === "source"
       ? updateSourceDraft({ reason: value })
       : setClassificationReason(value);
-  const [returnTo, setReturnTo] = useState(returnValue);
+  const [returnTo, setReturnTo] = useState(cachedForm?.returnTo ?? returnValue);
   const [incomingReturnAction, setIncomingReturnAction] = useState<
     "" | "keep" | "remove"
   >("");
-  const [targetAgenda, setTargetAgenda] = useState(agenda?.id || "");
-  const [boundaryReason, setBoundaryReason] = useState("");
+  const [targetAgenda, setTargetAgenda] = useState(
+    cachedForm?.targetAgenda ?? agenda?.id ?? "",
+  );
+  const [boundaryReason, setBoundaryReason] = useState(
+    cachedForm?.boundaryReason ?? "",
+  );
   useEffect(() => {
-    setClassification(u.classification);
-  }, [utteranceId, u.classification]);
+    const dirty =
+      classification !== u.classification ||
+      speaker !== u.speaker ||
+      important !== u.important ||
+      classificationReason !== "" ||
+      returnTo !== returnValue ||
+      targetAgenda !== (agenda?.id || "") ||
+      boundaryReason !== "";
+    onDraftChange?.(dirty);
+    if (dirty)
+      formDrafts?.set(formKey, {
+        classification,
+        speaker,
+        important,
+        classificationReason,
+        returnTo,
+        targetAgenda,
+        boundaryReason,
+      });
+    else formDrafts?.delete(formKey);
+  }, [
+    classification,
+    speaker,
+    important,
+    classificationReason,
+    returnTo,
+    returnValue,
+    targetAgenda,
+    boundaryReason,
+    u.classification,
+    u.speaker,
+    u.important,
+    agenda?.id,
+    onDraftChange,
+    formDrafts,
+    formKey,
+  ]);
+  useEffect(() => () => onDraftChange?.(false), [onDraftChange]);
+  const previousValues = useRef({
+    classification: u.classification,
+    speaker: u.speaker,
+    important: u.important,
+    returnValue,
+    agendaId: agenda?.id,
+  });
   useEffect(() => {
-    setSpeaker(u.speaker);
-  }, [utteranceId, u.speaker]);
-  useEffect(() => {
-    setImportant(u.important);
-  }, [utteranceId, u.important]);
-  useEffect(() => {
-    setReturnTo(returnValue);
-  }, [utteranceId, returnValue]);
-  useEffect(() => {
-    setTargetAgenda(agenda?.id || "");
-  }, [utteranceId, agenda?.id]);
+    const previous = previousValues.current;
+    if (previous.classification !== u.classification)
+      setClassification(u.classification);
+    if (previous.speaker !== u.speaker) setSpeaker(u.speaker);
+    if (previous.important !== u.important) setImportant(u.important);
+    if (previous.returnValue !== returnValue) setReturnTo(returnValue);
+    if (previous.agendaId !== agenda?.id) setTargetAgenda(agenda?.id || "");
+    previousValues.current = {
+      classification: u.classification,
+      speaker: u.speaker,
+      important: u.important,
+      returnValue,
+      agendaId: agenda?.id,
+    };
+  }, [u.classification, u.speaker, u.important, returnValue, agenda?.id]);
   useEffect(() => {
     setIncomingReturnAction("");
   }, [utteranceId, u.classification, incomingReturnSignature]);

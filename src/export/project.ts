@@ -477,6 +477,7 @@ export function importProject(text: string): Project {
     ...p,
     id: `restored-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     saved: false,
+    storageRevision: 0,
     updatedAt: new Date().toISOString(),
   };
 }

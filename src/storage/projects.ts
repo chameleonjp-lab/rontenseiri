@@ -73,28 +73,40 @@ export async function saveProject(project: Project): Promise<Project> {
     saved: true,
     updatedAt: new Date().toISOString(),
   });
-  if (projectCapacity(p).backupBytes > MAX_BACKUP_BYTES)
-    throw new Error(
-      "保存データが50MiBを超えています。履歴を整理するかJSONを保管してください。",
-    );
   try {
     const db = await getDb();
     const tx = db.transaction(STORE, "readwrite");
+    // idb exposes request errors and transaction completion separately. Observe
+    // completion before any request can fail, but preserve the original error.
+    const completion = tx.done;
+    void completion.catch(() => {});
     const key = `project:${p.id}`;
-    const stored = await tx.store.get(key);
     try {
+      const stored = await tx.store.get(key);
+      const previousRevision = p.storageRevision;
       p.storageRevision = storageGeneration(p, stored);
-      if (projectCapacity(p).backupBytes > MAX_BACKUP_BYTES)
+      // validateProject already checked the normalized record's full size.
+      // Only adding the generation field or increasing its digit count can
+      // grow the JSON after that check; equal-width numbers cost equal bytes.
+      if (
+        (previousRevision === undefined ||
+          String(p.storageRevision).length > String(previousRevision).length) &&
+        projectCapacity(p).backupBytes > MAX_BACKUP_BYTES
+      )
         throw new Error(
           "保存データが50MiBを超えています。既存の保存は維持されます。",
         );
+      await tx.store.put(p, key);
+      await completion;
     } catch (error) {
-      tx.abort();
-      await tx.done.catch(() => {});
+      try {
+        tx.abort();
+      } catch {
+        // A failed request may already have aborted the transaction.
+      }
+      await completion.catch(() => {});
       throw error;
     }
-    await tx.store.put(p, key);
-    await tx.done;
     recordMetric("save", performance.now() - started);
     return p;
   } catch (error) {

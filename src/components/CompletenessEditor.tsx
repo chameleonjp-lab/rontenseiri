@@ -3,6 +3,7 @@ import type { Extent, Omission, Project } from "../domain/types";
 import { labels } from "../domain/types";
 import { reviseCompleteness } from "../domain/completeness";
 import OmissionFields from "./OmissionFields";
+import { useDraftGuard } from "./draft-guard";
 
 type Props = {
   project: Project;
@@ -27,6 +28,12 @@ export default function CompletenessEditor({
   const [reason, setReason] = useState("");
 
   const reportSignature = JSON.stringify(project.omissions);
+  useDraftGuard(
+    extent !== project.extent ||
+      JSON.stringify(omissions) !== reportSignature ||
+      reason !== "",
+    "view",
+  );
   useEffect(() => {
     setExtent(project.extent);
     setOmissions(
@@ -76,6 +83,7 @@ export default function CompletenessEditor({
         onClick={() => {
           try {
             onUpdate(reviseCompleteness(project, extent, omissions, reason));
+            setReason("");
           } catch (error) {
             onError(String(error));
           }

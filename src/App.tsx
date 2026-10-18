@@ -30,9 +30,14 @@ import {
 } from "lucide-react";
 import DiscussionCanvas from "./components/DiscussionCanvas";
 import ExportDialog from "./components/ExportDialog";
-import Inspector from "./components/Inspector";
+import Inspector, { type InspectorFormDraft } from "./components/Inspector";
 import type { SourceEditDraft } from "./components/source-drafts";
 import OmissionFields from "./components/OmissionFields";
+import {
+  DraftGuardContext,
+  useDraftGuard,
+  type DraftScope,
+} from "./components/draft-guard";
 import { canUndo, undoLastRevision } from "./domain/revisions";
 import { useModalFocus } from "./components/useModalFocus";
 import type {
@@ -85,6 +90,26 @@ function Status({
 export default function App() {
   const [project, setProject] = useState<Project | null>(null);
   const sourceDrafts = useRef(new Map<string, SourceEditDraft>());
+  const formDrafts = useRef(new Map<string, InspectorFormDraft>());
+  const transientDrafts = useRef(new Map<string, DraftScope>());
+  const registerDraft = useCallback(
+    (key: string, scope: DraftScope, dirty: boolean) => {
+      if (dirty) transientDrafts.current.set(key, scope);
+      else transientDrafts.current.delete(key);
+      return () => {
+        transientDrafts.current.delete(key);
+      };
+    },
+    [],
+  );
+  const confirmTransientDrafts = useCallback(
+    (scope: DraftScope) =>
+      ![...transientDrafts.current.values()].includes(scope) ||
+      window.confirm(
+        "未適用のフォーム下書きがあります。ProjectのJSONには含まれません。下書きを破棄して移動しますか？",
+      ),
+    [],
+  );
   const [view, setView] = useState<View>("graph");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -105,12 +130,17 @@ export default function App() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [savedAt, setSavedAt] = useState("");
+  const [saveFailed, setSaveFailed] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
   const lastFocused = useRef<HTMLElement | null>(null);
   const savedProjectRef = useRef<Project | null>(null);
   const activeProjectRef = useRef(project);
   const selectedIdRef = useRef(selectedId);
+  const inspectorDraftDirty = useRef(false);
+  const receiveDraftChange = useCallback((dirty: boolean) => {
+    inspectorDraftDirty.current = dirty;
+  }, []);
   activeProjectRef.current = project;
   selectedIdRef.current = selectedId;
   useModalFocus(!!modal);
@@ -135,7 +165,15 @@ export default function App() {
   }, []);
   useEffect(() => {
     const warn = (e: BeforeUnloadEvent) => {
-      if (project && project !== savedProjectRef.current) e.preventDefault();
+      if (
+        project &&
+        (project !== savedProjectRef.current ||
+          inspectorDraftDirty.current ||
+          formDrafts.current.size > 0 ||
+          transientDrafts.current.size > 0 ||
+          sourceDrafts.current.size > 0)
+      )
+        e.preventDefault();
     };
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
@@ -147,6 +185,14 @@ export default function App() {
         .then((persisted) => {
           const current = activeProjectRef.current;
           if (!current || current.id !== project.id) return;
+          setSaveFailed(false);
+          setSavedAt(new Date(persisted.updatedAt).toLocaleTimeString("ja-JP"));
+          setError((previous) =>
+            previous.startsWith("保存失敗：") ||
+            previous.startsWith("保存できません：")
+              ? ""
+              : previous,
+          );
           setRecent((records) => [
             persisted,
             ...records.filter((record) => record.id !== persisted.id),
@@ -165,19 +211,24 @@ export default function App() {
                     saved: true,
                   },
             );
-            setSavedAt(new Date().toLocaleTimeString("ja-JP"));
           } else {
             // Preserve the newer in-memory edit; its effect will save next.
             savedProjectRef.current = persisted;
           }
         })
-        .catch((e: Error) =>
-          setError(`保存失敗：${e.message}。JSONをダウンロードしてください。`),
-        );
+        .catch((e: Error) => {
+          if (activeProjectRef.current?.id !== project.id) return;
+          setSaveFailed(true);
+          setMessage("");
+          setError(
+            `保存失敗：${e.message}。現在版を完全JSONで退避できます（未適用の下書きは含みません）。`,
+          );
+        });
     }, 650);
     return () => clearTimeout(timer);
   }, [project]);
   const closeDetails = useCallback(() => {
+    if (!confirmTransientDrafts("inspector")) return;
     setDetailsOpen(false);
     requestAnimationFrame(() => {
       const focusIfUsable = (element: HTMLElement | null): boolean => {
@@ -223,7 +274,13 @@ export default function App() {
         if (focusIfUsable(candidate)) return;
     });
   }, []);
+  function changeView(next: View) {
+    if (next !== view && !confirmTransientDrafts("view")) return;
+    setView(next);
+  }
   function goGraph(id = selectedId) {
+    if (view !== "graph" && !confirmTransientDrafts("view")) return;
+    if (!confirmTransientDrafts("inspector")) return;
     setView("graph");
     setDetailsOpen(false);
     if (!id) return;
@@ -254,6 +311,18 @@ export default function App() {
     return () => window.removeEventListener("keydown", esc);
   }, [modal]);
   const select = useCallback((id: string) => {
+    if (id !== selectedIdRef.current && !confirmTransientDrafts("inspector"))
+      return;
+    const current = activeProjectRef.current;
+    const targetAgenda = current?.agendas.find((a) =>
+      a.utteranceIds.includes(id),
+    );
+    if (
+      targetAgenda &&
+      targetAgenda.id !== current?.selectedAgendaId &&
+      !confirmTransientDrafts("view")
+    )
+      return;
     lastFocused.current = document.activeElement as HTMLElement;
     setSelectedId(id);
     setDetailsOpen(true);
@@ -266,23 +335,49 @@ export default function App() {
     });
   }, []);
   const selectAgenda = useCallback((id: string) => {
+    if (!confirmTransientDrafts("inspector")) return;
+    if (
+      id !== activeProjectRef.current?.selectedAgendaId &&
+      !confirmTransientDrafts("view")
+    )
+      return;
     setProject((p) =>
       p && p.selectedAgendaId !== id ? { ...p, selectedAgendaId: id } : p,
     );
     setSelectedId(null);
     setDetailsOpen(false);
   }, []);
+  function confirmLeaveProject() {
+    return (
+      !activeProjectRef.current ||
+      (activeProjectRef.current === savedProjectRef.current &&
+        !inspectorDraftDirty.current &&
+        formDrafts.current.size === 0 &&
+        transientDrafts.current.size === 0 &&
+        sourceDrafts.current.size === 0) ||
+      window.confirm(
+        "未保存の変更または未適用の下書きがあります。現在版のJSONにもフォーム下書きは含まれません。破棄して別の作業へ移りますか？",
+      )
+    );
+  }
   function openProject(next: Project) {
+    if (!confirmLeaveProject()) return false;
     sourceDrafts.current.clear();
+    formDrafts.current.clear();
+    transientDrafts.current.clear();
     setProject(next);
     setSelectedId(null);
     setDetailsOpen(false);
     setView("graph");
     setModal(null);
-    setSavedAt("");
+    setSavedAt(
+      next.saved ? new Date(next.updatedAt).toLocaleTimeString("ja-JP") : "",
+    );
     savedProjectRef.current = next.saved ? next : null;
     setError("");
     setMessage("");
+    setSaveFailed(false);
+    return true;
   }
   async function save() {
     if (!project) return;
@@ -300,6 +395,7 @@ export default function App() {
       const current = activeProjectRef.current;
       if (current?.id !== submitted.id) return;
       savedProjectRef.current = persisted;
+      setSaveFailed(false);
       if (current === submitted) setProject(persisted);
       else if (current.storageRevision === submitted.storageRevision)
         setProject({
@@ -307,39 +403,42 @@ export default function App() {
           saved: true,
           storageRevision: persisted.storageRevision,
         });
-      setSavedAt(new Date().toLocaleTimeString("ja-JP"));
+      setSavedAt(new Date(persisted.updatedAt).toLocaleTimeString("ja-JP"));
       tell(
         current === submitted
           ? "このブラウザに保存しました。復旧用JSONも保管してください。"
           : "保存しました。保存中の新しい編集は自動保存へ引き継ぎます。",
       );
     } catch (error) {
+      if (activeProjectRef.current?.id !== submitted.id) return;
+      setSaveFailed(true);
+      setMessage("");
       setError(
-        `保存できません：${String(error)}。出力からJSONを保管できます。`,
+        `保存できません：${String(error)}。現在版を完全JSONで退避できます（未適用の下書きは含みません）。`,
       );
     }
   }
-  function downloadLastSaved() {
-    if (!savedProjectRef.current) {
-      setError(
-        "まだ明示保存したデータがありません。入力中の原文は詳細画面からテキストで退避できます。",
+  function downloadRecovery(lastSaved: boolean) {
+    const snapshot = lastSaved
+      ? savedProjectRef.current
+      : activeProjectRef.current;
+    if (!snapshot) return;
+    try {
+      const text = exportProject(snapshot, "json", undefined, false);
+      const url = URL.createObjectURL(
+        new Blob([text], { type: "application/json" }),
       );
-      return;
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = lastSaved
+        ? "rontenseiri-last-saved.json"
+        : "rontenseiri-current-unsaved.json";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    } catch (e) {
+      setMessage("");
+      setError(`JSONの退避に失敗しました：${String(e)}`);
     }
-    const text = exportProject(
-      savedProjectRef.current,
-      "json",
-      undefined,
-      true,
-    );
-    const url = URL.createObjectURL(
-      new Blob([text], { type: "application/json" }),
-    );
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "rontenseiri-last-saved.json";
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   function update(next: Project) {
     let effectiveId = selectedId;
@@ -370,18 +469,16 @@ export default function App() {
   const selected = detailsOpen
     ? project?.utterances.find((u) => u.id === selectedId)
     : undefined;
-  return (
+  const content = (
     <div className="app-shell">
       <header className="app-header">
         <button
           className="brand"
           onClick={() => {
-            if (
-              project &&
-              project !== savedProjectRef.current &&
-              !window.confirm("未保存の変更があります。ホームへ戻りますか？")
-            )
-              return;
+            if (!confirmLeaveProject()) return;
+            sourceDrafts.current.clear();
+            formDrafts.current.clear();
+            transientDrafts.current.clear();
             setProject(null);
           }}
         >
@@ -399,11 +496,14 @@ export default function App() {
             </div>
             <div className="header-actions">
               <span className="save-state">
-                {savedAt
-                  ? `${savedAt} 保存`
-                  : project.saved
-                    ? "ブラウザ保存"
-                    : "一時作業・未保存"}
+                <span>
+                  {project !== savedProjectRef.current
+                    ? "未保存の変更があります"
+                    : "現在版は保存済み"}
+                </span>
+                <small>
+                  {savedAt ? `最後の保存：${savedAt}` : "まだ保存していません"}
+                </small>
               </span>
               <button onClick={save}>
                 <Save size={16} />
@@ -438,10 +538,34 @@ export default function App() {
           </div>
         )}
       </header>
-      {project && error && (
-        <button className="recovery-button" onClick={downloadLastSaved}>
-          直前に保存したJSONを退避
-        </button>
+      {project && saveFailed && (
+        <section className="save-recovery" aria-label="保存と復旧">
+          <strong>現在版は未保存です</strong>
+          <p>
+            {savedAt
+              ? `最後に保存できた版の時刻：${savedAt}。現在の変更はその版に含まれません。`
+              : "このProjectはまだ一度も保存できていません。"}
+          </p>
+          <p>
+            完全JSONは適用済みの現在のProject（原文・参照・履歴を含む）です。未適用のフォーム下書きは含みません。実名・機密情報も含むため保管先に注意してください。
+          </p>
+          <button
+            className="recovery-button"
+            onClick={() => downloadRecovery(false)}
+          >
+            現在の訂正を完全JSONで退避
+          </button>
+          <button
+            className="recovery-button"
+            disabled={!savedProjectRef.current}
+            onClick={() => downloadRecovery(true)}
+          >
+            最後に保存した版を完全JSONで退避
+          </button>
+          <p>
+            最後の保存版は現在の未保存変更を含みません。初回保存前は利用できません。下書きは元のフォームで適用してから退避してください。別コピーへの切替・画面離脱時は確認します。
+          </p>
+        </section>
       )}
       {project ? (
         <div className="workspace">
@@ -467,7 +591,7 @@ export default function App() {
                 className={view === item.id ? "active" : ""}
                 aria-current={view === item.id ? "page" : undefined}
                 onClick={() => {
-                  setView(item.id);
+                  changeView(item.id);
                   setMobileNav(false);
                 }}
               >
@@ -624,13 +748,15 @@ export default function App() {
               key={selected.id}
               project={project}
               sourceDrafts={sourceDrafts.current}
+              formDrafts={formDrafts.current}
               utteranceId={selected.id}
               onUpdate={update}
               onClose={closeDetails}
-              onTranscript={() => setView("transcript")}
-              onSummary={() => setView("summary")}
+              onTranscript={() => changeView("transcript")}
+              onSummary={() => changeView("summary")}
               onGraph={() => goGraph(selectedId)}
               onError={setError}
+              onDraftChange={receiveDraftChange}
             />
           )}
         </div>
@@ -829,8 +955,10 @@ export default function App() {
           if (!f) return;
           try {
             if (f.size > 50 * 1024 * 1024) throw Error("50MiBを超えています");
-            openProject(importProject(await f.text()));
-            tell("別コピーとして復元しました。元の保存は上書きしていません。");
+            if (openProject(importProject(await f.text())))
+              tell(
+                "別コピーとして復元しました。元の保存は上書きしていません。",
+              );
           } catch (err) {
             setError(String(err));
           }
@@ -912,6 +1040,11 @@ export default function App() {
         </div>
       )}
     </div>
+  );
+  return (
+    <DraftGuardContext.Provider value={registerDraft}>
+      {content}
+    </DraftGuardContext.Provider>
   );
 }
 
@@ -1275,10 +1408,15 @@ function Summary({
   const [draft, setDraft] = useState<SummaryAgenda | undefined>(agenda);
   const [reason, setReason] = useState("");
   const [localError, setLocalError] = useState("");
+  const agendaSignature = JSON.stringify(agenda);
+  useDraftGuard(
+    reason !== "" || JSON.stringify(draft) !== agendaSignature,
+    "view",
+  );
   useEffect(() => {
     setDraft(agenda);
     setEditing(false);
-  }, [agenda]);
+  }, [agendaSignature]);
   if (!agenda || !draft)
     return <div className="empty-card">会話本文の議題がまだありません。</div>;
   const speeches = project.utterances.filter((u) =>
@@ -1514,7 +1652,6 @@ function Summary({
           </button>
           <button
             onClick={() => {
-              setDraft(agenda);
               setEditing(!editing);
             }}
           >

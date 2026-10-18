@@ -53,7 +53,8 @@ function check(p: Project): Project {
   ) {
     throw new Error("Project schema is invalid");
   }
-  if (projectCapacity(p).backupBytes > MAX_BACKUP_BYTES)
+  const capacity = projectCapacity(p);
+  if (capacity.backupBytes > MAX_BACKUP_BYTES)
     throw new Error(
       "完全バックアップが50MiBを超えます。編集中の内容をテキストで退避してください",
     );
@@ -89,7 +90,6 @@ function check(p: Project): Project {
     versionIds.add(s.versionId);
     sourceByVersion.set(s.versionId, s);
   }
-  const capacity = projectCapacity(p);
   if (capacity.activeFiles > 10 || capacity.activeCodePoints > 50000)
     throw new Error("active source limit exceeded");
 
