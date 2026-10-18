@@ -2,7 +2,13 @@ import type { Project } from "../domain/types";
 
 export type AnalysisPhase = "candidates" | "reconcile";
 export type SessionStatus =
-  "idle" | "running" | "paused" | "complete" | "cancelled" | "failed";
+  | "idle"
+  | "running"
+  | "paused"
+  | "partial"
+  | "complete"
+  | "cancelled"
+  | "failed";
 
 export interface SourceSpan {
   sourceId: string;
@@ -100,12 +106,19 @@ export interface AnalysisSessionOptions {
   }) => void;
 }
 export interface AnalysisSessionResult {
-  status: "complete";
+  status: "complete" | "partial";
   sourceId: string;
   sourceVersionId: string;
   candidates: AnalysisCandidate[];
   reconciled: unknown;
   checkpoint: AnalysisCheckpoint;
+}
+
+export interface FixtureBoundedReconciliationResult {
+  kind: "fixture-bounded-reconciliation";
+  version: 1;
+  status: "complete" | "partial";
+  [key: string]: unknown;
 }
 
 const now = () => new Date().toISOString();
@@ -218,6 +231,22 @@ function jsonValue(value: unknown): unknown {
     throw new Error("invalid result object");
   return JSON.parse(text);
 }
+function explicitReconciliationStatus(value: unknown): "complete" | "partial" {
+  if (value === null || typeof value !== "object") return "complete";
+  const record = value as Record<string, unknown>;
+  // Generic adapter results remain opaque, except that an unmarked partial
+  // result must never be presented as complete.
+  if (record.kind !== "fixture-bounded-reconciliation") {
+    if (record.status === "partial")
+      throw new Error("generic reconciliation result cannot be partial");
+    return "complete";
+  }
+  if (record.version !== 1)
+    throw new Error("unknown reconciliation result schema");
+  if (record.status !== "complete" && record.status !== "partial")
+    throw new Error("unknown reconciliation result status");
+  return record.status;
+}
 export function canonicalSettings(value: unknown): string {
   if (value === null || typeof value === "string" || typeof value === "boolean")
     return JSON.stringify(value);
@@ -284,7 +313,7 @@ export class AnalysisSession {
       checkpointSchema: 2,
       projectSchema: opts.project.schemaVersion,
       parser: opts.parserVersion ?? "input-parser-v1",
-      sessionImplementation: "analysis-session-v4",
+      sessionImplementation: "analysis-session-v5",
       implementation: opts.analysisVersion ?? "generic-json-adapter-v1",
       outputSchema: opts.outputSchemaVersion ?? "generic-json-v1",
       adapter: opts.configId ?? "generic-json-v1",
@@ -422,7 +451,11 @@ export class AnalysisSession {
         });
       }
       if (!this.chunks.length) throw new Error("解析対象がありません");
-      if (checkpoint.reconciled === undefined) {
+      const priorReconciliationStatus =
+        checkpoint.reconciled === undefined
+          ? undefined
+          : explicitReconciliationStatus(checkpoint.reconciled);
+      if (priorReconciliationStatus !== "complete") {
         await save({ ...checkpoint, phase: "reconcile" });
         const value = await cancellable(
           this.opts.adapter.reconcile(
@@ -437,15 +470,25 @@ export class AnalysisSession {
           combined.signal,
         );
         guard();
+        const page = this.validateReconciledResult(value);
+        const reconciled = this.mergeBoundedReconciliationPage(
+          checkpoint.reconciled,
+          page,
+        );
+        const checkedReconciled = this.validateReconciledResult(
+          reconciled,
+          true,
+        );
         await save({
           ...checkpoint,
-          reconciled: this.validateReconciled(value),
+          reconciled: checkedReconciled,
         });
       }
       guard();
-      this.status = "complete";
+      const resultStatus = explicitReconciliationStatus(checkpoint.reconciled);
+      this.status = resultStatus;
       return {
-        status: "complete",
+        status: resultStatus,
         sourceId: source.id,
         sourceVersionId: source.versionId,
         candidates: structuredClone(checkpoint.candidates),
@@ -560,7 +603,10 @@ export class AnalysisSession {
       };
     });
     if (checkpoint.reconciled !== undefined)
-      checkpoint.reconciled = this.validateReconciled(checkpoint.reconciled);
+      checkpoint.reconciled = this.validateReconciledResult(
+        checkpoint.reconciled,
+        true,
+      );
     return checkpoint;
   }
   private chunkManifest() {
@@ -587,6 +633,108 @@ export class AnalysisSession {
         ? this.opts.validateReconciled(value)
         : value,
     );
+  }
+  /**
+   * Versioned fixture results are a context contract, not a generic adapter
+   * convention.  Validate the raw discriminant before invoking the context
+   * validator, then validate the returned value again and require the
+   * discriminant to survive validation (a validator must not erase status).
+   */
+  private validateReconciledResult(value: unknown, requireAggregate = false) {
+    const rawStatus = explicitReconciliationStatus(value);
+    const isFixture =
+      value !== null &&
+      typeof value === "object" &&
+      (value as Record<string, unknown>).kind ===
+        "fixture-bounded-reconciliation";
+    if (isFixture && !this.opts.validateReconciled)
+      throw new Error(
+        "fixture-bounded-reconciliation requires validateReconciled",
+      );
+    if (!isFixture && rawStatus === "partial")
+      throw new Error("generic reconciliation result cannot be partial");
+    const checked = this.validateReconciled(value);
+    explicitReconciliationStatus(checked);
+    if (isFixture) {
+      if (
+        checked === null ||
+        typeof checked !== "object" ||
+        (checked as Record<string, unknown>).kind !==
+          "fixture-bounded-reconciliation" ||
+        (checked as Record<string, unknown>).version !== 1 ||
+        (checked as Record<string, unknown>).status !== rawStatus
+      )
+        throw new Error(
+          "reconciled validator changed fixture result discriminant",
+        );
+      if (requireAggregate) {
+        const result = checked as Record<string, unknown>;
+        if (result.pageStartPairIndex !== 0)
+          throw new Error("bounded checkpoint must contain the full aggregate");
+      }
+    }
+    return checked;
+  }
+
+  private mergeBoundedReconciliationPage(prior: unknown, page: unknown) {
+    const bounded = (value: unknown): value is Record<string, unknown> =>
+      !!value &&
+      typeof value === "object" &&
+      !Array.isArray(value) &&
+      (value as Record<string, unknown>).kind ===
+        "fixture-bounded-reconciliation";
+    if (!bounded(page)) return page;
+    const cursor = page.cursor;
+    const start = page.pageStartPairIndex;
+    if (!cursor || typeof cursor !== "object" || !Number.isSafeInteger(start))
+      throw new Error("invalid bounded reconciliation page");
+    const pageCursor = cursor as Record<string, unknown>;
+    const pageIds = pageCursor.candidateIds;
+    if (!Array.isArray(pageIds))
+      throw new Error("invalid bounded reconciliation cursor");
+    if (prior === undefined) {
+      if (start !== 0)
+        throw new Error(
+          "initial bounded reconciliation page must start at zero",
+        );
+      return page;
+    }
+    if (!bounded(prior))
+      throw new Error(
+        "bounded reconciliation cannot resume from a generic result",
+      );
+    const oldCursor = prior.cursor;
+    const oldResults = prior.results;
+    if (
+      !oldCursor ||
+      typeof oldCursor !== "object" ||
+      !Array.isArray(oldResults) ||
+      prior.pageStartPairIndex !== 0
+    )
+      throw new Error(
+        "persisted bounded reconciliation is not a full aggregate",
+      );
+    const priorCursor = oldCursor as Record<string, unknown>;
+    const priorIds = priorCursor.candidateIds;
+    if (
+      !Array.isArray(priorIds) ||
+      pageCursor.manifestId !== priorCursor.manifestId ||
+      pageIds.length !== priorIds.length ||
+      pageIds.some((id, i) => id !== priorIds[i]) ||
+      start !== priorCursor.nextPairIndex ||
+      oldResults.length !== priorCursor.nextPairIndex
+    )
+      throw new Error(
+        "bounded reconciliation page cursor gap or manifest mismatch",
+      );
+    return {
+      ...page,
+      pageStartPairIndex: 0,
+      results: [
+        ...oldResults,
+        ...(Array.isArray(page.results) ? page.results : []),
+      ],
+    };
   }
 }
 export function createAnalysisSession(options: AnalysisSessionOptions) {

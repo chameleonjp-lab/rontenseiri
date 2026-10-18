@@ -48,6 +48,8 @@
 
 [ローカル解析経路の取消・再開](local-analysis-run.md)で、R22/R24/R26/R32のうち固定入力・設定、検証済みcheckpoint、取消・厳密再開・旧run排除を通常UI→実Worker→IndexedDBで検査する。これは明示的なモデルなしfixtureであり、実モデル経路の完成やAI品質の証拠ではない。上表の部分実装判定とG0–G8の総合判定は変更しない。今回の実測値・件数はPR headと一致するCI artifactを正本とし、上記の過去の件数へ加算してゲートを合格扱いしない。
 
+追加の [fixture-bounded reconciliation + partial-result contract](fixture-bounded-reconciliation.md) は、内部予算で停止する決定的な照合と、未照合を完了扱いしないSession契約だけを対象とする。通常UIの輸送fixtureとは分離し、R22全体、訂正依存の再利用、実モデル品質、G4の端末別資源上限は未完了。G2–G8、実機、アクセシビリティ、OSの判定は変更しない。
+
 ## 入力・配布の明示的な境界
 
 - **通常UIで対応:** テキスト貼付、TXT/MD、SRT/VTTのP0範囲。
