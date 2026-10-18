@@ -27,11 +27,13 @@
 
 - `tests/manual-interpretations.test.ts`：手動ペア生成、不正根拠による不変性、撤回とUndo。
 - `tests/interpretations-boundaries.test.ts`：ID・確認指定の拒否、変更した側だけの更新、旧・新依存先、明示的なまとめ依存、JSONとUndoの厳密比較。
-- `tests/manual-summary-locality.test.ts`：外部の依存結論がなくても、候補自身の旧・新根拠を明示参照するまとめだけを再確認にし、無関係なBとまとめを変更せずUndoで復元。
+- `tests/manual-summary-locality.test.ts`：Aだけ・Bだけの根拠置換について、旧・新根拠を明示参照するまとめだけを再確認にし、無関係な候補側と既存の `needsReview=true` を保持。1回のUndoで推論全体・ID・原文参照・意味履歴・まとめの厳密一致を検証し、最上位の編集＋Undo履歴は別に比較。
 - `tests/export-exclusive-safety.test.ts`：完全JSONによる保持と、状態を保持できない形式のfail-closed。
 - `e2e/manual-interpretations.spec.ts`：利用者入力を模した決定的なfixture、デスクトップと390px幅のブラウザ操作、原文参照、下書き、修正・撤回・Undo、IndexedDB再読込、完全JSONの別コピー復元。画面文字列だけでなく、保存された候補・項目・グループ・依存リンクを比較します。
 
 外部AI、モデルサービス、外部への会話送信は使用しません。fixtureはテスト用の利用者入力であり、モデル品質の証拠ではありません。幅390pxのChromium試験は、iPhone実機や支援技術による検証の代替ではありません。
+
+共有・複数根拠を組み合わせたまとめ、まとめ本文だけの変更、依存するまとめだけの変更の全組合せは、この追加fixtureでは網羅していません。これらを検証済みと主張せず、独立した境界試験として残します。
 
 ## 完了としない項目
 
