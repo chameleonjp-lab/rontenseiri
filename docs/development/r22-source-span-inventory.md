@@ -48,6 +48,12 @@ PR #15も外部でマージされ、追加追補は `main@8d6faa09951c47594df7c6
 
 `e2e/save-generation.spec.ts` は実IDBの同じ保存内容・版の手動保存と自動保存を重ね、勝者成功→競合した敗者の順にcallbackを配信する。同じfixtureは旧コードで開始ボタンが無効になって失敗し、修正後は有効のままとなる。別の対照テストで新しい編集の容量不足を実際に発生させ、保存DB不変・checkpointゼロ・開始不可を確認し、復旧保存後に8ペア→read-only再読込→16ペアへ厳密なprefixを保って再開する。未保存Project単独もUI／直接APIの両方でWorker・checkpointを作らず拒否する。
 
+## 境界幅での実Workerライフサイクル回帰
+
+R21/R22の次の限定テストスライスは、保存競合PR #16を未マージの計画依存として通常mergeし、別のPRへ分離する。`e2e/span-inventory-responsive.spec.ts` は650/651/900/901pxそれぞれでメニュー／台帳入口に到達し、実inventory Workerの8ペアpartial保存、reloadから再表示までのレコード厳密不変と同DBのreadwrite transaction／put・add・delete・clear観測ゼロ、16ペアへの再開を確認する。実際の保存Projectのmanifestを独立した二重ループで列挙した期待値に対し、先頭8ペアと再開suffix（index 8–15）のID・hold・順序、および全16ペアの完全一致と未検査範囲をassertする。prefix保持・重複なしだけで無欠落とは扱わない。Project保存DBも不変で、入口がクリックできるだけの回帰とは区別する。
+
+各幅で実Worker URLと全requestを採取し、inventory Worker以外・外部origin・非GET・外部WebSocketを拒否する。開発Chromiumの可変viewportの証拠であり、スマホ実機・画面キーボード・SR・実ネットワーク／production SW・G4/G5・R21/R22全体の合格とは扱わない。意味判定や自動議題／関係変更を追加する実装ではない。
+
 ## テスト証拠と再現
 
 追加テストは候補の全hold・厳密な原文参照・対象外資料と隙間・上限の正確な境界・偽造候補の拒否、Workerのrun/generation/request別フェンスと取消を確認する。
