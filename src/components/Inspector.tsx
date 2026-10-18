@@ -3,7 +3,12 @@ import { semanticSnapshot } from "../domain/snapshot";
 import UtteranceBoundaryEditor from "./UtteranceBoundaryEditor";
 import LazyDetails from "./LazyDetails";
 import { invalidateDependents } from "../domain/invalidation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  sourceDraftKey,
+  changeSourceDraft,
+  type SourceEditDraft,
+} from "./source-drafts";
 import { ArrowRight, Check, X } from "lucide-react";
 import type { Classification, Project } from "../domain/types";
 import { labels } from "../domain/types";
@@ -20,6 +25,7 @@ import {
 } from "../domain/revisions";
 interface Props {
   project: Project;
+  sourceDrafts?: Map<string, SourceEditDraft>;
   utteranceId: string;
   onUpdate: (p: Project) => void;
   onClose: () => void;
@@ -30,6 +36,7 @@ interface Props {
 }
 export default function Inspector({
   project,
+  sourceDrafts,
   utteranceId,
   onUpdate,
   onClose,
@@ -70,7 +77,7 @@ export default function Inspector({
   const [classification, setClassification] = useState(u.classification);
   const [speaker, setSpeaker] = useState(u.speaker);
   const [important, setImportant] = useState(u.important);
-  const [reason, setReason] = useState("");
+  const [classificationReason, setClassificationReason] = useState("");
   const source = project.sources.find((s) => s.versionId === u.sourceVersionId);
   const [cueSpanIndex, setCueSpanIndex] = useState(0);
   const editingCueIndex = Math.min(
@@ -82,10 +89,33 @@ export default function Inspector({
     editingSpan && source
       ? source.text.slice(editingSpan.start, editingSpan.end)
       : u.quote;
-  const [quote, setQuote] = useState(editableQuote);
+  const localSourceDrafts = useRef(new Map<string, SourceEditDraft>());
+  const drafts = sourceDrafts ?? localSourceDrafts.current;
+  const context = {
+    projectId: project.id,
+    utteranceId: u.id,
+    sourceId: u.sourceId,
+    bodyId: `${editingSpan?.cueId ?? "scalar"}:${editingCueIndex}`,
+    originalQuote: editableQuote,
+  };
+  const draftKey = sourceDraftKey(context);
+  const [, refreshDraft] = useState(0);
+  const sourceDraft = drafts.get(draftKey);
+  const quote = sourceDraft?.quote ?? editableQuote;
   const [mode, setMode] = useState<"classification" | "source">(
-    "classification",
+    sourceDraft ? "source" : "classification",
   );
+  const reason =
+    mode === "source" ? (sourceDraft?.reason ?? "") : classificationReason;
+  function updateSourceDraft(patch: Partial<SourceEditDraft>) {
+    changeSourceDraft(drafts, context, patch);
+    refreshDraft((n) => n + 1);
+  }
+  const setQuote = (value: string) => updateSourceDraft({ quote: value });
+  const setReason = (value: string) =>
+    mode === "source"
+      ? updateSourceDraft({ reason: value })
+      : setClassificationReason(value);
   const [returnTo, setReturnTo] = useState(returnValue);
   const [incomingReturnAction, setIncomingReturnAction] = useState<
     "" | "keep" | "remove"
@@ -101,9 +131,6 @@ export default function Inspector({
   useEffect(() => {
     setImportant(u.important);
   }, [utteranceId, u.important]);
-  useEffect(() => {
-    setQuote(editableQuote);
-  }, [utteranceId, editableQuote, editingCueIndex]);
   useEffect(() => {
     setReturnTo(returnValue);
   }, [utteranceId, returnValue]);
@@ -186,7 +213,10 @@ export default function Inspector({
         ];
       }
       onUpdate(next);
-      setReason("");
+      if (mode === "source") {
+        drafts.delete(draftKey);
+        refreshDraft((n) => n + 1);
+      } else setClassificationReason("");
     } catch (e) {
       onError(String(e));
     }
@@ -463,6 +493,9 @@ export default function Inspector({
               )}
               <label className="field">
                 訂正後の原文
+                <small>
+                  未適用の原文と理由は、この作業を開いている間、発言・字幕本文ごとに保持します。適用前の下書きは端末保存・JSONに含みません。
+                </small>
                 <textarea
                   aria-label="訂正後の原文"
                   rows={5}
@@ -470,6 +503,18 @@ export default function Inspector({
                   onChange={(e) => setQuote(e.target.value)}
                 />
               </label>
+              {sourceDraft && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    drafts.delete(draftKey);
+                    refreshDraft((n) => n + 1);
+                  }}
+                >
+                  この本文の下書きを破棄
+                </button>
+              )}
+
               <p className="warning-text">
                 原文は新しい版として追加し、旧版・変更前後・理由を残します。本文を別の発言へ分割する操作とは異なります。
               </p>

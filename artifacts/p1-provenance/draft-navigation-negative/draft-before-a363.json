@@ -1,0 +1,276 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/workspace/rontenseiri-p1-input-provenance/node_modules/.bin/playwright",
+      "test",
+      "e2e/source-draft-navigation.spec.ts",
+      "--output=test-results-p1-draft-before"
+    ],
+    "configFile": "/workspace/rontenseiri-p1-input-provenance/playwright.config.ts",
+    "rootDir": "/workspace/rontenseiri-p1-input-provenance/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/workspace/rontenseiri-p1-input-provenance/test-results-p1-draft-before",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/rontenseiri-p1-input-provenance/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/workspace/rontenseiri-p1-input-provenance/test-results-p1-draft-before",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/workspace/rontenseiri-p1-input-provenance/e2e",
+        "snapshotDir": "/workspace/rontenseiri-p1-input-provenance/e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:4381",
+          "viewport": {
+            "width": 1440,
+            "height": 980
+          },
+          "headless": true,
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "launchOptions": {
+            "executablePath": "/usr/bin/chromium",
+            "args": [
+              "--no-sandbox"
+            ]
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/p1-provenance/draft-before-a363.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 4381 --strictPort",
+      "url": "http://127.0.0.1:4381",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "source-draft-navigation.spec.ts",
+      "file": "source-draft-navigation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7495,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true })\nExpected: \u001b[32m\"最初の\u001b[7m未適用draft😀\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"最初の\u001b[7m字幕\u001b[27m\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <textarea rows=\"5\" aria-label=\"訂正後の原文\">最初の字幕</textarea>\u001b[22m\n\u001b[2m       - unexpected value \"最初の字幕\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true })\nExpected: \u001b[32m\"最初の\u001b[7m未適用draft😀\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"最初の\u001b[7m字幕\u001b[27m\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <textarea rows=\"5\" aria-label=\"訂正後の原文\">最初の字幕</textarea>\u001b[22m\n\u001b[2m       - unexpected value \"最初の字幕\"\u001b[22m\n\n    at /workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts:35:61",
+                    "location": {
+                      "file": "/workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts",
+                      "column": 61,
+                      "line": 35
+                    },
+                    "snippet": "  33 |   await page.keyboard.press(\"Escape\");\n  34 |   panel = await source(page, \"U01\");\n> 35 |   await expect(panel.getByLabel(\"訂正後の原文\", { exact: true })).toHaveValue(\"最初の未適用draft😀\");\n     |                                                             ^\n  36 |   await expect(panel.getByLabel(\"変更理由\", { exact: true })).toHaveValue(\"第1draftの理由\");\n  37 |   await panel.getByRole(\"button\", { name: \"訂正を保存\", exact: true }).press(\"Enter\");\n  38 |   await page.keyboard.press(\"Escape\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts",
+                        "column": 61,
+                        "line": 35
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true })\nExpected: \u001b[32m\"最初の\u001b[7m未適用draft😀\u001b[27m\"\u001b[39m\nReceived: \u001b[31m\"最初の\u001b[7m字幕\u001b[27m\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('訂正後の原文', { exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <textarea rows=\"5\" aria-label=\"訂正後の原文\">最初の字幕</textarea>\u001b[22m\n\u001b[2m       - unexpected value \"最初の字幕\"\u001b[22m\n\n\n  33 |   await page.keyboard.press(\"Escape\");\n  34 |   panel = await source(page, \"U01\");\n> 35 |   await expect(panel.getByLabel(\"訂正後の原文\", { exact: true })).toHaveValue(\"最初の未適用draft😀\");\n     |                                                             ^\n  36 |   await expect(panel.getByLabel(\"変更理由\", { exact: true })).toHaveValue(\"第1draftの理由\");\n  37 |   await panel.getByRole(\"button\", { name: \"訂正を保存\", exact: true }).press(\"Enter\");\n  38 |   await page.keyboard.press(\"Escape\");\n    at /workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts:35:61"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T05:35:20.705Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/workspace/rontenseiri-p1-input-provenance/test-results-p1-draft-before/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/rontenseiri-p1-input-provenance/test-results-p1-draft-before/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/rontenseiri-p1-input-provenance/test-results-p1-draft-before/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts",
+                    "column": 61,
+                    "line": 35
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "02ffaf1728b82c1627d7-07abf927209bfa1afe34",
+          "file": "source-draft-navigation.spec.ts",
+          "line": 23,
+          "column": 1
+        },
+        {
+          "title": "複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6882,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"第1cue理由\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <textarea rows=\"2\" aria-label=\"変更理由\" placeholder=\"なぜ訂正するかを記録\">第1cue理由</textarea>\u001b[22m\n\u001b[2m       - unexpected value \"第1cue理由\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"第1cue理由\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <textarea rows=\"2\" aria-label=\"変更理由\" placeholder=\"なぜ訂正するかを記録\">第1cue理由</textarea>\u001b[22m\n\u001b[2m       - unexpected value \"第1cue理由\"\u001b[22m\n\n    at /workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts:59:59",
+                    "location": {
+                      "file": "/workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts",
+                      "column": 59,
+                      "line": 59
+                    },
+                    "snippet": "  57 |   await choice.selectOption(\"1\");\n  58 |   await expect(panel.getByLabel(\"訂正後の原文\", { exact: true })).toHaveValue(\"次の字幕\");\n> 59 |   await expect(panel.getByLabel(\"変更理由\", { exact: true })).toHaveValue(\"\");\n     |                                                           ^\n  60 |   await panel.getByLabel(\"訂正後の原文\", { exact: true }).fill(\"第2cueのdraft\");\n  61 |   await panel.getByLabel(\"変更理由\", { exact: true }).fill(\"第2cue理由\");\n  62 |   await choice.selectOption(\"0\");"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts",
+                        "column": 59,
+                        "line": 59
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveValue\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true })\nExpected: \u001b[32m\"\"\u001b[39m\nReceived: \u001b[31m\"第1cue理由\"\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveValue\" getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true }) with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('complementary', { name: '選択した発言の詳細' }).getByLabel('変更理由', { exact: true })\u001b[22m\n\u001b[2m    14 × locator resolved to <textarea rows=\"2\" aria-label=\"変更理由\" placeholder=\"なぜ訂正するかを記録\">第1cue理由</textarea>\u001b[22m\n\u001b[2m       - unexpected value \"第1cue理由\"\u001b[22m\n\n\n  57 |   await choice.selectOption(\"1\");\n  58 |   await expect(panel.getByLabel(\"訂正後の原文\", { exact: true })).toHaveValue(\"次の字幕\");\n> 59 |   await expect(panel.getByLabel(\"変更理由\", { exact: true })).toHaveValue(\"\");\n     |                                                           ^\n  60 |   await panel.getByLabel(\"訂正後の原文\", { exact: true }).fill(\"第2cueのdraft\");\n  61 |   await panel.getByLabel(\"変更理由\", { exact: true }).fill(\"第2cue理由\");\n  62 |   await choice.selectOption(\"0\");\n    at /workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts:59:59"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T05:35:29.561Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/workspace/rontenseiri-p1-input-provenance/test-results-p1-draft-before/source-draft-navigation-複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/rontenseiri-p1-input-provenance/test-results-p1-draft-before/source-draft-navigation-複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/rontenseiri-p1-input-provenance/test-results-p1-draft-before/source-draft-navigation-複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/rontenseiri-p1-input-provenance/e2e/source-draft-navigation.spec.ts",
+                    "column": 59,
+                    "line": 59
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "02ffaf1728b82c1627d7-4a76060fa92f4de93682",
+          "file": "source-draft-navigation.spec.ts",
+          "line": 51,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-18T05:35:18.922Z",
+    "duration": 18028.55,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

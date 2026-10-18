@@ -41,3 +41,15 @@ schemaVersion 1の旧単一`time`・cue台帳なしJSONはそのまま読み込�
 追加した単体回帰とUI回帰は、保存、既存履歴ボタンのEnter操作によるUndo、完全JSONの別コピー復元まで確認する。新規UI試験の初稿は未提供のCtrl+Zを仮定して失敗したため、実装のショートカットを増やすのではなく既存のキーボード操作経路に訂正した。待機時間やassertionは緩めない。
 
 最終コミットの全suite・監査・build・benchmark・production性能・CI結果は、その完全SHAに対応するPR本文とartifactを証拠とする。静的レビューは実行証拠ではない。OS共有キャッシュ、実機/GPU/heap、支援技術を含むアクセシビリティ、残る復旧経路、AI品質・キャンセル・失敗・再解析などの未達項目は別ゲートとして残し、`eligibleForG5=false`を維持する。
+
+## 読込前入力と、未適用原文draftの追補
+
+初版`a36385c`でも読込後の原文対応画面から欠落申告を入力でき、実UIで保存・Undo・JSON別コピーを確認済みだった。不足は読込前の入力・引渡しであり、「利用者が一切入力できなかった」とは扱わない。InputFormへ共通の複数申告フォームを追加し、`undefined`（未申告）、`[]`（明示的に項目なし）、複数報告を区別する。変更時にpreviewを無効化し、parse後に通常の`reviseCompleteness`で明示記録するため、Undoは読込時申告を未申告へ戻せる。Source別extentや入力外offsetは追加しない。
+
+字幕原文draftの消失は実UIで再現した。発言を閉じて別の字幕を選び、戻ると未適用quoteが元へ戻る失敗は、`a36385c`上の対象InspectorだけでなくPR #4基準版`0c4b58f`でも発生した。PR #5で新規導入したとは主張しない。複合字幕ではcue切替時に別cueの理由も共有されていた。負例の[原ログ・report・試験ソース・SHA/hashメタデータ](../../artifacts/p1-provenance/draft-navigation-negative/metadata.json)を保持する。作業中treeでの負例をclean-final-SHAの受入証拠に数えない。
+
+未適用の原文と理由はProject外のセッション内cacheで、Project・発言・Source・cue本文fragment・元本文の一致に結び付ける。別cueの訂正で位置やSource versionだけが変わっても、同じ本文の下書きは保持する。元本文が変われば新しい文脈になり、古い下書きを誤って適用しない。分類の理由と原文の理由を分け、適用成功後か「この本文の下書きを破棄」の明示操作だけで該当draftを消す。他の本文draftは消さない。
+
+このcacheは新しい作業を開くと区切られ、端末保存・完全JSONの対象ではない。保存可能なProject適用済みの訂正と、フォーム内の未適用draftを混同しない。発言／cue往復、別cue適用後の保持、適用後Undo、明示破棄、端末保存に未適用draftが混入しないことをUI回帰で確認する。初回の追補検証ではAppの外部cache prop接続が未適用だったため発言間の1件が失敗し、既存の`key={selected.id}`を維持した正しい接続へ訂正した。assertionや待機時間は緩めていない。
+
+`a36385c`のlocal unit218・機能E2E60 pass/1 skip・offline・監査/format/build/benchmarkと、同SHAの両CI・artifact digest一致は中間証拠として保持する。local本番9群はこの追補のため途中中断したので完了とは呼ばず、新しい最終SHAですべて再実行する。

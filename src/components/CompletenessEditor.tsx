@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { Extent, Omission, Project } from "../domain/types";
 import { labels } from "../domain/types";
 import { reviseCompleteness } from "../domain/completeness";
+import OmissionFields from "./OmissionFields";
 
 type Props = {
   project: Project;
@@ -9,8 +10,6 @@ type Props = {
   onError: (message: string) => void;
 };
 
-const newId = () =>
-  `omission-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
 const copy = <T,>(value: T): T => structuredClone(value);
 
 /** Edits only local drafts until the user explicitly saves this completeness record. */
@@ -37,20 +36,6 @@ export default function CompletenessEditor({
     );
   }, [project.id, project.extent, reportSignature]);
 
-  const update = (id: string, field: keyof Omission, value: string) =>
-    setOmissions((current) =>
-      (current ?? []).map((item) =>
-        item.id === id ? { ...item, [field]: value } : item,
-      ),
-    );
-  const add = () =>
-    setOmissions((current) => [
-      ...(current ?? []),
-      { id: newId(), description: "", reason: "", location: "" },
-    ]);
-  const remove = (id: string) =>
-    setOmissions((current) => (current ?? []).filter((item) => item.id !== id));
-
   return (
     <section
       aria-labelledby="completeness-editor-title"
@@ -76,65 +61,7 @@ export default function CompletenessEditor({
           ))}
         </select>
       </label>
-      <h3>利用者が報告した欠落</h3>
-      {omissions === undefined ? (
-        <p role="status">未申告（欠落がないことを意味しません）</p>
-      ) : omissions.length === 0 ? (
-        <p role="status">
-          報告された項目はありません（会話全体の完了を証明しません）
-        </p>
-      ) : (
-        <ol aria-label="利用者が報告した欠落の一覧">
-          {omissions.map((item, index) => (
-            <li key={item.id}>
-              <fieldset>
-                <legend>欠落申告 {index + 1}</legend>
-                <label className="field">
-                  内容
-                  <textarea
-                    aria-label={`欠落申告${index + 1}の内容`}
-                    value={item.description}
-                    onChange={(e) =>
-                      update(item.id, "description", e.target.value)
-                    }
-                  />
-                </label>
-                <label className="field">
-                  理由
-                  <textarea
-                    aria-label={`欠落申告${index + 1}の理由`}
-                    value={item.reason}
-                    onChange={(e) => update(item.id, "reason", e.target.value)}
-                  />
-                </label>
-                <label className="field">
-                  位置（任意。推測せず利用者の記述のみ）
-                  <input
-                    aria-label={`欠落申告${index + 1}の位置`}
-                    value={item.location ?? ""}
-                    onChange={(e) =>
-                      update(item.id, "location", e.target.value)
-                    }
-                  />
-                </label>
-                <button type="button" onClick={() => remove(item.id)}>
-                  この申告を削除
-                </button>
-              </fieldset>
-            </li>
-          ))}
-        </ol>
-      )}
-      <div className="form-row">
-        <button type="button" onClick={add}>
-          欠落申告を追加
-        </button>
-        {omissions !== undefined && (
-          <button type="button" onClick={() => setOmissions(undefined)}>
-            未申告に戻す
-          </button>
-        )}
-      </div>
+      <OmissionFields value={omissions} onChange={setOmissions} />
       <label className="field" htmlFor="completeness-reason">
         この変更を適用する理由
         <input
