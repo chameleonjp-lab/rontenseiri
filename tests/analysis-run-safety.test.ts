@@ -114,6 +114,7 @@ describe("P2 scoped run safety (deterministic, not model quality)", () => {
     "duplicate",
     "value",
     "false-completion",
+    "schema-version",
   ])(
     "rejects a nonmatching/corrupt checkpoint (%s) before any adapter call",
     async (kind) => {
@@ -121,6 +122,7 @@ describe("P2 scoped run safety (deterministic, not model quality)", () => {
       await new AnalysisSession(f.opts).run();
       const checkpoint = f.get();
       if (kind === "config") checkpoint.configId = "other";
+      if (kind === "schema-version") checkpoint.version = 1;
       if (kind === "input") checkpoint.inputId = "other";
       if (kind === "session") checkpoint.sessionId = "other";
       if (kind === "prefix") checkpoint.nextChunk--;
@@ -297,4 +299,84 @@ describe("P2 scoped run safety (deterministic, not model quality)", () => {
     ]);
     expect(f.get().candidates).toHaveLength(session.chunks.length);
   });
+  it.each([
+    "source-bytes",
+    "setting",
+    "parser",
+    "implementation",
+    "output-schema",
+  ])(
+    "rejects isolated fingerprint change (%s), leaving stored data unchanged",
+    async (kind) => {
+      const f = setup();
+      await new AnalysisSession(f.opts).run();
+      const saved = f.get();
+      const writes = f.writes.length;
+      const next = { ...f.opts, project: structuredClone(f.opts.project) };
+      if (kind === "source-bytes")
+        next.project.sources[0].text += "原文bytesのみ変更";
+      if (kind === "setting") next.maxChars++;
+      const versions =
+        kind === "parser"
+          ? { parserVersion: "parser-next" }
+          : kind === "implementation"
+            ? { analysisVersion: "implementation-next" }
+            : kind === "output-schema"
+              ? { outputSchemaVersion: "schema-next" }
+              : {};
+      await expect(
+        new AnalysisSession({ ...next, ...versions }).run(),
+      ).rejects.toThrow("mismatch");
+      expect(f.get()).toEqual(saved);
+      expect(f.writes).toHaveLength(writes);
+    },
+  );
+  it("normalizes all nested run-setting keys while preserving changed values", async () => {
+    const f = setup();
+    const first = await new AnalysisSession({
+      ...f.opts,
+      runSettings: { temperature: 0, limits: { retries: 0, tokens: 20 } },
+    }).run();
+    expect(first.checkpoint.sourceBytesHash).toMatch(/^[a-f0-9]{64}$/);
+    expect(first.checkpoint.fingerprint).toMatch(/^[a-f0-9]{64}$/);
+    expect(first.checkpoint.runId).toBe(f.opts.sessionId);
+    expect(first.checkpoint.lastCommittedChunkIndex).toBe(
+      first.candidates.length - 1,
+    );
+    const spy = vi.fn(f.opts.adapter.analyzeChunk);
+    await new AnalysisSession({
+      ...f.opts,
+      runSettings: { limits: { tokens: 20, retries: 0 }, temperature: 0 },
+      adapter: { ...f.opts.adapter, analyzeChunk: spy },
+    }).run();
+    expect(spy).not.toHaveBeenCalled();
+    await expect(
+      new AnalysisSession({
+        ...f.opts,
+        runSettings: { limits: { tokens: 21, retries: 0 }, temperature: 0 },
+      }).run(),
+    ).rejects.toThrow("mismatch");
+  });
+  it.each(["cursor-only", "result-only", "outside-span"])(
+    "rejects fault-injected %s checkpoint without a write",
+    async (kind) => {
+      const f = setup();
+      await new AnalysisSession(f.opts).run();
+      const corrupt = f.get();
+      if (kind === "cursor-only") {
+        corrupt.nextChunk++;
+        corrupt.lastCommittedChunkIndex!++;
+      }
+      if (kind === "result-only")
+        corrupt.candidates.push(structuredClone(corrupt.candidates[0]));
+      if (kind === "outside-span")
+        corrupt.chunkManifest![0].spans[0].end =
+          f.opts.project.sources[0].text.length + 1;
+      f.set(corrupt);
+      const count = f.writes.length;
+      await expect(new AnalysisSession(f.opts).run()).rejects.toThrow();
+      expect(f.get()).toEqual(corrupt);
+      expect(f.writes).toHaveLength(count);
+    },
+  );
 });

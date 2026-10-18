@@ -60,17 +60,19 @@ export default function LocalRunPanel({ project }: { project: Project }) {
       if (mounted.current && controller.current === ac) setBusy(false);
     }
   }
-  const state = !record
-    ? "未開始"
-    : record.state === "running"
-      ? busy
-        ? "処理中"
-        : "未完了（中断されたrun）"
-      : record.state === "completed"
-        ? "完了（動作確認のみ・AI解析未実施）"
-        : record.state === "cancelled"
-          ? "取消済み"
-          : "失敗";
+  const state = error
+    ? "失敗（詳細を確認してください）"
+    : !record
+      ? "未開始"
+      : record.state === "running"
+        ? busy
+          ? "処理中"
+          : "未完了（この画面では実行していません）"
+        : record.state === "completed"
+          ? "完了（動作確認のみ・AI解析未実施）"
+          : record.state === "cancelled"
+            ? "取消済み"
+            : "失敗";
   return (
     <section aria-label="ローカル解析経路の動作確認">
       <h3>ローカル解析経路の動作確認（AIではありません）</h3>
@@ -120,7 +122,7 @@ export default function LocalRunPanel({ project }: { project: Project }) {
             }
           }}
         >
-          動作確認checkpointを破棄
+          最初から（checkpointを破棄）
         </button>
       )}
       {(error || record?.error) && <p role="alert">{error || record?.error}</p>}

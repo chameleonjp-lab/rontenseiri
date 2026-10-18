@@ -106,6 +106,17 @@ test("実Workerで開始→取消→再読込→k+1再開、先行chunk厳密一
       body: request.postData(),
     }),
   );
+  const finishedRequests: string[] = [];
+  const failedRequests: Array<{ url: string; error: string | undefined }> = [];
+  context.on("requestfinished", (request) =>
+    finishedRequests.push(request.url()),
+  );
+  context.on("requestfailed", (request) =>
+    failedRequests.push({
+      url: request.url(),
+      error: request.failure()?.errorText,
+    }),
+  );
   const sockets: string[] = [];
   page.on("websocket", (socket) => sockets.push(socket.url()));
   const workers: string[] = [];
@@ -163,6 +174,11 @@ test("実Workerで開始→取消→再読込→k+1再開、先行chunk厳密一
   expect(workers.filter((url) => url.includes("analysis.worker"))).toHaveLength(
     2,
   );
+  await reloadSaved(page);
+  await expect(page.getByTestId("local-run-state")).toContainText(
+    "完了（動作確認のみ・AI解析未実施）",
+  );
+  expect(await readRecord(page)).toEqual(completed);
   // Independent observation assertions; no routing/mocking of Worker or requests.
   const origin = new URL(page.url()).origin;
   const external = requests.filter((r) => new URL(r.url).origin !== origin);
@@ -186,6 +202,11 @@ test("実Workerで開始→取消→再読込→k+1再開、先行chunk厳密一
         sockets,
         workers,
         external,
+        finishedRequests,
+        failedRequests,
+        resumedRequests,
+        serviceWorkerScope:
+          "dev-server: no active Service Worker; production SW requests unverified",
         cancellationMs,
         k,
         total: completed.total,
@@ -217,10 +238,10 @@ test("失敗・未完了・不一致checkpoint拒否を区別し、失敗を完�
   await alterRecord(page, "incomplete");
   await reloadSaved(page);
   await expect(page.getByTestId("local-run-state")).toContainText(
-    "未完了（中断されたrun）",
+    "未完了（この画面では実行していません）",
   );
   await alterRecord(page, "config");
-  const before = (await readRecord(page)).checkpoint;
+  const before = await readRecord(page);
   await page
     .getByRole("button", {
       name: "保存済みchunkの次から動作確認を再開",
@@ -233,9 +254,9 @@ test("失敗・未完了・不一致checkpoint拒否を区別し、失敗を完�
       .getByRole("region", { name: "ローカル解析経路の動作確認", exact: true })
       .getByRole("alert"),
   ).toContainText("input/configuration mismatch");
-  expect((await readRecord(page)).checkpoint).toEqual(before);
+  expect(await readRecord(page)).toEqual(before);
   await page
-    .getByRole("button", { name: "動作確認checkpointを破棄", exact: true })
+    .getByRole("button", { name: "最初から（checkpointを破棄）", exact: true })
     .click();
   await page
     .getByRole("button", { name: "モデルなしで動作確認を開始", exact: true })
@@ -243,27 +264,31 @@ test("失敗・未完了・不一致checkpoint拒否を区別し、失敗を完�
   await expect(page.getByTestId("local-run-state")).toContainText(
     "完了（動作確認のみ・AI解析未実施）",
   );
+  expect((await readRecord(page)).runId).not.toBe(failed.runId);
 });
-test("IndexedDB所有者fenceは旧run遅延保存を拒否し、取消signalの保存も拒否する", async ({
+test("IndexedDB: A取消→B所有→A遅延保存拒否、active transaction取消、半端commit拒否", async ({
   page,
 }) => {
   await openSavedSample(page);
   await page
     .getByRole("button", { name: "モデルなしで動作確認を開始", exact: true })
     .click();
-  await expect(page.getByTestId("local-run-state")).toContainText("処理中");
+  await expect
+    .poll(async () => (await readRecord(page))?.checkpoint?.nextChunk ?? -1)
+    .toBeGreaterThanOrEqual(0);
   await page
     .getByRole("button", { name: "動作確認を取り消す", exact: true })
     .click();
   await expect(page.getByTestId("local-run-state")).toContainText("取消済み");
   const before = await readRecord(page);
   const result = await page.evaluate(async (record) => {
-    // Same persistence module as UI; real IDB transactions, not an in-memory fake.
-    // @ts-expect-error Vite serves this application module to the browser.
+    // @ts-expect-error Vite serves the same persistence module used by the UI.
     const storage = await import("/src/storage/analysis-runs.ts");
-    await storage.claimLocalRun(record.id, "new-owner", record.total);
+    await storage.claimLocalRun(record.id, "generation-B", record.total);
+    const baseline = await storage.readLocalRun(record.id);
     let stale = "",
-      cancelled = "";
+      cancelled = "",
+      midCancelled = false;
     try {
       await storage.writeLocalRun(record.id, record.owner, () => ({
         ...record,
@@ -272,23 +297,193 @@ test("IndexedDB所有者fenceは旧run遅延保存を拒否し、取消signalの
     } catch (e) {
       stale = String(e);
     }
-    const ac = new AbortController();
-    ac.abort();
+    const pre = new AbortController();
+    pre.abort();
     try {
       await storage.writeLocalRun(
         record.id,
-        "new-owner",
-        () => ({ ...record, state: "completed" }),
-        ac.signal,
+        "generation-B",
+        (current: LocalRunRecord) => ({ ...current, state: "completed" }),
+        pre.signal,
       );
     } catch (e) {
       cancelled = String(e);
     }
-    return { stale, cancelled, current: await storage.readLocalRun(record.id) };
+    const mid = new AbortController();
+    try {
+      await storage.writeLocalRun(
+        record.id,
+        "generation-B",
+        (current: LocalRunRecord) => {
+          mid.abort();
+          return { ...current, state: "completed" };
+        },
+        mid.signal,
+      );
+    } catch {
+      midCancelled = true;
+    }
+    const atomicFaults: string[] = [];
+    for (const kind of ["cursor-only", "result-only"]) {
+      try {
+        await storage.writeLocalRun(
+          record.id,
+          "generation-B",
+          (current: LocalRunRecord) => {
+            const checkpoint = structuredClone(current.checkpoint!);
+            if (kind === "cursor-only") {
+              checkpoint.nextChunk++;
+              checkpoint.lastCommittedChunkIndex = checkpoint.nextChunk - 1;
+            } else checkpoint.candidates.push({ chunkId: "orphan", value: {} });
+            return { ...current, checkpoint };
+          },
+        );
+      } catch (e) {
+        atomicFaults.push(String(e));
+      }
+    }
+    return {
+      baseline,
+      stale,
+      cancelled,
+      midCancelled,
+      atomicFaults,
+      current: await storage.readLocalRun(record.id),
+    };
   }, before);
   expect(result.stale).toContain("旧runの保存を拒否");
   expect(result.cancelled).toContain("cancelled");
-  expect(result.current.owner).toBe("new-owner");
+  expect(result.midCancelled).toBe(true);
+  expect(result.atomicFaults).toHaveLength(2);
+  expect(
+    result.atomicFaults.every((error) => error.includes("atomicity violation")),
+  ).toBe(true);
+  expect(result.current).toEqual(result.baseline);
+  expect(result.current.owner).toBe("generation-B");
   expect(result.current.state).toBe("running");
-  expect(result.current.checkpoint).toEqual(before.checkpoint);
+});
+
+test("破損cursor/result/引用spanの再開拒否はDB全体を不変にする", async ({
+  page,
+}) => {
+  await openSavedSample(page);
+  await page
+    .getByLabel("動作確認シナリオ", { exact: true })
+    .selectOption("fail-second");
+  await page
+    .getByRole("button", { name: "モデルなしで動作確認を開始", exact: true })
+    .click();
+  await expect(page.getByTestId("local-run-state")).toContainText("失敗");
+  const saved = await readRecord(page);
+  for (const kind of ["cursor-only", "result-only", "outside-span"]) {
+    const corrupted = structuredClone(saved);
+    if (kind === "cursor-only") {
+      corrupted.checkpoint!.nextChunk++;
+      corrupted.checkpoint!.lastCommittedChunkIndex =
+        corrupted.checkpoint!.nextChunk - 1;
+    }
+    if (kind === "result-only")
+      corrupted.checkpoint!.candidates.push(
+        structuredClone(corrupted.checkpoint!.candidates[0]),
+      );
+    if (kind === "outside-span")
+      corrupted.checkpoint!.chunkManifest![0].spans[0].end =
+        Number.MAX_SAFE_INTEGER;
+    await page.evaluate(async (record) => {
+      const db = await new Promise<IDBDatabase>((resolve) => {
+        const r = indexedDB.open("rontenseiri-analysis-runs-v1");
+        r.onsuccess = () => resolve(r.result);
+      });
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction("runs", "readwrite");
+        tx.objectStore("runs").put(record, record.id);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+      db.close();
+    }, corrupted);
+    await page
+      .getByRole("button", {
+        name: "保存済みchunkの次から動作確認を再開",
+        exact: true,
+      })
+      .click();
+    await expect(
+      page.getByRole("button", {
+        name: "保存済みchunkの次から動作確認を再開",
+        exact: true,
+      }),
+    ).toBeEnabled();
+    await expect(page.getByTestId("local-run-state")).toContainText("失敗");
+    expect(await readRecord(page)).toEqual(corrupted);
+  }
+});
+
+test("動作確認の取消・再開でfocusを保持し、Tab往復とEscape/×で同じ取消方針を使う", async ({
+  page,
+}) => {
+  await openSavedSample(page);
+  const start = page.getByRole("button", {
+    name: "モデルなしで動作確認を開始",
+    exact: true,
+  });
+  await start.focus();
+  await page.keyboard.press("Enter");
+  const cancel = page.getByRole("button", {
+    name: "動作確認を取り消す",
+    exact: true,
+  });
+  await expect(cancel).toBeFocused();
+  await expect
+    .poll(async () => (await readRecord(page))?.checkpoint?.nextChunk ?? 0)
+    .toBeGreaterThanOrEqual(1);
+  await expect(cancel).toBeFocused();
+  await page.keyboard.press("Enter");
+  const resume = page.getByRole("button", {
+    name: "保存済みchunkの次から動作確認を再開",
+    exact: true,
+  });
+  await expect(resume).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(
+    page.getByRole("button", {
+      name: "最初から（checkpointを破棄）",
+      exact: true,
+    }),
+  ).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(resume).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(cancel).toBeFocused();
+  expect(
+    await page
+      .locator(".app-header")
+      .evaluate((el) => (el as HTMLElement).inert),
+  ).toBe(true);
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(
+    page.getByRole("button", { name: "端末内AIの評価", exact: true }),
+  ).toBeFocused();
+  await expect
+    .poll(async () => (await readRecord(page)).state)
+    .toBe("cancelled");
+  await openRunPanel(page);
+  await expect(page.getByTestId("local-run-state")).toContainText("取消済み");
+  await resume.click();
+  await expect(cancel).toBeVisible();
+  await page
+    .getByRole("button", { name: "ダイアログを閉じる", exact: true })
+    .click();
+  await expect
+    .poll(async () => (await readRecord(page)).state)
+    .toBe("cancelled");
+  await expect(
+    page.getByRole("button", { name: "端末内AIの評価", exact: true }),
+  ).toBeFocused();
+  expect(
+    await page
+      .locator(".app-header")
+      .evaluate((el) => (el as HTMLElement).inert),
+  ).toBe(false);
 });

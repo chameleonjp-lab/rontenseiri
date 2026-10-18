@@ -10,12 +10,13 @@ sessionは取消を無視するadapterの応答を待ち続け、checkpoint読�
 
 ## 今回の契約
 
-- run開始時にProjectをコピーし、source ID・版・hashと入力構造の完全一致識別子を固定する。識別子はsource・対象発言・訂正IDをローカルでSHA-256化した値で、識別用に原文をcheckpointへ重複保存しない。外部に送信しない。
-- 設定識別子にfixture版・chunk長・overlapを含める。fixtureは160文字、overlap 0、400ms/要求。故障シナリオは結果の意味を変えないfault injectionとして扱い、再開時には通常シナリオへ戻せる。
-- 保存済みの `nextChunk = k` と候補の長さ・順序・chunk IDを厳密に照合する。source・入力・設定・sessionが違うcheckpoint、未検証候補、偽の完了prefixは再開を拒否する。旧形式で入力／設定識別子を持たないcheckpointも推測で移行しない。
-- chunk結果をschema検証し、永続化の成功後だけ確定位置を進める。再開はk+1番目からで、確定済みprefixを再処理しない。fixtureの最終照合も全chunk IDの順序付き完全一致を要求する。
-- session世代とAbortSignal、Workerのowner/request ID、IndexedDB readwrite transactionのowner比較で旧runを排除する。取消時はWorkerをterminateする。checkpoint書込中の取消はtransactionをabortする。モデル等の協調的な取消を仮定しないsession試験もある。
-- UIは取消・失敗・未完了・完了を分ける。永続状態runningを再読込した場合は「未完了」と表示する。全chunkと照合結果の保存後だけ完了状態を記録する。「完了」は動作確認のみでAI解析未実施と表示する。
+- run開始時にProjectをコピーする。保存原文 `Source.text` のUTF-8 bytes SHA-256、source ID／版、発言構造／訂正ID、parser契約版、Project／checkpoint／出力schema版、解析実装版、キー順を正規化した全解析設定をfingerprintに束ねる。元のアップロードファイルの生bytes保存を主張しない。原文を識別用にcheckpointへ重複保存せず、hash計算も外部へ送信しない。
+- 設定識別子にfixture版・chunk長・overlap・モデルなし／promptなし／推論なし・応答待ち時間を含める。fixtureは160文字、overlap 0、400ms/要求。故障シナリオは結果の意味を変えないfault injectionとして扱い、再開時には通常シナリオへ戻せる。
+- 保存済みの `nextChunk = k` と候補の長さ・順序・chunk IDを厳密に照合する。source・入力・設定・sessionが違うcheckpoint、未検証候補、偽の完了prefixは再開を拒否する。引用spanは現在のsource範囲内で、現在のchunk manifestに厳密一致しなければ拒否する。旧形式checkpointも推測で移行しない。owner claim前にread-only preflightし、不一致／破損時はDBレコード全体を変更しない。
+- 新しいrunはUUIDを持ち、同じcheckpointの再開ではrun IDを維持する。開始／再開試行ごとにgeneration IDを更新する。作業単位のDB logical keyとrun IDは別概念で、明示破棄後の新規開始は別run IDとなる。
+- chunk結果をschema検証し、候補・次cursor・最後の確定chunk index（空は-1）・run／generation／fingerprintを同一recordの同一IndexedDB readwrite transactionでcommitする。永続化の成功後だけ表示件数とメモリ確定位置を進める。再開はk+1番目からで、確定済みprefixを再処理しない。fixtureの最終照合も全chunk IDの順序付き完全一致を要求する。
+- session世代とAbortSignal、全Worker messageのrun／generation／request ID、IndexedDBのrun／generation／fingerprint比較で旧runを排除する。取消はsession generationを同期失効してからWorkerをterminateする。commitの線形化点はtransaction.completeで、取消がactive transactionをabortした場合は候補もcursorも残らない。completeが先に勝ったchunkだけ保存済みprefixに入る。取消状態の保存完了後に取消済みを表示し、その後は旧generationによる追加chunk commitを認めない。モデルの協調的な取消を仮定しないsession試験もある。
+- UIは取消・失敗・未完了・完了を分ける。永続状態runningを再読込した場合は「未完了（この画面では実行していません）」と表示する。別タブが実行中かもしれず、勝手に中断済みとは断定しない。全chunkと照合結果の保存後だけ完了状態を記録する。「完了」は動作確認のみでAI解析未実施と表示する。
 - checkpointは `rontenseiri-analysis-runs-v1` DBに作業単位で保存する。既存Project DBのschema／storageRevisionは変えない。作業のJSON backupにはcheckpointを含めず、UI内の明示ボタンで破棄できる。作業自体の保存を先に必要とする。
 
 ## 再現
@@ -33,7 +34,9 @@ npm test -- tests/analysis-session.test.ts tests/analysis-run-safety.test.ts tes
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npx playwright test e2e/local-analysis-run.spec.ts
 ```
 
-E2EはWorkerを置換せず、native `Worker.prototype.postMessage` を観測するだけで送信chunk IDを記録する。UI開始→取消→reload→再開で、再開要求の全IDと最終候補のk以降が完全一致し、先行chunkとの重複0件を別assertする。networkについてもBrowserContextの実行時request観測とWebSocket origin観測を別assertする。HTTP外部要求0、GET以外0、本文送信0を観測する。通信をrouteで遮断して成功を作らない。
+追加E2Eは完了済みreload、checkpointなし、同一runのresume／新規run ID、cursorだけ先行／resultだけ残る／source外spanの故障注入とDB不変、A取消→B所有→A旧保存拒否、active transaction取消も検査する。狭いfocus試験は進捗でfocusを動かさないこと、取消／再開、Tab／Shift+Tab、Escape／×、背景inertと起点への復元を検査するが、支援技術の読み上げ実測ではない。
+
+E2EはWorkerを置換せず、native `Worker.prototype.postMessage` を観測するだけで送信chunk IDを記録する。UI開始→取消→reload→再開で、再開要求の全IDと最終候補のk以降が完全一致し、先行chunkとの重複0件を別assertする。networkについても開始前から取消→reload→resume→完了済みreloadまでBrowserContextの実行時request試行とrequestfinished／requestfailed、WebSocket originを記録し、外部要求0・GET以外0・本文URL／body送信0を別assertする。same-origin assetのGETは許容し、失敗や遮断があれば試行から除外しない。通信をrouteで遮断して成功を作らない。開発配信にはactive Service Workerがないため、production SW cache missの要求試行・実送信やOSのpacket観測は未検証とする。既存offline試験だけで今回のWorker経路を代替しない。
 
 証拠はCIの `browser-evidence` artifact内の `verified-sha.txt`、`unit-results.json`、`e2e-results.json`、`test-results/**/attachments/` のnetwork観測JSON、`artifacts/p2-completed-run.png`。PR本文には検証対象head SHAと同じheadのCI run/artifactを対応させる。開発中の診断実行は最終SHAの証拠と混同しない。
 
@@ -44,3 +47,7 @@ E2EはWorkerを置換せず、native `Worker.prototype.postMessage` を観測す
 P2全体、実モデル／日本語品質（G2・G3）、GPU喪失・モデル取得中断・再試行／照合資源上限、重要発言再解析、実モデルからの議題候補適用、従来 `analyzeLocally` との一本化は未完了。G5の全操作・実機復旧、Mac／Windows／iPhoneのOS matrix、支援技術／スクリーンリーダー、G8の利用者比較も未検証。ここで観測した通信0件はfixtureだけの結果であり、実モデル取得時のG6合格ではない。外部AIフォールバックは追加しない。
 
 Web Locksが利用できなければこの経路もfail closedとする。複数タブ・長時間バックグラウンド・最大入力の実機資源評価は別に残す。Project削除とは独立したcheckpointの寿命管理／完全JSONへのcheckpoint統合も今回の対象外とする。
+
+## 初回CIで見つけた配信側の原因修正
+
+初回head `01a462a` のCIは1件失敗した。traceでは最初の実Worker開始時にVite依存最適化のversionが変わり、UIがホームへ再読込され、1chunkで止まっていた。モデルライブラリを `optimizeDeps.include` に明示して初回Workerで依存グラフを変えない修正を加えた。pollの上限や3秒assertを緩和して通す対処は行わない。旧headの試験を最終headの証拠として扱わない。

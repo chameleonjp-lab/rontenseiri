@@ -24,7 +24,20 @@ export interface AnalysisCandidate {
   value: unknown;
 }
 export interface AnalysisCheckpoint {
-  version: 1;
+  version: 1 | 2;
+  runId?: string;
+  generationId?: string;
+  fingerprint?: string;
+  sourceBytesHash?: string;
+  chunkManifest?: Array<{
+    id: string;
+    spans: Array<{
+      sourceId: string;
+      sourceVersionId: string;
+      start: number;
+      end: number;
+    }>;
+  }>;
   sessionId: string;
   configId?: string;
   inputId?: string;
@@ -33,6 +46,7 @@ export interface AnalysisCheckpoint {
   sourceHash: string;
   phase: AnalysisPhase;
   nextChunk: number;
+  lastCommittedChunkIndex?: number;
   candidates: AnalysisCandidate[];
   reconciled: unknown;
   terms: unknown[];
@@ -72,6 +86,11 @@ export interface AnalysisSessionOptions {
   initialCheckpoint?: AnalysisCheckpoint;
   manualCorrectionIds?: Iterable<string>;
   configId?: string;
+  parserVersion?: string;
+  analysisVersion?: string;
+  outputSchemaVersion?: string;
+  runSettings?: Record<string, unknown>;
+  generationId?: string;
   validateCandidate?: (value: unknown, chunk: AnalysisChunk) => unknown;
   validateReconciled?: (value: unknown) => unknown;
   onProgress?: (event: {
@@ -199,6 +218,31 @@ function jsonValue(value: unknown): unknown {
     throw new Error("invalid result object");
   return JSON.parse(text);
 }
+export function canonicalSettings(value: unknown): string {
+  if (value === null || typeof value === "string" || typeof value === "boolean")
+    return JSON.stringify(value);
+  if (typeof value === "number" && Number.isFinite(value))
+    return JSON.stringify(value);
+  if (Array.isArray(value))
+    return `[${value.map(canonicalSettings).join(",")}]`;
+  if (
+    typeof value === "object" &&
+    Object.getPrototypeOf(value) === Object.prototype
+  )
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))
+      .map(([key, item]) => `${JSON.stringify(key)}:${canonicalSettings(item)}`)
+      .join(",")}}`;
+  throw new Error("run settings must be finite JSON values");
+}
+const sha256 = (text: string) =>
+  crypto.subtle
+    .digest("SHA-256", new TextEncoder().encode(text))
+    .then((bytes) =>
+      [...new Uint8Array(bytes)]
+        .map((b) => b.toString(16).padStart(2, "0"))
+        .join(""),
+    );
 export class AnalysisSession {
   readonly id: string;
   readonly chunks: AnalysisChunk[];
@@ -206,6 +250,8 @@ export class AnalysisSession {
   readonly sourceVersionId: string;
   readonly configId: string;
   readonly inputId: Promise<string>;
+  readonly sourceBytesHash: Promise<string>;
+  readonly fingerprint: Promise<string>;
   status: SessionStatus = "idle";
   private readonly opts: AnalysisSessionOptions;
   private controller?: AbortController;
@@ -234,24 +280,36 @@ export class AnalysisSession {
     if (!source) throw new Error("conversation source not found");
     this.sourceId = source.id;
     this.sourceVersionId = source.versionId;
-    this.configId = JSON.stringify([
-      "session-v2",
-      opts.configId ?? "generic-json-v1",
-      opts.maxChars ?? 3000,
-      opts.overlapChars ?? 200,
-    ]);
+    this.configId = canonicalSettings({
+      checkpointSchema: 2,
+      projectSchema: opts.project.schemaVersion,
+      parser: opts.parserVersion ?? "input-parser-v1",
+      implementation: opts.analysisVersion ?? "analysis-session-v3",
+      outputSchema: opts.outputSchemaVersion ?? "generic-json-v1",
+      adapter: opts.configId ?? "generic-json-v1",
+      maxChars: opts.maxChars ?? 3000,
+      overlapChars: opts.overlapChars ?? 200,
+      settings: structuredClone(opts.runSettings ?? {}),
+    });
     const identity = JSON.stringify([
       source,
       this.opts.project.utterances.filter((u) => u.sourceId === source.id),
       this.opts.manualCorrectionIds,
     ]);
-    this.inputId = crypto.subtle
-      .digest("SHA-256", new TextEncoder().encode(identity))
-      .then((bytes) =>
-        [...new Uint8Array(bytes)]
-          .map((b) => b.toString(16).padStart(2, "0"))
-          .join(""),
-      );
+    this.inputId = sha256(identity);
+    this.sourceBytesHash = sha256(source.text);
+    this.fingerprint = Promise.all([this.inputId, this.sourceBytesHash]).then(
+      ([inputId, sourceBytesHash]) =>
+        sha256(
+          canonicalSettings({
+            sourceId: source.id,
+            sourceVersionId: source.versionId,
+            sourceBytesHash,
+            inputId,
+            configuration: this.configId,
+          }),
+        ),
+    );
     this.chunks = makeAnalysisChunks(
       this.opts.project,
       source.id,
@@ -280,7 +338,13 @@ export class AnalysisSession {
     const combined = new AbortController();
     this.controller = combined;
     this.status = "running";
-    const forward = () => combined.abort();
+    const forward = () => {
+      if (generation === this.generation) {
+        this.generation++;
+        this.status = "cancelled";
+      }
+      combined.abort();
+    };
     if (signal?.aborted) forward();
     else signal?.addEventListener("abort", forward, { once: true });
     const guard = () => {
@@ -292,8 +356,6 @@ export class AnalysisSession {
     )!;
     try {
       guard();
-      const inputId = await cancellable(this.inputId, combined.signal);
-      guard();
       const loaded =
         this.checkpoint ??
         this.opts.initialCheckpoint ??
@@ -302,69 +364,17 @@ export class AnalysisSession {
           combined.signal,
         ));
       guard();
-      if (
-        loaded &&
-        (loaded.sourceId !== source.id ||
-          loaded.sourceVersionId !== source.versionId ||
-          loaded.sourceHash !== source.hash)
-      )
-        throw new Error("checkpoint belongs to an older source version");
-      if (
-        loaded &&
-        (loaded.version !== 1 ||
-          loaded.sessionId !== this.id ||
-          loaded.configId !== this.configId ||
-          loaded.inputId !== inputId)
-      )
-        throw new Error("checkpoint input/configuration mismatch");
-      let checkpoint: AnalysisCheckpoint = structuredClone(
-        loaded ?? {
-          version: 1,
-          sessionId: this.id,
-          configId: this.configId,
-          inputId,
-          sourceId: source.id,
-          sourceVersionId: source.versionId,
-          sourceHash: source.hash,
-          phase: "candidates",
-          nextChunk: 0,
-          candidates: [],
-          reconciled: undefined,
-          terms: [],
-          questions: [],
-          answers: [],
-          relations: [],
-          manualCorrectionIds: [...(this.opts.manualCorrectionIds ?? [])],
-          updatedAt: now(),
-        },
+      let checkpoint = await cancellable(
+        this.inspectCheckpoint(loaded),
+        combined.signal,
       );
-      if (
-        !Number.isInteger(checkpoint.nextChunk) ||
-        checkpoint.nextChunk < 0 ||
-        checkpoint.nextChunk > this.chunks.length ||
-        !Array.isArray(checkpoint.candidates) ||
-        checkpoint.candidates.length !== checkpoint.nextChunk ||
-        !["candidates", "reconcile"].includes(checkpoint.phase) ||
-        (checkpoint.phase === "reconcile" &&
-          checkpoint.nextChunk !== this.chunks.length) ||
-        (checkpoint.reconciled !== undefined &&
-          (checkpoint.phase !== "reconcile" ||
-            checkpoint.nextChunk !== this.chunks.length))
-      )
-        throw new Error("invalid checkpoint prefix");
-      checkpoint.candidates = checkpoint.candidates.map((c, i) => {
-        if (c.chunkId !== this.chunks[i].id)
-          throw new Error("invalid checkpoint chunk order");
-        return {
-          chunkId: c.chunkId,
-          value: this.validateCandidate(c.value, this.chunks[i]),
-        };
-      });
-      if (checkpoint.reconciled !== undefined)
-        checkpoint.reconciled = this.validateReconciled(checkpoint.reconciled);
+      checkpoint.generationId =
+        this.opts.generationId ?? `${this.id}:${generation}`;
+      guard();
       const save = async (next: AnalysisCheckpoint) => {
         guard();
         next.updatedAt = now();
+        next.lastCommittedChunkIndex = next.nextChunk - 1;
         await cancellable(
           Promise.resolve(
             this.opts.checkpointStore?.save(
@@ -447,6 +457,119 @@ export class AnalysisSession {
       signal?.removeEventListener("abort", forward);
       if (generation === this.generation) this.controller = undefined;
     }
+  }
+  /** Read-only preflight: invalid checkpoints must not claim an owner or modify IndexedDB. */
+  async inspectCheckpoint(
+    loaded?: AnalysisCheckpoint,
+  ): Promise<AnalysisCheckpoint> {
+    const [inputId, sourceBytesHash, fingerprint] = await Promise.all([
+      this.inputId,
+      this.sourceBytesHash,
+      this.fingerprint,
+    ]);
+    const source = this.opts.project.sources.find(
+      (item) => item.id === this.sourceId,
+    )!;
+    if (
+      loaded &&
+      (loaded.sourceId !== source.id ||
+        loaded.sourceVersionId !== source.versionId ||
+        loaded.sourceHash !== source.hash)
+    )
+      throw new Error("checkpoint belongs to an older source version");
+    if (
+      loaded &&
+      (loaded.version !== 2 ||
+        loaded.sessionId !== this.id ||
+        loaded.configId !== this.configId ||
+        loaded.inputId !== inputId ||
+        loaded.fingerprint !== fingerprint ||
+        loaded.sourceBytesHash !== sourceBytesHash ||
+        loaded.runId !== this.id)
+    )
+      throw new Error("checkpoint input/configuration mismatch");
+    let checkpoint: AnalysisCheckpoint = structuredClone(
+      loaded ?? {
+        version: 2,
+        runId: this.id,
+        generationId: this.opts.generationId,
+        fingerprint,
+        sourceBytesHash,
+        chunkManifest: this.chunkManifest(),
+        sessionId: this.id,
+        configId: this.configId,
+        inputId,
+        sourceId: source.id,
+        sourceVersionId: source.versionId,
+        sourceHash: source.hash,
+        phase: "candidates",
+        nextChunk: 0,
+        lastCommittedChunkIndex: -1,
+        candidates: [],
+        reconciled: undefined,
+        terms: [],
+        questions: [],
+        answers: [],
+        relations: [],
+        manualCorrectionIds: [...(this.opts.manualCorrectionIds ?? [])],
+        updatedAt: now(),
+      },
+    );
+    if (
+      !Number.isInteger(checkpoint.nextChunk) ||
+      checkpoint.nextChunk < 0 ||
+      checkpoint.lastCommittedChunkIndex !== checkpoint.nextChunk - 1 ||
+      checkpoint.nextChunk > this.chunks.length ||
+      !Array.isArray(checkpoint.candidates) ||
+      checkpoint.candidates.length !== checkpoint.nextChunk ||
+      !["candidates", "reconcile"].includes(checkpoint.phase) ||
+      (checkpoint.phase === "reconcile" &&
+        checkpoint.nextChunk !== this.chunks.length) ||
+      (checkpoint.reconciled !== undefined &&
+        (checkpoint.phase !== "reconcile" ||
+          checkpoint.nextChunk !== this.chunks.length))
+    )
+      throw new Error("invalid checkpoint prefix");
+    if (
+      canonicalSettings(checkpoint.chunkManifest) !==
+      canonicalSettings(this.chunkManifest())
+    )
+      throw new Error("checkpoint evidence span mismatch");
+    for (const item of checkpoint.chunkManifest ?? [])
+      for (const span of item.spans) {
+        if (
+          !Number.isInteger(span.start) ||
+          !Number.isInteger(span.end) ||
+          span.start < 0 ||
+          span.end <= span.start ||
+          span.end > source.text.length ||
+          span.sourceId !== source.id ||
+          span.sourceVersionId !== source.versionId
+        )
+          throw new Error("checkpoint evidence span outside current source");
+      }
+    checkpoint.candidates = checkpoint.candidates.map((c, i) => {
+      if (c.chunkId !== this.chunks[i].id)
+        throw new Error("invalid checkpoint chunk order");
+      return {
+        chunkId: c.chunkId,
+        value: this.validateCandidate(c.value, this.chunks[i]),
+      };
+    });
+    if (checkpoint.reconciled !== undefined)
+      checkpoint.reconciled = this.validateReconciled(checkpoint.reconciled);
+    return checkpoint;
+  }
+  private chunkManifest() {
+    return this.chunks.map((chunk) => ({
+      id: chunk.id,
+      spans: chunk.spans.map(({ sourceId, sourceVersionId, start, end }) => ({
+        sourceId,
+        sourceVersionId,
+        start,
+        end,
+      })),
+    }));
   }
   private validateCandidate(value: unknown, chunk: AnalysisChunk) {
     return jsonValue(

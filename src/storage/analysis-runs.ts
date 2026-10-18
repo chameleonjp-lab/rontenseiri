@@ -5,6 +5,9 @@ export type RunState = "running" | "cancelled" | "failed" | "completed";
 export interface LocalRunRecord {
   id: string;
   owner: string;
+  runId: string;
+  generationId: string;
+  fingerprint: string;
   state: RunState;
   checkpoint?: AnalysisCheckpoint;
   error?: string;
@@ -51,7 +54,30 @@ export async function writeLocalRun(
     const record = await tx.store.get(id);
     if (!record || record.owner !== owner)
       throw new Error("旧runの保存を拒否しました");
-    await tx.store.put(update(record), id);
+    const next = update(record);
+    if (
+      next.runId !== record.runId ||
+      next.generationId !== owner ||
+      next.owner !== owner ||
+      next.fingerprint !== record.fingerprint
+    )
+      throw new Error("run/generation/fingerprint fence mismatch");
+    const cp = next.checkpoint;
+    if (
+      cp &&
+      (cp.runId !== next.runId ||
+        cp.generationId !== next.generationId ||
+        cp.fingerprint !== next.fingerprint ||
+        cp.nextChunk !== cp.candidates.length ||
+        cp.lastCommittedChunkIndex !== cp.nextChunk - 1)
+    )
+      throw new Error("checkpoint/cursor atomicity violation");
+    if (
+      next.state === "completed" &&
+      (!cp || cp.nextChunk !== next.total || cp.reconciled === undefined)
+    )
+      throw new Error("incomplete run cannot complete");
+    await tx.store.put(next, id);
     await done;
   } catch (error) {
     abort();
@@ -62,15 +88,48 @@ export async function writeLocalRun(
     db.close();
   }
 }
-export async function claimLocalRun(id: string, owner: string, total: number) {
+export async function claimLocalRun(
+  id: string,
+  owner: string,
+  total: number,
+  options: {
+    runId?: string;
+    fingerprint?: string;
+    expected?: LocalRunRecord | null;
+  } = {},
+) {
   const db = await database();
   const tx = db.transaction("runs", "readwrite");
   const done = tx.done;
   void done.catch(() => {});
   try {
     const old = await tx.store.get(id);
+    if (
+      options.expected !== undefined &&
+      JSON.stringify(old ?? null) !== JSON.stringify(options.expected)
+    )
+      throw new Error("run changed during preflight");
+    const runId = options.runId ?? old?.runId ?? crypto.randomUUID();
+    if (old && old.runId !== runId)
+      throw new Error(
+        "新runは別IDが必要です。checkpointを明示破棄してください",
+      );
+    const fingerprint = options.fingerprint ?? old?.fingerprint ?? "";
+    if (old?.checkpoint && old.checkpoint.fingerprint !== fingerprint)
+      throw new Error("checkpoint fingerprint mismatch");
     await tx.store.put(
-      { id, owner, total, state: "running", checkpoint: old?.checkpoint },
+      {
+        id,
+        runId,
+        owner,
+        generationId: owner,
+        fingerprint,
+        total,
+        state: "running",
+        checkpoint: old?.checkpoint
+          ? { ...old.checkpoint, generationId: owner }
+          : undefined,
+      },
       id,
     );
     await done;

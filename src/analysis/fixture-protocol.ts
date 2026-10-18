@@ -5,6 +5,12 @@ export function fixtureCandidate(chunk: AnalysisChunk) {
     chunkId: chunk.id,
     sourceVersionId: chunk.sourceVersionId,
     spanCount: chunk.spans.length,
+    evidence: chunk.spans.map(({ sourceId, sourceVersionId, start, end }) => ({
+      sourceId,
+      sourceVersionId,
+      start,
+      end,
+    })),
   };
 }
 export function validateFixtureCandidate(value: unknown, chunk: AnalysisChunk) {

@@ -7,7 +7,8 @@ type Request =
   | { type: "analyze"; modelId: string; chunks: Chunk[] }
   | {
       type: "transport-fixture";
-      owner: string;
+      runId: string;
+      generationId: string;
       requestId: number;
       scenario: string;
       phase: "candidate" | "reconcile";
@@ -56,13 +57,15 @@ self.onmessage = async (event: MessageEvent<Request>) => {
       request.requestId === 2
     ) {
       post({
-        owner: request.owner,
+        runId: request.runId,
+        generationId: request.generationId,
         requestId: request.requestId,
         error: "決定的fixtureの2件目失敗（AIではありません）",
       });
     } else {
       post({
-        owner: request.owner,
+        runId: request.runId,
+        generationId: request.generationId,
         requestId: request.requestId,
         value:
           request.phase === "candidate" && request.chunk

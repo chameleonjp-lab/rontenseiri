@@ -118,6 +118,9 @@ export default defineConfig(({ mode }) => {
   const base = env.CUE_APP_BASE || process.env.VITE_APP_BASE || "./";
   process.env.__RONTENSEIRI_BASE = base;
   return {
+    // The first real Worker must not discover WebLLM late and invalidate the
+    // optimized dependency graph, reloading the UI in the middle of a run.
+    optimizeDeps: { include: ["@mlc-ai/web-llm"] },
     plugins: [
       react(),
       developmentBuildIdentity(),

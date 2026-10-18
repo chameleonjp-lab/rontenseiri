@@ -8,12 +8,12 @@ import {
   writeLocalRun,
   type LocalRunRecord,
 } from "../storage/analysis-runs";
-
 export const TRANSPORT_CONFIG =
-  "transport-fixture-v1:400ms:no-model:no-inference";
+  "transport-fixture-v2:400ms:no-model:no-inference";
 export type FixtureScenario = "normal" | "fail-second";
 export function createWorkerAdapter(
-  owner: string,
+  runId: string,
+  generationId: string,
   scenario: FixtureScenario,
   signal: AbortSignal,
 ) {
@@ -38,8 +38,10 @@ export function createWorkerAdapter(
   worker.onmessage = (event: MessageEvent) => {
     const reply = event.data;
     if (
+      !reply ||
       signal.aborted ||
-      reply.owner !== owner ||
+      reply.runId !== runId ||
+      reply.generationId !== generationId ||
       reply.requestId !== pending?.id
     )
       return;
@@ -58,11 +60,16 @@ export function createWorkerAdapter(
         reject(new DOMException("cancelled", "AbortError"));
         return;
       }
+      if (pending) {
+        reject(new Error("concurrent Worker request rejected"));
+        return;
+      }
       const requestId = ++sequence;
       pending = { id: requestId, resolve, reject };
       worker.postMessage({
         type: "transport-fixture",
-        owner,
+        runId,
+        generationId,
         requestId,
         scenario,
         ...payload,
@@ -93,93 +100,136 @@ export async function runLocalTransport(
   signal: AbortSignal,
   onRecord: (record: LocalRunRecord) => void,
 ) {
-  const id = localRunId(project);
-  const owner = crypto.randomUUID();
-  // This path never selects a model. It proves transport/recovery, not AI quality.
+  const snapshot = structuredClone(project);
+  const id = localRunId(snapshot);
+  const owner = crypto.randomUUID(); // A new generation for every start/resume attempt.
   return withAnalysisOwnership(
     async () => {
       if (signal.aborted) throw new DOMException("cancelled", "AbortError");
-      const transport = createWorkerAdapter(owner, scenario, signal);
-      let session: AnalysisSession | undefined;
-      const publish = async (
-        state: LocalRunRecord["state"],
-        error?: string,
-      ) => {
-        await writeLocalRun(
+      const existing = await readLocalRun(id);
+      const runId = existing?.runId ?? crypto.randomUUID();
+      const workerController = new AbortController();
+      let transport: ReturnType<typeof createWorkerAdapter> | undefined;
+      let claimed = false;
+      const session: AnalysisSession = new AnalysisSession({
+        sessionId: runId,
+        generationId: owner,
+        project: snapshot,
+        maxChars: 160,
+        overlapChars: 0,
+        configId: TRANSPORT_CONFIG,
+        parserVersion: "input-parser-v1",
+        analysisVersion: "transport-session-v2",
+        outputSchemaVersion: "transport-evidence-v2",
+        runSettings: {
+          mode: "transport-only",
+          responseDelayMs: 400,
+          model: null,
+          prompt: null,
+          temperature: null,
+        },
+        initialCheckpoint: existing?.checkpoint,
+        adapter: {
+          analyzeChunk: (input, chunkSignal) =>
+            transport!.adapter.analyzeChunk(input, chunkSignal),
+          reconcile: (input, chunkSignal) =>
+            transport!.adapter.reconcile(input, chunkSignal),
+        },
+        manualCorrectionIds: snapshot.revisions.map((r) => r.id),
+        validateCandidate: validateFixtureCandidate,
+        validateReconciled(value) {
+          const expected = {
+            mode: "transport-only",
+            chunkIds: session.chunks.map((c) => c.id),
+          };
+          if (JSON.stringify(value) !== JSON.stringify(expected))
+            throw new Error("照合結果が不完全です");
+          return expected;
+        },
+        checkpointStore: {
+          load: async () => (await readLocalRun(id))?.checkpoint,
+          save: async (checkpoint, saveSignal) => {
+            await writeLocalRun(
+              id,
+              owner,
+              (record) => {
+                if (record.state !== "running" || record.runId !== runId)
+                  throw new Error("終了済みrunのchunk保存を拒否しました");
+                return { ...record, checkpoint };
+              },
+              saveSignal,
+            );
+            if (!signal.aborted)
+              onRecord({
+                id,
+                runId,
+                owner,
+                generationId: owner,
+                fingerprint: checkpoint.fingerprint!,
+                state: "running",
+                total: session.chunks.length,
+                checkpoint,
+              });
+          },
+        },
+      });
+      // Linearization order: synchronously invalidate session generation, then stop Worker.
+      const cancel = () => {
+        session.cancel();
+        workerController.abort();
+      };
+      signal.addEventListener("abort", cancel, { once: true });
+      if (signal.aborted) cancel();
+      const publish = (state: LocalRunRecord["state"], error?: string) =>
+        writeLocalRun(
           id,
           owner,
           (record) => ({ ...record, state, error }),
           state === "completed" ? signal : undefined,
         );
-      };
       try {
-        session = new AnalysisSession({
-          sessionId: id,
-          project,
-          maxChars: 160,
-          overlapChars: 0,
-          configId: TRANSPORT_CONFIG,
-          adapter: transport.adapter,
-          manualCorrectionIds: project.revisions.map((r) => r.id),
-          validateCandidate: validateFixtureCandidate,
-          validateReconciled(value) {
-            const expected = {
-              mode: "transport-only",
-              chunkIds: session!.chunks.map((c) => c.id),
-            };
-            if (JSON.stringify(value) !== JSON.stringify(expected))
-              throw new Error("照合結果が不完全です");
-            return expected;
-          },
-          checkpointStore: {
-            load: async () => (await readLocalRun(id))?.checkpoint,
-            save: async (checkpoint, saveSignal) => {
-              await writeLocalRun(
-                id,
-                owner,
-                (record) => {
-                  if (record.state !== "running")
-                    throw new Error("終了済みrunのchunk保存を拒否しました");
-                  return { ...record, checkpoint };
-                },
-                saveSignal,
-              );
-              if (!signal.aborted)
-                onRecord({
-                  id,
-                  owner,
-                  state: "running",
-                  total: session!.chunks.length,
-                  checkpoint,
-                });
-            },
-          },
+        // Pure validation first. A mismatch/corrupt prefix leaves the entire DB record unchanged.
+        await session.inspectCheckpoint(existing?.checkpoint);
+        if (signal.aborted) throw new DOMException("cancelled", "AbortError");
+        const fingerprint = await session.fingerprint;
+        await claimLocalRun(id, owner, session.chunks.length, {
+          runId,
+          fingerprint,
+          expected: existing ?? null,
         });
-        const checkpoint = await claimLocalRun(
-          id,
-          owner,
-          session.chunks.length,
-        );
+        claimed = true;
+        if (signal.aborted) throw new DOMException("cancelled", "AbortError");
         onRecord({
           id,
+          runId,
           owner,
+          generationId: owner,
+          fingerprint,
           state: "running",
           total: session.chunks.length,
-          checkpoint,
+          checkpoint: existing?.checkpoint,
         });
+        transport = createWorkerAdapter(
+          runId,
+          owner,
+          scenario,
+          workerController.signal,
+        );
         await session.run(signal);
         await publish("completed");
       } catch (error) {
         const cancelled =
           signal.aborted ||
           (error instanceof DOMException && error.name === "AbortError");
-        await publish(
-          cancelled ? "cancelled" : "failed",
-          cancelled ? undefined : String(error),
-        );
+        if (claimed)
+          await publish(
+            cancelled ? "cancelled" : "failed",
+            cancelled ? undefined : String(error),
+          );
         throw error;
       } finally {
-        transport.dispose();
+        signal.removeEventListener("abort", cancel);
+        transport?.dispose();
       }
     },
     { signal, ownerId: owner, leaseMs: 3_600_000 },
