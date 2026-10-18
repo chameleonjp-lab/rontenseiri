@@ -171,7 +171,7 @@ function commit(
   const out = clone(original);
   out.reasoning = after;
   const affectedUtterances = new Set(
-    after.items
+    [...before.items, ...after.items]
       .filter((item) => affectedItemIds.includes(item.id))
       .flatMap((item) => item.utteranceIds),
   );
@@ -315,7 +315,11 @@ export function createManualExclusivePair(
     groupId,
     "manual-exclusive-pair-created",
     reason,
-    created.flatMap((x) => x.dependentConclusions.map((d) => d.id)),
+    created.flatMap((x) => [
+      x.premiseItemId,
+      x.conclusionItemId,
+      ...x.dependentConclusions.map((d) => d.id),
+    ]),
   );
   return out;
 }
@@ -420,6 +424,8 @@ export function updateManualExclusivePair(
       old.name !== input.name.trim();
     if (!changed) continue;
     changedAny = true;
+    affected.add(premise.id);
+    affected.add(conclusion.id);
     const evidenceIds = evidenceCheck(after, input.evidenceIds);
     const utteranceIds = [
       ...new Set(
@@ -515,7 +521,11 @@ export function removeManualExclusiveCandidate(
     interpretationId,
     "manual-exclusive-candidate-retracted",
     reason,
-    candidate.dependentConclusions.map((d) => d.id),
+    [
+      candidate.premiseItemId,
+      candidate.conclusionItemId,
+      ...candidate.dependentConclusions.map((d) => d.id),
+    ],
   );
 }
 
