@@ -18,8 +18,9 @@ Web Locksのない環境は従来どおり開始しない。取消に協調せ�
 
 - `tests/ownership.test.ts`：fake timerで期限切れ後もロックを保持すること、明示解放後だけ次所有者が取得すること、失効後の遅延成功を拒否すること。
 - `tests/analysis.test.ts`：モデルWorkerをモックし、期限切れ時のterminate、AbortError、遅延進捗・結果の抑止、外部fetchゼロを確認する。実モデル品質の検証ではない。
+- `tests/inventory-completed-notify.test.ts`：実`runSpanInventory`のcompleted読込における検査awaitを止め、取消・lease失効後に検査を再開する。実`onRecord` callbackが0回で、claim/write/Worker生成なしで拒否すること、失効しない対照は1回通知することを検証する。保存読込とLock提供者はfixtureであり、実IDB・実モデルの検証ではない。fingerprint検査後もclaim前にsignalを再確認する。
 - `e2e/ownership-lease.spec.ts`：同じブラウザcontextの2タブ、実Web Locks、実Blob Workerで、期限切れと手動取消の両方についてWorker停止・非同期cleanup中のロック保持・cleanup後の引継ぎ・旧成功の拒否を確認する。所有タブを閉じた後の引継ぎも別テストにする。
-- `e2e/ownership-fencing.spec.ts`：期限・取消では実Blob Workerをcommit直前で止め、失効後も意図的に存続させて遅延応答を再開する。実IDBの保存APIがAbortErrorを返してsnapshotと公開回数ゼロを保持すること、cleanup後に新所有者だけが保存・公開できること、旧tokenをsignalなしで再送しても所有者フェンスで拒否されることをassertする。タブ終了では死んだWorkerの再開は不可能なため、終了直前の正確なenvelopeを残存タブから再送し同じ世代フェンスを確認する。旧／新owner・generation・runId・fingerprint・保存前後・公開回数をJSON添付する。
+- `e2e/ownership-fencing.spec.ts`：期限・取消では合成Blob Workerをcommit直前で止め、失効後も意図的に存続させて遅延応答を再開する。実IDBの保存APIがAbortErrorを返してsnapshotとfixture内の公開counterゼロを保持すること、cleanup後に新所有者だけが保存・fixture公開できること、旧tokenをsignalなしで再送しても所有者フェンスで拒否されることをassertする。これは実`runSpanInventory.onRecord`経路を通る公開検証ではない。タブ終了では死んだWorkerの再開は不可能なため、終了直前の正確なenvelopeを残存タブから再送して保存世代フェンスだけを確認する。死んだWorkerの遅延発火を実行したとは扱わない。旧／新owner・generation・runId・fingerprint・保存前後・fixture公開回数をJSON添付する。
 
 ```sh
 npm run check:format

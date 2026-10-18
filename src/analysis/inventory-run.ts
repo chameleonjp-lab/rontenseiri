@@ -280,6 +280,8 @@ export async function runSpanInventory(
         if (lease.signal.aborted)
           throw new DOMException("cancelled", "AbortError");
         const fingerprint = await session.fingerprint;
+        if (lease.signal.aborted)
+          throw new DOMException("cancelled", "AbortError");
         if (existing)
           assertLocalRunRecord(existing, {
             id,
@@ -289,6 +291,8 @@ export async function runSpanInventory(
           });
         if (existing) {
           await inspectInventoryRecord(snapshot, existing);
+          if (lease.signal.aborted)
+            throw new DOMException("cancelled", "AbortError");
           if (existing.state === "completed") {
             onRecord(existing);
             return;
