@@ -1,3 +1,4 @@
+import { activeSources } from "../domain/capacity";
 import type { Project } from "../domain/types";
 import { makeAnalysisChunks, type AnalysisChunk } from "./session";
 import { canonicalSettings } from "./session";
@@ -32,9 +33,14 @@ export function spanCandidate(chunk: AnalysisChunk): FixtureCandidate {
   };
 }
 export function inventoryManifest(project: Project) {
-  const source = project.sources.find((s) => s.role === "conversation");
+  const source = activeSources(project).find((s) => s.role === "conversation");
   if (!source) throw new Error("会話資料がありません");
-  const chunks = makeAnalysisChunks(project, source.id, INVENTORY_CHARS, 0);
+  const chunks = makeAnalysisChunks(
+    { ...project, sources: activeSources(project) },
+    source.id,
+    INVENTORY_CHARS,
+    0,
+  );
   if (!chunks.length || chunks.length > INVENTORY_CAP)
     throw new Error(
       `原文範囲台帳は1〜${INVENTORY_CAP}候補に限定しています。切り捨てず停止しました`,
@@ -66,7 +72,7 @@ export function inventoryManifest(project: Project) {
     chunks,
     candidates,
     uncovered,
-    excludedSources: project.sources
+    excludedSources: activeSources(project)
       .filter((s) => s.id !== source.id)
       .map((s) => s.id),
   };
@@ -82,4 +88,18 @@ export function parseInventoryResult(
   candidates: readonly FixtureCandidate[],
 ) {
   return parseBoundedResult(value, candidates);
+}
+/** Raw Worker page only; never use this cap for a persisted multi-page aggregate. */
+export function parseInventoryPage(
+  value: unknown,
+  candidates: readonly FixtureCandidate[],
+) {
+  const page = parseInventoryResult(value, candidates);
+  const delta = page.cursor.nextPairIndex - page.pageStartPairIndex;
+  if (
+    delta > INVENTORY_LIMITS.maxComparisons ||
+    delta > INVENTORY_LIMITS.maxRetainedResults
+  )
+    throw new Error("原文範囲台帳の受信ページは8ペアを超えられません");
+  return page;
 }

@@ -447,3 +447,216 @@ test("次ページ応答前の取消は確定prefixを保持し、再読込後�
     ).results.slice(0, 8),
   ).toEqual((first.checkpoint!.reconciled as ReconciliationResult).results);
 });
+
+test("台帳入口はモバイル・タブレット・境界幅の全てで到達できる", async ({
+  page,
+}) => {
+  await setup(page);
+  await page
+    .getByRole("button", { name: "ダイアログを閉じる", exact: true })
+    .click();
+  for (const width of [390, 649, 650, 651, 768, 900, 901]) {
+    await page.setViewportSize({ width, height: 980 });
+    const menu = page.getByRole("button", { name: "メニュー", exact: true });
+    if (await menu.isVisible()) await menu.click();
+    const entry = page.getByRole("button", {
+      name: "原文範囲台帳",
+      exact: true,
+    });
+    await expect(entry, `reachable entry at ${width}px`).toBeVisible();
+    await entry.click();
+    await expect(
+      page.getByRole("dialog", {
+        name: "原文範囲台帳（意味解析なし）",
+        exact: true,
+      }),
+    ).toBeVisible();
+    await page
+      .getByRole("button", { name: "ダイアログを閉じる", exact: true })
+      .click();
+  }
+});
+
+test("原文訂正→旧checkpoint破棄→新規台帳は現行版だけを列挙する", async ({
+  page,
+}) => {
+  await setup(page);
+  await start(page);
+  const old = await record(page);
+  await page
+    .getByRole("button", { name: "ダイアログを閉じる", exact: true })
+    .click();
+  const hit = page.locator('[data-id="U01"] .speech-hit');
+  await hit.focus();
+  await hit.press("Enter");
+  await page.getByRole("button", { name: "発言・原文", exact: true }).click();
+  await page
+    .getByLabel("訂正後の原文", { exact: true })
+    .fill("訂正後の台帳専用原文😀。");
+  await page.getByLabel("変更理由", { exact: true }).fill("R22現行版の検証");
+  await page.getByRole("button", { name: "訂正を保存", exact: true }).click();
+  await expect
+    .poll(
+      async () =>
+        ((await savedProjects(page)) as any[])[0].utterances[0].sourceVersionId,
+    )
+    .not.toBe(old.checkpoint!.sourceVersionId);
+  await page.getByRole("button", { name: "詳細を閉じる", exact: true }).click();
+  await openPanel(page);
+  await expect(page.getByTestId("inventory-state")).toContainText("失敗");
+  await page
+    .getByRole("button", {
+      name: "台帳checkpointを破棄して最初から",
+      exact: true,
+    })
+    .click();
+  await expect(
+    page.getByRole("button", { name: "意味解析なしで台帳を開始", exact: true }),
+  ).toBeEnabled();
+  await start(page);
+  const fresh = await record(page);
+  const project = ((await savedProjects(page)) as any[])[0];
+  const current = project.utterances[0].sourceVersionId;
+  expect(fresh.checkpoint!.sourceVersionId).toBe(current);
+  expect(fresh.checkpoint!.sourceVersionId).not.toBe(
+    old.checkpoint!.sourceVersionId,
+  );
+  expect(
+    fresh.checkpoint!.candidates.every((c) =>
+      (c.value as any).evidence.every(
+        (s: any) => s.sourceVersionId === current,
+      ),
+    ),
+  ).toBe(true);
+  expect(
+    project.sources.some(
+      (s: any) => s.versionId === old.checkpoint!.sourceVersionId,
+    ),
+  ).toBe(true);
+});
+
+test("現在版の保存待ち・失敗は開始を阻止してcheckpointゼロ、保存成功後のみ開始する", async ({
+  page,
+}) => {
+  await setup(page);
+  await page
+    .getByRole("button", { name: "ダイアログを閉じる", exact: true })
+    .click();
+  await page.evaluate(() => {
+    const state = { mode: "pending", holding: false };
+    Object.assign(window, { __inventoryProjectFault: state });
+    const native = IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put = function (
+      value: unknown,
+      key?: IDBValidKey,
+    ) {
+      if (this.name === "projects" && state.mode === "quota")
+        throw new DOMException(
+          "inventory project quota failure",
+          "QuotaExceededError",
+        );
+      const request =
+        key === undefined
+          ? native.call(this, value)
+          : native.call(this, value, key);
+      if (this.name === "projects" && state.mode === "pending") {
+        const store = this;
+        request.addEventListener(
+          "success",
+          () => {
+            state.holding = true;
+            const hold = () => {
+              const r = store.get("__inventory_pending_probe__");
+              r.onsuccess = () => {
+                if (state.mode === "pending") hold();
+              };
+            };
+            hold();
+          },
+          { once: true },
+        );
+      }
+      return request;
+    };
+  });
+  async function edit(classification: string, reason: string) {
+    const hit = page.locator('[data-id="U01"] .speech-hit');
+    await hit.focus();
+    await hit.press("Enter");
+    await page
+      .getByLabel("発言の分類", { exact: true })
+      .selectOption(classification);
+    await page.getByLabel("変更理由", { exact: true }).fill(reason);
+    await page.getByRole("button", { name: "訂正を保存", exact: true }).click();
+    await page
+      .getByRole("button", { name: "詳細を閉じる", exact: true })
+      .click();
+  }
+  await edit("derived", "保存待ちの台帳阻止");
+  await expect
+    .poll(() =>
+      page.evaluate(() => (window as any).__inventoryProjectFault.holding),
+    )
+    .toBe(true);
+  await openPanel(page);
+  await expect(
+    page.getByRole("button", { name: "意味解析なしで台帳を開始", exact: true }),
+  ).toBeDisabled();
+  expect(await record(page)).toBeUndefined();
+  await page.evaluate(() => {
+    (window as any).__inventoryProjectFault.mode = "";
+  });
+  await expect(
+    page.getByRole("button", { name: "意味解析なしで台帳を開始", exact: true }),
+  ).toBeEnabled();
+  await page
+    .getByRole("button", { name: "ダイアログを閉じる", exact: true })
+    .click();
+  await page.evaluate(() => {
+    (window as any).__inventoryProjectFault.mode = "quota";
+  });
+  await edit("drift", "保存失敗の台帳阻止");
+  await expect(
+    page.getByRole("alert").filter({ hasText: "保存失敗" }),
+  ).toBeVisible();
+  await openPanel(page);
+  await expect(
+    page.getByRole("button", { name: "意味解析なしで台帳を開始", exact: true }),
+  ).toBeDisabled();
+  expect(await record(page)).toBeUndefined();
+  const blocked = await page.evaluate(async () => {
+    const storagePath = "/src/storage/projects.ts",
+      runPath = "/src/analysis/inventory-run.ts";
+    const storage = await import(storagePath),
+      run = await import(runPath);
+    const p = (await storage.listProjects())[0];
+    p.utterances[0].classification = "drift";
+    p.saved = true;
+    try {
+      await run.runSpanInventory(p, new AbortController().signal, () => {});
+      return false;
+    } catch (e) {
+      return String(e).includes("永続保存");
+    }
+  });
+  expect(blocked).toBe(true);
+  expect(await record(page)).toBeUndefined();
+  await page
+    .getByRole("button", { name: "ダイアログを閉じる", exact: true })
+    .click();
+  await page.evaluate(() => {
+    (window as any).__inventoryProjectFault.mode = "";
+  });
+  await page
+    .getByRole("button", { name: "この端末に保存", exact: true })
+    .click();
+  await expect(
+    page.getByRole("status").filter({ hasText: "このブラウザに保存しました" }),
+  ).toBeVisible();
+  await openPanel(page);
+  await expect(
+    page.getByRole("button", { name: "意味解析なしで台帳を開始", exact: true }),
+  ).toBeEnabled();
+  await start(page);
+  expect((await record(page)).state).toBe("partial");
+});

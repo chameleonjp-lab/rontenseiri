@@ -609,6 +609,16 @@ export default function App() {
                 <span>{item.text}</span>
               </button>
             ))}
+            <button
+              aria-label="原文範囲台帳"
+              onClick={() => {
+                setModal("inventory");
+                setMobileNav(false);
+              }}
+            >
+              <BookOpen size={19} />
+              <span>原文範囲台帳</span>
+            </button>
             <div className="sidebar-agendas">
               <div className="nav-caption">議題ブロック</div>
               {project.agendas.map((a, i) => (
@@ -625,9 +635,6 @@ export default function App() {
               ))}
             </div>
             <div className="sidebar-bottom">
-              <button onClick={() => setModal("inventory")}>
-                原文範囲台帳
-              </button>
               <button onClick={() => setModal("ai")}>
                 <Cpu size={17} />
                 端末内AIの評価
@@ -1039,7 +1046,13 @@ export default function App() {
               />
             )}
             {modal === "inventory" && project && (
-              <SpanInventoryPanel key={project.id} project={project} />
+              <SpanInventoryPanel
+                key={project.id}
+                project={project}
+                durableCurrent={
+                  project === savedProjectRef.current && !saveFailed
+                }
+              />
             )}
             {modal === "ai" && project && (
               <AIDialog

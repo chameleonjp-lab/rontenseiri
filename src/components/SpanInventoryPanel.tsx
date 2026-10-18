@@ -14,7 +14,13 @@ import {
 } from "../storage/analysis-runs";
 import { withAnalysisOwnership } from "../analysis/ownership";
 
-export default function SpanInventoryPanel({ project }: { project: Project }) {
+export default function SpanInventoryPanel({
+  project,
+  durableCurrent,
+}: {
+  project: Project;
+  durableCurrent: boolean;
+}) {
   const [record, setRecord] = useState<LocalRunRecord>();
   const [result, setResult] = useState<ReconciliationResult>();
   const [checkedProject, setCheckedProject] = useState<Project>();
@@ -65,7 +71,7 @@ export default function SpanInventoryPanel({ project }: { project: Project }) {
     scopeError = String(e);
   }
   async function start() {
-    if (busy) return;
+    if (busy || !durableCurrent) return;
     const snapshot = project;
     const ac = new AbortController();
     controller.current = ac;
@@ -97,6 +103,11 @@ export default function SpanInventoryPanel({ project }: { project: Project }) {
       <p>
         作業を先に「この端末に保存」してください。台帳checkpointはこのブラウザ専用・作業JSONの対象外です。資料や訂正が変わった場合は旧結果を再利用しません。
       </p>
+      {!durableCurrent && (
+        <p role="status">
+          現在版は未保存・保存待ち・保存失敗のため開始できません。現在版の保存完了を待ってください。
+        </p>
+      )}
       {scope && (
         <details>
           <summary>対象と対象外の範囲</summary>
@@ -186,6 +197,7 @@ export default function SpanInventoryPanel({ project }: { project: Project }) {
         <button
           disabled={
             !current ||
+            !durableCurrent ||
             !project.saved ||
             !!scopeError ||
             !!error ||

@@ -1,3 +1,5 @@
+import { reconcileFixtureCandidates } from "../src/analysis/bounded-reconcile";
+import { INVENTORY_LIMITS } from "../src/analysis/span-inventory";
 import { afterEach, expect, it, vi } from "vitest";
 import { createInventoryWorker } from "../src/analysis/inventory-run";
 import {
@@ -163,7 +165,10 @@ it.each(
       runId: "run-current",
       generationId: "generation-current",
       requestId: 1,
-      value: { valid: true },
+      value:
+        phase === "candidate"
+          ? { valid: true }
+          : reconcileFixtureCandidates([], INVENTORY_LIMITS),
     };
     worker.onmessage?.({
       data: {
