@@ -14,9 +14,21 @@ class FixtureLocks {
 
   private busy = false;
   private queue: Array<() => void> = [];
-  async request(_name: string, callback: LockCallback): Promise<void> {
+  get pendingCount(): number {
+    return this.queue.length;
+  }
+  async request(
+    _name: string,
+    options: { signal?: AbortSignal },
+    callback: LockCallback,
+  ): Promise<void> {
     await new Promise<void>((resolve) => {
+      let canceled = false;
       const enter = () => {
+        if (canceled) {
+          resolve();
+          return;
+        }
         this.busy = true;
         Promise.resolve(
           callback({ name: "rontenseiri-analysis" } as Lock),
@@ -26,6 +38,13 @@ class FixtureLocks {
           this.queue.shift()?.();
         });
       };
+      const cancel = () => {
+        canceled = true;
+        const index = this.queue.indexOf(enter);
+        if (index >= 0) this.queue.splice(index, 1);
+        resolve();
+      };
+      options.signal?.addEventListener("abort", cancel, { once: true });
       if (this.busy) this.queue.push(enter);
       else enter();
     });
@@ -63,7 +82,7 @@ describe("analysis ownership", () => {
     await second.release();
   });
 
-  it("abort releases a held lock and does not leave a queued tab blocked", async () => {
+  it("abort signals the held lease but only explicit release hands off the lock", async () => {
     const locks = new FixtureLocks();
     const controller = new AbortController();
     const first = await acquireAnalysisOwnership({
@@ -79,6 +98,8 @@ describe("analysis ownership", () => {
       timeoutMs: 100,
     });
     controller.abort();
+    expect(first.signal.aborted).toBe(true);
+    expect(locks.pendingCount).toBe(1);
     await first.release();
     const second = await waiting;
     await second.release();
@@ -106,10 +127,81 @@ describe("analysis ownership", () => {
     const locks = new FixtureLocks();
     const controller = new AbortController();
     controller.abort();
+    const request = vi.spyOn(locks, "request");
     await expect(
       acquireAnalysisOwnership({ locks, signal: controller.signal }),
     ).rejects.toMatchObject({ name: "AbortError" });
+    expect(request).not.toHaveBeenCalled();
   });
+
+  it("removes a canceled acquisition from the native-like pending queue", async () => {
+    const locks = new FixtureLocks();
+    const first = await acquireAnalysisOwnership({
+      locks,
+      lockName: "pending-fixture",
+    });
+    const controller = new AbortController();
+    const waiting = acquireAnalysisOwnership({
+      locks,
+      lockName: "pending-fixture",
+      signal: controller.signal,
+    });
+    expect(locks.pendingCount).toBe(1);
+    controller.abort();
+    await expect(waiting).rejects.toMatchObject({ name: "AbortError" });
+    expect(locks.pendingCount).toBe(0);
+    await first.release();
+  });
+
+  it("clears the acquisition timeout once a lease is granted", async () => {
+    vi.useFakeTimers();
+    try {
+      const locks = new FixtureLocks();
+      const lease = await acquireAnalysisOwnership({
+        locks,
+        lockName: "granted-timeout-fixture",
+        timeoutMs: 10,
+        leaseMs: 100,
+      });
+      expect(vi.getTimerCount()).toBe(1);
+      await vi.advanceTimersByTimeAsync(10);
+      expect(lease.signal.aborted).toBe(false);
+      await lease.release();
+      expect(vi.getTimerCount()).toBe(0);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it.each(["sync", "async"] as const)(
+    "cleans timers and caller listener after a %s request failure",
+    async (mode) => {
+      vi.useFakeTimers();
+      try {
+        const caller = new AbortController();
+        const remove = vi.spyOn(caller.signal, "removeEventListener");
+        const failure = new Error(`request-${mode}-failed`);
+        const locks = {
+          request: () => {
+            if (mode === "sync") throw failure;
+            return Promise.reject(failure);
+          },
+        };
+        await expect(
+          acquireAnalysisOwnership({
+            locks,
+            signal: caller.signal,
+            timeoutMs: 10,
+            lockName: `failed-${mode}`,
+          }),
+        ).rejects.toBe(failure);
+        expect(vi.getTimerCount()).toBe(0);
+        expect(remove).toHaveBeenCalledWith("abort", expect.any(Function));
+      } finally {
+        vi.useRealTimers();
+      }
+    },
+  );
 
   it("does not hand off an expired lock until the active work releases it", async () => {
     vi.useFakeTimers();
