@@ -171,4 +171,50 @@ describe("split response evidence", () => {
       ),
     ).toEqual(before.question);
   });
+
+  it("preserves shared evidence source IDs across sources and revisions", async () => {
+    const project = createProject(
+      await parseInputs([
+        {
+          name: "first.txt",
+          format: "txt",
+          role: "conversation",
+          text: "A: left right",
+        },
+        {
+          name: "second.txt",
+          format: "txt",
+          role: "conversation",
+          text: "B: supporting evidence",
+        },
+      ]),
+      "multi-source-evidence",
+      "full",
+    );
+    const [root, other] = project.utterances;
+    const sourceIds = [root.sourceId, other.sourceId];
+    expect(project.sources).toHaveLength(2);
+    expect(new Set(sourceIds).size).toBe(2);
+    const withEvidence = addEvidence(project, {
+      utteranceIds: [root.id, other.id],
+      sourceIds,
+      actor: "manual",
+      certainty: "confirmed",
+      time,
+    });
+    const evidenceId = withEvidence.reasoning!.evidence[0].id;
+    expect(withEvidence.reasoning!.evidence[0].sourceIds).toEqual(sourceIds);
+
+    const split = splitUtterance(withEvidence, root.id, {
+      offset: 4,
+      reason: "複数資料の根拠を分割後も保持",
+      reasoningDestinations: { [evidenceId]: "both" },
+    });
+    expect(split.reasoning!.evidence[0].sourceIds).toEqual(sourceIds);
+
+    const restored = importProject(exportProject(split, "json"));
+    expect(restored.reasoning!.evidence[0].sourceIds).toEqual(sourceIds);
+    const undone = undoLastRevision(split);
+    expect(undone.reasoning!.evidence[0].sourceIds).toEqual(sourceIds);
+  });
 });

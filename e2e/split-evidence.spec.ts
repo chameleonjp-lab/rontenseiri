@@ -327,6 +327,11 @@ test.describe("発言分割の実選択・保存・復元", () => {
         ).utteranceIds,
       ).toEqual(expectedReasoningIds);
       expect(
+        parsed.reasoning.evidence.find(
+          (e: { id: string }) => e.id === evidenceId,
+        ).sourceIds,
+      ).toEqual(originalEvidence.sourceIds);
+      expect(
         parsed.reasoning.questionVersions.find(
           (q: { id: string }) => q.id === questionVersionId,
         ).sourceUtteranceIds,
@@ -387,6 +392,11 @@ test.describe("発言分割の実選択・保存・復元", () => {
           (e: { id: string }) => e.id === evidenceId,
         ).utteranceIds,
       ).toEqual(originalEvidence.utteranceIds);
+      expect(
+        undoParsed.reasoning.evidence.find(
+          (e: { id: string }) => e.id === evidenceId,
+        ).sourceIds,
+      ).toEqual(originalEvidence.sourceIds);
       expect(
         undoParsed.reasoning.questionVersions.find(
           (q: { id: string }) => q.id === questionVersionId,
