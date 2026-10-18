@@ -149,6 +149,16 @@ export default function App() {
     } = value;
     return JSON.stringify(content);
   };
+  const advanceDurableRef = (persisted: Project) => {
+    const existing = savedProjectRef.current;
+    if (
+      existing?.id === persisted.id &&
+      (persisted.storageRevision ?? 0) < (existing.storageRevision ?? 0)
+    )
+      return false;
+    savedProjectRef.current = persisted;
+    return true;
+  };
   const activeProjectRef = useRef(project);
   const selectedIdRef = useRef(selectedId);
   const inspectorDraftDirty = useRef(false);
@@ -199,23 +209,45 @@ export default function App() {
         .then((persisted) => {
           const current = activeProjectRef.current;
           if (!current || current.id !== project.id) return;
-          setSaveFailed(false);
+          const submittedKey = persistenceKey(project);
+          const currentKey = persistenceKey(current);
+          const advanced = advanceDurableRef(persisted);
+          setRecent((records) => {
+            const existing = records.find((r) => r.id === persisted.id);
+            const latest =
+              (existing?.storageRevision ?? 0) >
+              (persisted.storageRevision ?? 0)
+                ? existing!
+                : persisted;
+            return [
+              latest,
+              ...records.filter((record) => record.id !== persisted.id),
+            ];
+          });
+          if (!advanced) return;
           setSavedAt(new Date(persisted.updatedAt).toLocaleTimeString("ja-JP"));
+          if (currentKey !== submittedKey) {
+            // Carry forward only the committed storage generation, exactly as
+            // before; the newer content is still dirty and keeps its failure UI.
+            if (current.storageRevision === project.storageRevision)
+              setProject({
+                ...current,
+                saved: true,
+                storageRevision: persisted.storageRevision,
+              });
+            return;
+          }
+          setSaveFailed(false);
           setError((previous) =>
             previous.startsWith("保存失敗：") ||
             previous.startsWith("保存できません：")
               ? ""
               : previous,
           );
-          setRecent((records) => [
-            persisted,
-            ...records.filter((record) => record.id !== persisted.id),
-          ]);
           if (
             current === project ||
             current.storageRevision === project.storageRevision
           ) {
-            savedProjectRef.current = persisted;
             setProject(
               current === project
                 ? persisted
@@ -225,9 +257,6 @@ export default function App() {
                     saved: true,
                   },
             );
-          } else {
-            // Preserve the newer in-memory edit; its effect will save next.
-            savedProjectRef.current = persisted;
           }
         })
         .catch((e: Error) => {
@@ -426,7 +455,19 @@ export default function App() {
       });
       const current = activeProjectRef.current;
       if (current?.id !== submitted.id) return;
-      savedProjectRef.current = persisted;
+      const submittedKey = persistenceKey(submitted);
+      const currentKey = persistenceKey(current);
+      if (!advanceDurableRef(persisted)) return;
+      setSavedAt(new Date(persisted.updatedAt).toLocaleTimeString("ja-JP"));
+      if (currentKey !== submittedKey) {
+        if (current.storageRevision === submitted.storageRevision)
+          setProject({
+            ...current,
+            saved: true,
+            storageRevision: persisted.storageRevision,
+          });
+        return;
+      }
       setSaveFailed(false);
       if (current === submitted) setProject(persisted);
       else if (current.storageRevision === submitted.storageRevision)
@@ -435,7 +476,6 @@ export default function App() {
           saved: true,
           storageRevision: persisted.storageRevision,
         });
-      setSavedAt(new Date(persisted.updatedAt).toLocaleTimeString("ja-JP"));
       tell(
         current === submitted
           ? "このブラウザに保存しました。復旧用JSONも保管してください。"
