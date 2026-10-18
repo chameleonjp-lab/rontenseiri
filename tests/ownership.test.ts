@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   acquireAnalysisOwnership,
   OwnershipTimeoutError,
@@ -109,5 +109,68 @@ describe("analysis ownership", () => {
     await expect(
       acquireAnalysisOwnership({ locks, signal: controller.signal }),
     ).rejects.toMatchObject({ name: "AbortError" });
+  });
+
+  it("does not hand off an expired lock until the active work releases it", async () => {
+    vi.useFakeTimers();
+    try {
+      const locks = new FixtureLocks();
+      const first = await acquireAnalysisOwnership({
+        locks,
+        lockName: "expiry-fixture",
+        leaseMs: 10,
+      });
+      await vi.advanceTimersByTimeAsync(10);
+      expect(first.signal.aborted).toBe(true);
+      const blocked = acquireAnalysisOwnership({
+        locks,
+        lockName: "expiry-fixture",
+        timeoutMs: 1,
+      });
+      const blockedExpectation = expect(blocked).rejects.toBeInstanceOf(
+        OwnershipTimeoutError,
+      );
+      await vi.advanceTimersByTimeAsync(1);
+      await blockedExpectation;
+      await first.release();
+      const next = await acquireAnalysisOwnership({
+        locks,
+        lockName: "expiry-fixture",
+      });
+      await next.release();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("rejects a late successful value after lease expiry and cleanup", async () => {
+    vi.useFakeTimers();
+    try {
+      const locks = new FixtureLocks();
+      let finish!: () => void;
+      const pending = withAnalysisOwnership(
+        async () => {
+          await new Promise<void>((resolve) => {
+            finish = resolve;
+          });
+          return "stale-success";
+        },
+        { locks, lockName: "late-expired-result", leaseMs: 10 },
+      );
+      const rejected = expect(pending).rejects.toMatchObject({
+        name: "AbortError",
+      });
+      await vi.advanceTimersByTimeAsync(10);
+      finish();
+      await rejected;
+      await expect(
+        withAnalysisOwnership(async () => "next", {
+          locks,
+          lockName: "late-expired-result",
+        }),
+      ).resolves.toBe("next");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

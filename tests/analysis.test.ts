@@ -95,6 +95,60 @@ describe("local analysis adapter safety boundaries", () => {
     await expect(pending).rejects.toMatchObject({ name: "AbortError" });
   });
 
+  it("lease expiry terminates the model Worker and rejects late progress/results without external fetch", async () => {
+    vi.useFakeTimers();
+    try {
+      let worker!: FakeWorker;
+      class FakeWorker {
+        onmessage?: (event: MessageEvent) => void;
+        onerror?: (event: ErrorEvent) => void;
+        terminate = vi.fn();
+        postMessage = vi.fn();
+        constructor() {
+          worker = this;
+        }
+      }
+      vi.stubGlobal("Worker", FakeWorker);
+      const progress = vi.fn();
+      const fetchSpy = vi.spyOn(globalThis, "fetch");
+      const pending = analyzeLocally(
+        project(),
+        MODEL_OPTIONS[0].id,
+        progress,
+        new AbortController().signal,
+        {
+          lockName: "model-lease-expiry",
+          leaseMs: 10,
+          locks: {
+            request: async (name, callback) => {
+              await callback({ name } as Lock);
+            },
+          },
+        },
+      );
+      const rejected = expect(pending).rejects.toMatchObject({
+        name: "AbortError",
+      });
+      await vi.advanceTimersByTimeAsync(10);
+      await rejected;
+      expect(worker.terminate).toHaveBeenCalledTimes(1);
+      worker.onmessage?.({
+        data: { type: "progress", text: "late" },
+      } as MessageEvent);
+      worker.onmessage?.({
+        data: {
+          type: "result",
+          suggestion: { agendas: [], classifications: [], relations: [] },
+        },
+      } as MessageEvent);
+      expect(progress).not.toHaveBeenCalled();
+      expect(fetchSpy).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("does not call fetch from the UI adapter (only the worker may fetch model artifacts)", async () => {
     class FakeWorker {
       onmessage?: (event: MessageEvent) => void;

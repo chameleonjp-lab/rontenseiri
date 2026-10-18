@@ -168,8 +168,8 @@ export async function analyzeLocally(
   if (signal.aborted)
     throw new DOMException("解析を中止しました", "AbortError");
   return withAnalysisOwnership(
-    async () => {
-      if (signal.aborted)
+    async (lease) => {
+      if (lease.signal.aborted)
         throw new DOMException("解析を中止しました", "AbortError");
       if (typeof Worker === "undefined")
         throw new Error(
@@ -189,7 +189,7 @@ export async function analyzeLocally(
         const finish = (fn: () => void) => {
           if (settled) return;
           settled = true;
-          signal.removeEventListener("abort", abort);
+          lease.signal.removeEventListener("abort", abort);
           worker.terminate();
           fn();
         };
@@ -197,8 +197,9 @@ export async function analyzeLocally(
           finish(() =>
             reject(new DOMException("解析を中止しました", "AbortError")),
           );
-        signal.addEventListener("abort", abort, { once: true });
+        lease.signal.addEventListener("abort", abort, { once: true });
         worker.onmessage = (event: MessageEvent<WorkerReply>) => {
+          if (settled || lease.signal.aborted) return;
           const message = event.data;
           if (message.type === "progress") onProgress(message.text);
           else if (message.type === "error")
