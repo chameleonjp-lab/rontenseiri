@@ -1,3 +1,4 @@
+import SpanInventoryPanel from "./components/SpanInventoryPanel";
 import LocalRunPanel from "./components/LocalRunPanel";
 import { projectCoverageComplete } from "./domain/coverage";
 import { exportProject } from "./export/project";
@@ -124,9 +125,9 @@ export default function App() {
       ),
     [],
   );
-  const [modal, setModal] = useState<"input" | "export" | "ai" | "help" | null>(
-    null,
-  );
+  const [modal, setModal] = useState<
+    "input" | "export" | "ai" | "inventory" | "help" | null
+  >(null);
   const [recent, setRecent] = useState<Project[]>([]);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -624,6 +625,9 @@ export default function App() {
               ))}
             </div>
             <div className="sidebar-bottom">
+              <button onClick={() => setModal("inventory")}>
+                原文範囲台帳
+              </button>
               <button onClick={() => setModal("ai")}>
                 <Cpu size={17} />
                 端末内AIの評価
@@ -1011,7 +1015,9 @@ export default function App() {
                   ? "資料を出力する"
                   : modal === "ai"
                     ? "端末内AIの評価"
-                    : "使い方と制約"
+                    : modal === "inventory"
+                      ? "原文範囲台帳（意味解析なし）"
+                      : "使い方と制約"
             }
           >
             <button
@@ -1031,6 +1037,9 @@ export default function App() {
                 onError={setError}
                 onDone={tell}
               />
+            )}
+            {modal === "inventory" && project && (
+              <SpanInventoryPanel key={project.id} project={project} />
             )}
             {modal === "ai" && project && (
               <AIDialog

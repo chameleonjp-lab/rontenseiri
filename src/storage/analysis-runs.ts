@@ -1,7 +1,8 @@
 import { openDB, type DBSchema } from "idb";
 import type { AnalysisCheckpoint } from "../analysis/session";
 
-export type RunState = "running" | "cancelled" | "failed" | "completed";
+export type RunState =
+  "running" | "cancelled" | "failed" | "partial" | "completed";
 export interface LocalRunRecord {
   id: string;
   owner: string;
@@ -28,7 +29,9 @@ export function assertLocalRunRecord(
     record.total < 1 ||
     !record.owner ||
     record.generationId !== record.owner ||
-    !["running", "cancelled", "failed", "completed"].includes(record.state) ||
+    !["running", "cancelled", "failed", "partial", "completed"].includes(
+      record.state,
+    ) ||
     (record.checkpoint &&
       (record.checkpoint.runId !== record.runId ||
         record.checkpoint.fingerprint !== record.fingerprint ||
@@ -100,6 +103,17 @@ export async function writeLocalRun(
       (!cp || cp.nextChunk !== next.total || cp.reconciled === undefined)
     )
       throw new Error("incomplete run cannot complete");
+    if (cp?.reconciled && typeof cp.reconciled === "object") {
+      const result = cp.reconciled as Record<string, unknown>;
+      if (
+        (next.state === "completed" && result.status === "partial") ||
+        (next.state === "partial" &&
+          (result.kind !== "fixture-bounded-reconciliation" ||
+            result.status !== "partial"))
+      )
+        throw new Error("run/result partial status mismatch");
+    } else if (next.state === "partial")
+      throw new Error("partial run requires committed results");
     await tx.store.put(next, id);
     await done;
   } catch (error) {
