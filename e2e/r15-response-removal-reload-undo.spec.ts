@@ -350,7 +350,7 @@ test("R15: 通常UIで応答だけを解除し、自動保存・リロード・U
   await expect(
     form.getByRole("combobox", { name: "対象問い版", exact: true }),
   ).toHaveValue(OLD_VERSION);
-  await expect(form.getByRole("checkbox", { name: /U02/ })).toBeChecked();
+  await expect(form.getByRole("checkbox", { name: /^U02\b/ })).toBeChecked();
   // Do not edit or save another response revision before removing this link.
   await form.getByLabel("登録理由", { exact: true }).fill(REASON);
   await form
