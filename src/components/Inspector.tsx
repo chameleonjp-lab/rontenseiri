@@ -51,7 +51,15 @@ export default function Inspector({
   const incomingReturns = project.relations.filter(
     (r) => r.to === u.id && r.kind === "return",
   );
-  const incomingReturnSignature = JSON.stringify(incomingReturns);
+  const incomingSourceIds = new Set(incomingReturns.map((r) => r.from));
+  const preservedReturns = project.relations.filter(
+    (r) =>
+      r.kind === "return" && r.to !== u.id && incomingSourceIds.has(r.from),
+  );
+  const incomingReturnSignature = JSON.stringify([
+    incomingReturns,
+    preservedReturns,
+  ]);
   const [classification, setClassification] = useState(u.classification);
   const [speaker, setSpeaker] = useState(u.speaker);
   const [important, setImportant] = useState(u.important);
@@ -306,29 +314,45 @@ export default function Inspector({
               {incomingReturns.length > 0 && (
                 <section aria-label="この発言への復帰線">
                   <h4>この発言への復帰線：{incomingReturns.length}件</h4>
-                  <ul>
-                    {incomingReturns.map((relation) => (
-                      <li key={relation.id}>
-                        <strong>
-                          {relation.from} → {relation.to}
-                        </strong>
-                        <span> · 関係ID：{relation.id}</span>
+                  {[
+                    { title: "解除対象", relations: incomingReturns },
+                    {
+                      title: "解除対象外・同じ始点から別の復帰先への線は保持",
+                      relations: preservedReturns,
+                    },
+                  ]
+                    .filter((group) => group.relations.length > 0)
+                    .map((group) => (
+                      <div key={group.title}>
+                        <h5>{group.title}</h5>
                         <ul>
-                          {relation.evidenceIds.map((id) => (
-                            <li key={id}>
-                              根拠 {id}：「
-                              {
-                                project.utterances.find(
-                                  (item) => item.id === id,
-                                )?.quote
-                              }
-                              」
+                          {group.relations.map((relation) => (
+                            <li key={relation.id}>
+                              <strong>
+                                {relation.from} → {relation.to}
+                              </strong>
+                              <span> · 関係ID：{relation.id}</span>
+                              {relation.evidenceIds.length === 0 && (
+                                <p>根拠未登録</p>
+                              )}
+                              <ul>
+                                {relation.evidenceIds.map((id) => (
+                                  <li key={id}>
+                                    根拠 {id}：「
+                                    {
+                                      project.utterances.find(
+                                        (item) => item.id === id,
+                                      )?.quote
+                                    }
+                                    」
+                                  </li>
+                                ))}
+                              </ul>
                             </li>
                           ))}
                         </ul>
-                      </li>
+                      </div>
                     ))}
-                  </ul>
                   <p className="fineprint">
                     分類変更で外す場合は、ここに示した復帰線をすべて解除します。別の復帰先への線や他の種類の関係は残します。
                   </p>

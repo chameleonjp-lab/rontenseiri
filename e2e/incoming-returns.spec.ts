@@ -64,7 +64,17 @@ test("複数のincoming復帰線は始点と全根拠を説明し、全解除は
   expect(incoming).toHaveLength(2);
   const explanation = panel.getByRole("region", { name: "この発言への復帰線" });
   await expect(explanation).toBeVisible();
-  for (const relation of incoming) {
+  const preserved = project.relations.filter(
+    (r) =>
+      r.kind === "return" &&
+      r.to !== "U10" &&
+      incoming.some((edge) => edge.from === r.from),
+  );
+  expect(preserved).toHaveLength(1);
+  await expect(explanation).toContainText(
+    "解除対象外・同じ始点から別の復帰先への線は保持",
+  );
+  for (const relation of [...incoming, ...preserved]) {
     await expect(explanation).toContainText(
       `${relation.from} → ${relation.to}`,
     );
