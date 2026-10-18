@@ -1,0 +1,33 @@
+{
+  "testedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+  "pr": "https://github.com/chameleonjp-lab/rontenseiri/pull/11",
+  "actualPrState": "closed",
+  "actualDraft": false,
+  "merged": true,
+  "mergedAt": "2026-10-18T12:23:27Z",
+  "mergeCommitSha": "7716c44b6c40bc47319c8d0d06b267ad20866d06",
+  "main": "7716c44b6c40bc47319c8d0d06b267ad20866d06",
+  "mergedByApiLogin": "chameleonjp-lab",
+  "expectedOpenDraftPreserved": false,
+  "agentExecutedMerge": false,
+  "agentExecutedReadyForReview": false,
+  "agentExecutedRebaseOrForcePush": false,
+  "draftRestorationAttempt": "gh pr ready --undo rejected because PR was closed; no reopen/revert/merge cancellation attempted",
+  "ciAtTestedHead": {
+    "39125745484": {
+      "event": "push",
+      "conclusion": "success",
+      "headSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53"
+    },
+    "39125750810": {
+      "event": "pull_request",
+      "conclusion": "success",
+      "headSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53"
+    }
+  },
+  "localAllRequiredTestsPassed": false,
+  "mergeCommitVerification": "not performed or claimed; execution evidence covers 7da head only",
+  "bundle": "/workspace/r22-evidence/7da450fd60dd8eb91ca686867c7dbcdaef944e53/pr11-7da450f-four-series-evidence.zip",
+  "bodyMatchesFinalFile": true,
+  "latestPrMerged": true
+}

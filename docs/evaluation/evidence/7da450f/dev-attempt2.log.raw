@@ -1,0 +1,78 @@
+
+Running 1 test using 1 worker
+
+[diagnostic] selection 10/100
+[diagnostic] selection 20/100
+[diagnostic] selection 30/100
+[diagnostic] selection 40/100
+[diagnostic] selection 50/100
+[diagnostic] selection 60/100
+[diagnostic] selection 70/100
+[diagnostic] selection 80/100
+[diagnostic] selection 90/100
+[diagnostic] selection 100/100
+[diagnostic] search 10/100
+[diagnostic] search 20/100
+[diagnostic] search 30/100
+[diagnostic] search 40/100
+[diagnostic] search 50/100
+[diagnostic] search 60/100
+[diagnostic] search 70/100
+[diagnostic] search 80/100
+[diagnostic] search 90/100
+[diagnostic] search 100/100
+[diagnostic] fold 10/100
+[diagnostic] fold 20/100
+[diagnostic] fold 30/100
+[diagnostic] fold 40/100
+[diagnostic] fold 50/100
+[diagnostic] fold 60/100
+[diagnostic] fold 70/100
+[diagnostic] fold 80/100
+[diagnostic] fold 90/100
+[diagnostic] fold 100/100
+  ✘  1 e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する (1.6m)
+
+
+  1) e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する ─────────────────────────────────
+
+    Error: selection: 100-operation p95 must be <= 200ms
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 200
+    Received:    217.10000002384186
+
+      743 |         `${name}: 100-operation p95 must be <= ${THRESHOLD_MS}ms`,
+      744 |       )
+    > 745 |       .toBeLessThanOrEqual(THRESHOLD_MS);
+          |        ^
+      746 |   }
+      747 | });
+      748 |
+        at /workspace/rontenseiri-bounded-reconcile/e2e/performance.spec.ts:745:8
+
+    Error: search: 100-operation p95 must be <= 200ms
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 200
+    Received:    221.29999995231628
+
+      743 |         `${name}: 100-operation p95 must be <= ${THRESHOLD_MS}ms`,
+      744 |       )
+    > 745 |       .toBeLessThanOrEqual(THRESHOLD_MS);
+          |        ^
+      746 |   }
+      747 | });
+      748 |
+        at /workspace/rontenseiri-bounded-reconcile/e2e/performance.spec.ts:745:8
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../r22-evidence/7da450fd60dd8eb91ca686867c7dbcdaef944e53/performance-attempt2/test-results/performance-500ノードの選択・検索・折り畳みを各100操作で観測する/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../r22-evidence/7da450fd60dd8eb91ca686867c7dbcdaef944e53/performance-attempt2/test-results/performance-500ノードの選択・検索・折り畳みを各100操作で観測する/error-context.md
+
+  1 failed
+    e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する ──────────────────────────────────

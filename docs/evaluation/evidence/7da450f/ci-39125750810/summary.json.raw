@@ -1,0 +1,1250 @@
+{
+  "mode": "controlled-production-v1",
+  "startedAt": "2026-10-18T12:09:13.199Z",
+  "finishedAt": "2026-10-18T12:12:48.541Z",
+  "testedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+  "cleanCheckout": true,
+  "build": {
+    "ranOnce": true,
+    "passed": true,
+    "timeoutSeconds": 120,
+    "distManifest": {
+      "__rontenseiri_build_identity": "3fadf83759ebba5348e21353ac1a2ecc42a41e373b07d3ca1aa3b75bc732a72b",
+      "assets/analysis.worker-BJ88akSH.js": "e889958b084983cc2bea71094cf5c0596e6992e4b273b770f672edd08135b767",
+      "assets/index-CWP-gHrj.css": "e475ca8da1f7f6e3ff503beb198b1eb1e1a8a1dec8b7ca8698df90ce729d415b",
+      "assets/index-CXIwA_2g.js": "45563a9d88f260832eb8ace9eb03e5fec42be789982a479f3f9416f0956fd7e3",
+      "assets/lib-HCEcL2SI.js": "5c1ac0779cf59cd55342e49bb84c90a399ef2d842fd1c925a838c6eddbcfaa6c",
+      "index.html": "7a841e2c299576eb3034892bd401cc4b6c1851e661f6bc5312cf0f37b78c5d99",
+      "service-worker.js": "6a4e09f561c95dffa880d36d31c5298adbae5b6e961607a48e4bd4911f8ea581"
+    }
+  },
+  "protocol": {
+    "rounds": 3,
+    "sessionsPerOperation": 3,
+    "operationsPerSession": 100,
+    "warmupOperations": 20,
+    "thresholdMs": 200,
+    "orders": [
+      [
+        "selection",
+        "search",
+        "fold"
+      ],
+      [
+        "search",
+        "fold",
+        "selection"
+      ],
+      [
+        "fold",
+        "selection",
+        "search"
+      ]
+    ],
+    "eachGroupNewBrowserContextAndServerProcess": true
+  },
+  "groups": [
+    {
+      "group": "round-1-selection",
+      "round": 1,
+      "operation": "selection",
+      "childExitCode": 0,
+      "childSignal": null,
+      "timeout": false,
+      "before": {
+        "loadavg": [
+          1.59,
+          1.39,
+          0.66
+        ],
+        "freeMemoryBytes": 15440539648,
+        "totalMemoryBytes": 16766414848
+      },
+      "after": {
+        "loadavg": [
+          1.48,
+          1.37,
+          0.68
+        ],
+        "freeMemoryBytes": 15622836224,
+        "totalMemoryBytes": 16766414848
+      },
+      "resultErrors": [],
+      "actualBaseURL": "http://127.0.0.1:4193",
+      "healthCheck": {
+        "baseURL": "http://127.0.0.1:4193",
+        "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+        "status": 200,
+        "response": {
+          "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "dirty": false,
+          "mode": "production"
+        },
+        "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "expectedMode": "production",
+        "signals": {
+          "htmlDevClient": false,
+          "devClientEndpoint": false,
+          "runtimeDevClient": false,
+          "hmrWebSocket": false
+        },
+        "completed": true,
+        "passed": true,
+        "errors": [],
+        "probes": {
+          "health": {
+            "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+            "status": 200,
+            "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+          },
+          "html": {
+            "url": "http://127.0.0.1:4193/",
+            "status": 200,
+            "devMarkersDetected": false
+          },
+          "devClient": {
+            "url": "http://127.0.0.1:4193/@vite/client",
+            "status": 200,
+            "devClientDetected": false
+          },
+          "runtime": {
+            "pageURL": "http://127.0.0.1:4193/",
+            "scriptUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+            ],
+            "resourceUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+              "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+            ],
+            "reactRefreshPreamble": false
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "group": "round-1-search",
+      "round": 1,
+      "operation": "search",
+      "childExitCode": 0,
+      "childSignal": null,
+      "timeout": false,
+      "before": {
+        "loadavg": [
+          1.48,
+          1.37,
+          0.68
+        ],
+        "freeMemoryBytes": 15622836224,
+        "totalMemoryBytes": 16766414848
+      },
+      "after": {
+        "loadavg": [
+          1.21,
+          1.31,
+          0.67
+        ],
+        "freeMemoryBytes": 15548047360,
+        "totalMemoryBytes": 16766414848
+      },
+      "resultErrors": [],
+      "actualBaseURL": "http://127.0.0.1:4193",
+      "healthCheck": {
+        "baseURL": "http://127.0.0.1:4193",
+        "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+        "status": 200,
+        "response": {
+          "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "dirty": false,
+          "mode": "production"
+        },
+        "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "expectedMode": "production",
+        "signals": {
+          "htmlDevClient": false,
+          "devClientEndpoint": false,
+          "runtimeDevClient": false,
+          "hmrWebSocket": false
+        },
+        "completed": true,
+        "passed": true,
+        "errors": [],
+        "probes": {
+          "health": {
+            "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+            "status": 200,
+            "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+          },
+          "html": {
+            "url": "http://127.0.0.1:4193/",
+            "status": 200,
+            "devMarkersDetected": false
+          },
+          "devClient": {
+            "url": "http://127.0.0.1:4193/@vite/client",
+            "status": 200,
+            "devClientDetected": false
+          },
+          "runtime": {
+            "pageURL": "http://127.0.0.1:4193/",
+            "scriptUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+            ],
+            "resourceUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+              "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+            ],
+            "reactRefreshPreamble": false
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "group": "round-1-fold",
+      "round": 1,
+      "operation": "fold",
+      "childExitCode": 0,
+      "childSignal": null,
+      "timeout": false,
+      "before": {
+        "loadavg": [
+          1.21,
+          1.31,
+          0.67
+        ],
+        "freeMemoryBytes": 15548047360,
+        "totalMemoryBytes": 16766414848
+      },
+      "after": {
+        "loadavg": [
+          1.01,
+          1.26,
+          0.67
+        ],
+        "freeMemoryBytes": 15526133760,
+        "totalMemoryBytes": 16766414848
+      },
+      "resultErrors": [],
+      "actualBaseURL": "http://127.0.0.1:4193",
+      "healthCheck": {
+        "baseURL": "http://127.0.0.1:4193",
+        "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+        "status": 200,
+        "response": {
+          "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "dirty": false,
+          "mode": "production"
+        },
+        "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "expectedMode": "production",
+        "signals": {
+          "htmlDevClient": false,
+          "devClientEndpoint": false,
+          "runtimeDevClient": false,
+          "hmrWebSocket": false
+        },
+        "completed": true,
+        "passed": true,
+        "errors": [],
+        "probes": {
+          "health": {
+            "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+            "status": 200,
+            "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+          },
+          "html": {
+            "url": "http://127.0.0.1:4193/",
+            "status": 200,
+            "devMarkersDetected": false
+          },
+          "devClient": {
+            "url": "http://127.0.0.1:4193/@vite/client",
+            "status": 200,
+            "devClientDetected": false
+          },
+          "runtime": {
+            "pageURL": "http://127.0.0.1:4193/",
+            "scriptUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+            ],
+            "resourceUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+              "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+            ],
+            "reactRefreshPreamble": false
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "group": "round-2-search",
+      "round": 2,
+      "operation": "search",
+      "childExitCode": 0,
+      "childSignal": null,
+      "timeout": false,
+      "before": {
+        "loadavg": [
+          1.01,
+          1.26,
+          0.67
+        ],
+        "freeMemoryBytes": 15532609536,
+        "totalMemoryBytes": 16766414848
+      },
+      "after": {
+        "loadavg": [
+          0.99,
+          1.25,
+          0.67
+        ],
+        "freeMemoryBytes": 15539965952,
+        "totalMemoryBytes": 16766414848
+      },
+      "resultErrors": [],
+      "actualBaseURL": "http://127.0.0.1:4193",
+      "healthCheck": {
+        "baseURL": "http://127.0.0.1:4193",
+        "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+        "status": 200,
+        "response": {
+          "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "dirty": false,
+          "mode": "production"
+        },
+        "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "expectedMode": "production",
+        "signals": {
+          "htmlDevClient": false,
+          "devClientEndpoint": false,
+          "runtimeDevClient": false,
+          "hmrWebSocket": false
+        },
+        "completed": true,
+        "passed": true,
+        "errors": [],
+        "probes": {
+          "health": {
+            "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+            "status": 200,
+            "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+          },
+          "html": {
+            "url": "http://127.0.0.1:4193/",
+            "status": 200,
+            "devMarkersDetected": false
+          },
+          "devClient": {
+            "url": "http://127.0.0.1:4193/@vite/client",
+            "status": 200,
+            "devClientDetected": false
+          },
+          "runtime": {
+            "pageURL": "http://127.0.0.1:4193/",
+            "scriptUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+            ],
+            "resourceUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+              "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+            ],
+            "reactRefreshPreamble": false
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "group": "round-2-fold",
+      "round": 2,
+      "operation": "fold",
+      "childExitCode": 0,
+      "childSignal": null,
+      "timeout": false,
+      "before": {
+        "loadavg": [
+          0.99,
+          1.25,
+          0.67
+        ],
+        "freeMemoryBytes": 15539965952,
+        "totalMemoryBytes": 16766414848
+      },
+      "after": {
+        "loadavg": [
+          0.92,
+          1.22,
+          0.67
+        ],
+        "freeMemoryBytes": 15534637056,
+        "totalMemoryBytes": 16766414848
+      },
+      "resultErrors": [],
+      "actualBaseURL": "http://127.0.0.1:4193",
+      "healthCheck": {
+        "baseURL": "http://127.0.0.1:4193",
+        "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+        "status": 200,
+        "response": {
+          "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "dirty": false,
+          "mode": "production"
+        },
+        "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "expectedMode": "production",
+        "signals": {
+          "htmlDevClient": false,
+          "devClientEndpoint": false,
+          "runtimeDevClient": false,
+          "hmrWebSocket": false
+        },
+        "completed": true,
+        "passed": true,
+        "errors": [],
+        "probes": {
+          "health": {
+            "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+            "status": 200,
+            "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+          },
+          "html": {
+            "url": "http://127.0.0.1:4193/",
+            "status": 200,
+            "devMarkersDetected": false
+          },
+          "devClient": {
+            "url": "http://127.0.0.1:4193/@vite/client",
+            "status": 200,
+            "devClientDetected": false
+          },
+          "runtime": {
+            "pageURL": "http://127.0.0.1:4193/",
+            "scriptUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+            ],
+            "resourceUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+              "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+            ],
+            "reactRefreshPreamble": false
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "group": "round-2-selection",
+      "round": 2,
+      "operation": "selection",
+      "childExitCode": 0,
+      "childSignal": null,
+      "timeout": false,
+      "before": {
+        "loadavg": [
+          0.92,
+          1.22,
+          0.67
+        ],
+        "freeMemoryBytes": 15540858880,
+        "totalMemoryBytes": 16766414848
+      },
+      "after": {
+        "loadavg": [
+          0.89,
+          1.16,
+          0.68
+        ],
+        "freeMemoryBytes": 15622807552,
+        "totalMemoryBytes": 16766414848
+      },
+      "resultErrors": [],
+      "actualBaseURL": "http://127.0.0.1:4193",
+      "healthCheck": {
+        "baseURL": "http://127.0.0.1:4193",
+        "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+        "status": 200,
+        "response": {
+          "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "dirty": false,
+          "mode": "production"
+        },
+        "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "expectedMode": "production",
+        "signals": {
+          "htmlDevClient": false,
+          "devClientEndpoint": false,
+          "runtimeDevClient": false,
+          "hmrWebSocket": false
+        },
+        "completed": true,
+        "passed": true,
+        "errors": [],
+        "probes": {
+          "health": {
+            "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+            "status": 200,
+            "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+          },
+          "html": {
+            "url": "http://127.0.0.1:4193/",
+            "status": 200,
+            "devMarkersDetected": false
+          },
+          "devClient": {
+            "url": "http://127.0.0.1:4193/@vite/client",
+            "status": 200,
+            "devClientDetected": false
+          },
+          "runtime": {
+            "pageURL": "http://127.0.0.1:4193/",
+            "scriptUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+            ],
+            "resourceUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+              "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+            ],
+            "reactRefreshPreamble": false
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "group": "round-3-fold",
+      "round": 3,
+      "operation": "fold",
+      "childExitCode": 0,
+      "childSignal": null,
+      "timeout": false,
+      "before": {
+        "loadavg": [
+          0.89,
+          1.16,
+          0.68
+        ],
+        "freeMemoryBytes": 15622807552,
+        "totalMemoryBytes": 16766414848
+      },
+      "after": {
+        "loadavg": [
+          0.85,
+          1.14,
+          0.68
+        ],
+        "freeMemoryBytes": 15508217856,
+        "totalMemoryBytes": 16766414848
+      },
+      "resultErrors": [],
+      "actualBaseURL": "http://127.0.0.1:4193",
+      "healthCheck": {
+        "baseURL": "http://127.0.0.1:4193",
+        "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+        "status": 200,
+        "response": {
+          "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "dirty": false,
+          "mode": "production"
+        },
+        "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "expectedMode": "production",
+        "signals": {
+          "htmlDevClient": false,
+          "devClientEndpoint": false,
+          "runtimeDevClient": false,
+          "hmrWebSocket": false
+        },
+        "completed": true,
+        "passed": true,
+        "errors": [],
+        "probes": {
+          "health": {
+            "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+            "status": 200,
+            "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+          },
+          "html": {
+            "url": "http://127.0.0.1:4193/",
+            "status": 200,
+            "devMarkersDetected": false
+          },
+          "devClient": {
+            "url": "http://127.0.0.1:4193/@vite/client",
+            "status": 200,
+            "devClientDetected": false
+          },
+          "runtime": {
+            "pageURL": "http://127.0.0.1:4193/",
+            "scriptUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+            ],
+            "resourceUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+              "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+            ],
+            "reactRefreshPreamble": false
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "group": "round-3-selection",
+      "round": 3,
+      "operation": "selection",
+      "childExitCode": 0,
+      "childSignal": null,
+      "timeout": false,
+      "before": {
+        "loadavg": [
+          0.85,
+          1.14,
+          0.68
+        ],
+        "freeMemoryBytes": 15508217856,
+        "totalMemoryBytes": 16766414848
+      },
+      "after": {
+        "loadavg": [
+          0.98,
+          1.12,
+          0.69
+        ],
+        "freeMemoryBytes": 15609643008,
+        "totalMemoryBytes": 16766414848
+      },
+      "resultErrors": [],
+      "actualBaseURL": "http://127.0.0.1:4193",
+      "healthCheck": {
+        "baseURL": "http://127.0.0.1:4193",
+        "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+        "status": 200,
+        "response": {
+          "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "dirty": false,
+          "mode": "production"
+        },
+        "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "expectedMode": "production",
+        "signals": {
+          "htmlDevClient": false,
+          "devClientEndpoint": false,
+          "runtimeDevClient": false,
+          "hmrWebSocket": false
+        },
+        "completed": true,
+        "passed": true,
+        "errors": [],
+        "probes": {
+          "health": {
+            "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+            "status": 200,
+            "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+          },
+          "html": {
+            "url": "http://127.0.0.1:4193/",
+            "status": 200,
+            "devMarkersDetected": false
+          },
+          "devClient": {
+            "url": "http://127.0.0.1:4193/@vite/client",
+            "status": 200,
+            "devClientDetected": false
+          },
+          "runtime": {
+            "pageURL": "http://127.0.0.1:4193/",
+            "scriptUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+            ],
+            "resourceUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+              "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+            ],
+            "reactRefreshPreamble": false
+          }
+        }
+      },
+      "passed": true
+    },
+    {
+      "group": "round-3-search",
+      "round": 3,
+      "operation": "search",
+      "childExitCode": 0,
+      "childSignal": null,
+      "timeout": false,
+      "before": {
+        "loadavg": [
+          0.98,
+          1.12,
+          0.69
+        ],
+        "freeMemoryBytes": 15609643008,
+        "totalMemoryBytes": 16766414848
+      },
+      "after": {
+        "loadavg": [
+          1.06,
+          1.13,
+          0.7
+        ],
+        "freeMemoryBytes": 15566856192,
+        "totalMemoryBytes": 16766414848
+      },
+      "resultErrors": [],
+      "actualBaseURL": "http://127.0.0.1:4193",
+      "healthCheck": {
+        "baseURL": "http://127.0.0.1:4193",
+        "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+        "status": 200,
+        "response": {
+          "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+          "dirty": false,
+          "mode": "production"
+        },
+        "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "expectedMode": "production",
+        "signals": {
+          "htmlDevClient": false,
+          "devClientEndpoint": false,
+          "runtimeDevClient": false,
+          "hmrWebSocket": false
+        },
+        "completed": true,
+        "passed": true,
+        "errors": [],
+        "probes": {
+          "health": {
+            "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+            "status": 200,
+            "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+          },
+          "html": {
+            "url": "http://127.0.0.1:4193/",
+            "status": 200,
+            "devMarkersDetected": false
+          },
+          "devClient": {
+            "url": "http://127.0.0.1:4193/@vite/client",
+            "status": 200,
+            "devClientDetected": false
+          },
+          "runtime": {
+            "pageURL": "http://127.0.0.1:4193/",
+            "scriptUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+            ],
+            "resourceUrls": [
+              "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+              "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+            ],
+            "reactRefreshPreamble": false
+          }
+        }
+      },
+      "passed": true
+    }
+  ],
+  "actualBaseURL": [
+    "http://127.0.0.1:4193",
+    "http://127.0.0.1:4193",
+    "http://127.0.0.1:4193",
+    "http://127.0.0.1:4193",
+    "http://127.0.0.1:4193",
+    "http://127.0.0.1:4193",
+    "http://127.0.0.1:4193",
+    "http://127.0.0.1:4193",
+    "http://127.0.0.1:4193"
+  ],
+  "healthCheck": [
+    {
+      "baseURL": "http://127.0.0.1:4193",
+      "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+      "status": 200,
+      "response": {
+        "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "dirty": false,
+        "mode": "production"
+      },
+      "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+      "expectedMode": "production",
+      "signals": {
+        "htmlDevClient": false,
+        "devClientEndpoint": false,
+        "runtimeDevClient": false,
+        "hmrWebSocket": false
+      },
+      "completed": true,
+      "passed": true,
+      "errors": [],
+      "probes": {
+        "health": {
+          "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+          "status": 200,
+          "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+        },
+        "html": {
+          "url": "http://127.0.0.1:4193/",
+          "status": 200,
+          "devMarkersDetected": false
+        },
+        "devClient": {
+          "url": "http://127.0.0.1:4193/@vite/client",
+          "status": 200,
+          "devClientDetected": false
+        },
+        "runtime": {
+          "pageURL": "http://127.0.0.1:4193/",
+          "scriptUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+          ],
+          "resourceUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+            "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+          ],
+          "reactRefreshPreamble": false
+        }
+      }
+    },
+    {
+      "baseURL": "http://127.0.0.1:4193",
+      "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+      "status": 200,
+      "response": {
+        "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "dirty": false,
+        "mode": "production"
+      },
+      "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+      "expectedMode": "production",
+      "signals": {
+        "htmlDevClient": false,
+        "devClientEndpoint": false,
+        "runtimeDevClient": false,
+        "hmrWebSocket": false
+      },
+      "completed": true,
+      "passed": true,
+      "errors": [],
+      "probes": {
+        "health": {
+          "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+          "status": 200,
+          "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+        },
+        "html": {
+          "url": "http://127.0.0.1:4193/",
+          "status": 200,
+          "devMarkersDetected": false
+        },
+        "devClient": {
+          "url": "http://127.0.0.1:4193/@vite/client",
+          "status": 200,
+          "devClientDetected": false
+        },
+        "runtime": {
+          "pageURL": "http://127.0.0.1:4193/",
+          "scriptUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+          ],
+          "resourceUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+            "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+          ],
+          "reactRefreshPreamble": false
+        }
+      }
+    },
+    {
+      "baseURL": "http://127.0.0.1:4193",
+      "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+      "status": 200,
+      "response": {
+        "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "dirty": false,
+        "mode": "production"
+      },
+      "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+      "expectedMode": "production",
+      "signals": {
+        "htmlDevClient": false,
+        "devClientEndpoint": false,
+        "runtimeDevClient": false,
+        "hmrWebSocket": false
+      },
+      "completed": true,
+      "passed": true,
+      "errors": [],
+      "probes": {
+        "health": {
+          "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+          "status": 200,
+          "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+        },
+        "html": {
+          "url": "http://127.0.0.1:4193/",
+          "status": 200,
+          "devMarkersDetected": false
+        },
+        "devClient": {
+          "url": "http://127.0.0.1:4193/@vite/client",
+          "status": 200,
+          "devClientDetected": false
+        },
+        "runtime": {
+          "pageURL": "http://127.0.0.1:4193/",
+          "scriptUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+          ],
+          "resourceUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+            "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+          ],
+          "reactRefreshPreamble": false
+        }
+      }
+    },
+    {
+      "baseURL": "http://127.0.0.1:4193",
+      "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+      "status": 200,
+      "response": {
+        "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "dirty": false,
+        "mode": "production"
+      },
+      "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+      "expectedMode": "production",
+      "signals": {
+        "htmlDevClient": false,
+        "devClientEndpoint": false,
+        "runtimeDevClient": false,
+        "hmrWebSocket": false
+      },
+      "completed": true,
+      "passed": true,
+      "errors": [],
+      "probes": {
+        "health": {
+          "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+          "status": 200,
+          "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+        },
+        "html": {
+          "url": "http://127.0.0.1:4193/",
+          "status": 200,
+          "devMarkersDetected": false
+        },
+        "devClient": {
+          "url": "http://127.0.0.1:4193/@vite/client",
+          "status": 200,
+          "devClientDetected": false
+        },
+        "runtime": {
+          "pageURL": "http://127.0.0.1:4193/",
+          "scriptUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+          ],
+          "resourceUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+            "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+          ],
+          "reactRefreshPreamble": false
+        }
+      }
+    },
+    {
+      "baseURL": "http://127.0.0.1:4193",
+      "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+      "status": 200,
+      "response": {
+        "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "dirty": false,
+        "mode": "production"
+      },
+      "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+      "expectedMode": "production",
+      "signals": {
+        "htmlDevClient": false,
+        "devClientEndpoint": false,
+        "runtimeDevClient": false,
+        "hmrWebSocket": false
+      },
+      "completed": true,
+      "passed": true,
+      "errors": [],
+      "probes": {
+        "health": {
+          "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+          "status": 200,
+          "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+        },
+        "html": {
+          "url": "http://127.0.0.1:4193/",
+          "status": 200,
+          "devMarkersDetected": false
+        },
+        "devClient": {
+          "url": "http://127.0.0.1:4193/@vite/client",
+          "status": 200,
+          "devClientDetected": false
+        },
+        "runtime": {
+          "pageURL": "http://127.0.0.1:4193/",
+          "scriptUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+          ],
+          "resourceUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+            "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+          ],
+          "reactRefreshPreamble": false
+        }
+      }
+    },
+    {
+      "baseURL": "http://127.0.0.1:4193",
+      "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+      "status": 200,
+      "response": {
+        "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "dirty": false,
+        "mode": "production"
+      },
+      "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+      "expectedMode": "production",
+      "signals": {
+        "htmlDevClient": false,
+        "devClientEndpoint": false,
+        "runtimeDevClient": false,
+        "hmrWebSocket": false
+      },
+      "completed": true,
+      "passed": true,
+      "errors": [],
+      "probes": {
+        "health": {
+          "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+          "status": 200,
+          "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+        },
+        "html": {
+          "url": "http://127.0.0.1:4193/",
+          "status": 200,
+          "devMarkersDetected": false
+        },
+        "devClient": {
+          "url": "http://127.0.0.1:4193/@vite/client",
+          "status": 200,
+          "devClientDetected": false
+        },
+        "runtime": {
+          "pageURL": "http://127.0.0.1:4193/",
+          "scriptUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+          ],
+          "resourceUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+            "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+          ],
+          "reactRefreshPreamble": false
+        }
+      }
+    },
+    {
+      "baseURL": "http://127.0.0.1:4193",
+      "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+      "status": 200,
+      "response": {
+        "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "dirty": false,
+        "mode": "production"
+      },
+      "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+      "expectedMode": "production",
+      "signals": {
+        "htmlDevClient": false,
+        "devClientEndpoint": false,
+        "runtimeDevClient": false,
+        "hmrWebSocket": false
+      },
+      "completed": true,
+      "passed": true,
+      "errors": [],
+      "probes": {
+        "health": {
+          "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+          "status": 200,
+          "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+        },
+        "html": {
+          "url": "http://127.0.0.1:4193/",
+          "status": 200,
+          "devMarkersDetected": false
+        },
+        "devClient": {
+          "url": "http://127.0.0.1:4193/@vite/client",
+          "status": 200,
+          "devClientDetected": false
+        },
+        "runtime": {
+          "pageURL": "http://127.0.0.1:4193/",
+          "scriptUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+          ],
+          "resourceUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+            "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+          ],
+          "reactRefreshPreamble": false
+        }
+      }
+    },
+    {
+      "baseURL": "http://127.0.0.1:4193",
+      "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+      "status": 200,
+      "response": {
+        "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "dirty": false,
+        "mode": "production"
+      },
+      "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+      "expectedMode": "production",
+      "signals": {
+        "htmlDevClient": false,
+        "devClientEndpoint": false,
+        "runtimeDevClient": false,
+        "hmrWebSocket": false
+      },
+      "completed": true,
+      "passed": true,
+      "errors": [],
+      "probes": {
+        "health": {
+          "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+          "status": 200,
+          "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+        },
+        "html": {
+          "url": "http://127.0.0.1:4193/",
+          "status": 200,
+          "devMarkersDetected": false
+        },
+        "devClient": {
+          "url": "http://127.0.0.1:4193/@vite/client",
+          "status": 200,
+          "devClientDetected": false
+        },
+        "runtime": {
+          "pageURL": "http://127.0.0.1:4193/",
+          "scriptUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+          ],
+          "resourceUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+            "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+          ],
+          "reactRefreshPreamble": false
+        }
+      }
+    },
+    {
+      "baseURL": "http://127.0.0.1:4193",
+      "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+      "status": 200,
+      "response": {
+        "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+        "dirty": false,
+        "mode": "production"
+      },
+      "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+      "expectedMode": "production",
+      "signals": {
+        "htmlDevClient": false,
+        "devClientEndpoint": false,
+        "runtimeDevClient": false,
+        "hmrWebSocket": false
+      },
+      "completed": true,
+      "passed": true,
+      "errors": [],
+      "probes": {
+        "health": {
+          "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+          "status": 200,
+          "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+        },
+        "html": {
+          "url": "http://127.0.0.1:4193/",
+          "status": 200,
+          "devMarkersDetected": false
+        },
+        "devClient": {
+          "url": "http://127.0.0.1:4193/@vite/client",
+          "status": 200,
+          "devClientDetected": false
+        },
+        "runtime": {
+          "pageURL": "http://127.0.0.1:4193/",
+          "scriptUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+          ],
+          "resourceUrls": [
+            "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+            "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+          ],
+          "reactRefreshPreamble": false
+        }
+      }
+    }
+  ],
+  "diagnosticOnly": true,
+  "eligibleForG5": false,
+  "g5Passed": false,
+  "note": "独立性能runnerはG5全体、実機、AI、ATの代用ではない。OS負荷は記録のみで、ホスト負荷統制を主張しない。",
+  "passed": true,
+  "host": {
+    "os": "linux",
+    "kernel": "6.17.0-1022-azure",
+    "cpu": "AMD EPYC 7763 64-Core Processor",
+    "before": {
+      "loadavg": [
+        1.59,
+        1.39,
+        0.66
+      ],
+      "freeMemoryBytes": 15440539648,
+      "totalMemoryBytes": 16766414848
+    },
+    "after": {
+      "loadavg": [
+        1.06,
+        1.13,
+        0.7
+      ],
+      "freeMemoryBytes": 15566856192,
+      "totalMemoryBytes": 16766414848
+    }
+  }
+}

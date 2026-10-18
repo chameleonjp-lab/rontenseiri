@@ -76,6 +76,8 @@
 
 21件の架空日本語評価ハーネスは固定されていますが、実モデル予測は0件、結果は**not-run**です。未実行分を合格数へ算入しません。`software-benchmark.json`はNode/Linuxのみ、50,000文字・500node・20回の入力／検証／layout／出力／restore p95で、G4/G5品質合格ではありません。
 
+PR #11の旧head `7da450f` には、ローカルdev検索の220.4ms／再実行221.3msと選択217.1ms、production round-2-foldの200.5msという200ms超過が残っています。[診断と証跡検証器の修正](pr11-local-performance-diagnosis.md)では、元の失敗を再実行・免責せず、別browser/hostでのCI成功と分離して保存しました。logとraw値の不一致を拒否する修正は証拠整合性の改善であり、遅延原因の解決・G5合格・全P2/R22完了を意味しません。
+
 ## 本質ブロッカーと計画分離
 
 1. モデル成立性（取得量・GPUメモリ・日本語品質、AI disabled）。

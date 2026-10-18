@@ -169,6 +169,21 @@ export function validateResult(result, operation, expectedSha) {
       errors.push("warmup operation log is incomplete or duplicated");
     if (!validIndexes(measured, 0, COUNT))
       errors.push("measured operation log is incomplete or duplicated");
+    if (
+      !warmup.every(
+        (entry) => finiteNumber(entry?.durationMs) && entry.durationMs >= 0,
+      )
+    )
+      errors.push("warmup operation log has non-finite or negative duration");
+    if (
+      !measured.every(
+        (entry) =>
+          finiteNumber(entry?.durationMs) &&
+          entry.durationMs >= 0 &&
+          metric.values?.[entry.index] === entry.durationMs,
+      )
+    )
+      errors.push("measured operation log does not match raw values");
   }
   return errors;
 }

@@ -1,0 +1,44 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.11 [39m[90m/workspace/rontenseiri-performance-diagnosis[39m
+
+ [31m❯[39m tests/controlled-performance.test.ts [2m([22m[2m8 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[32m 23[2mms[22m[39m
+     [32m✓[39m 既存の失敗・途中証拠がある出力先を上書きしない[32m 7[2mms[22m[39m
+     [32m✓[39m 固定3ラウンドの順序と9グループをスケジュールする[32m 2[2mms[22m[39m
+     [32m✓[39m 対象metric一個の実際のcontrolled契約を受理する[32m 1[2mms[22m[39m
+[31m     [31m×[31m measured operationLogとraw値の不一致を受理しない[39m[32m 9[2mms[22m[39m
+     [32m✓[39m stale SHA、dev mode、HMR、missing checks、URL不一致を拒否する[32m 1[2mms[22m[39m
+     [32m✓[39m healthCheck欠落とcomplete falseの測定0件を拒否する[32m 0[2mms[22m[39m
+     [32m✓[39m p95偽装、未完了、非有限raw値を拒否する[32m 0[2mms[22m[39m
+     [32m✓[39m warmup欠落、order不一致、余分なmetricを拒否する[32m 1[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/controlled-performance.test.ts[2m > [22mcontrolled performance protocol[2m > [22mmeasured operationLogとraw値の不一致を受理しない
+[31m[1mAssertionError[22m: expected [] to deeply equal ArrayContaining{…}[39m
+
+[32m- Expected[39m
+[31m+ Received[39m
+
+[32m- ArrayContaining [[39m
+[32m-   "measured operation log does not match raw values",[39m
+[32m- ][39m
+[31m+ [][39m
+
+[36m [2m❯[22m tests/controlled-performance.test.ts:[2m124:57[22m[39m
+    [90m122|[39m     [35mconst[39m invalid [33m=[39m [34mresult[39m()[33m;[39m
+    [90m123|[39m     invalid[33m.[39moperationLog[[33mWARMUP[39m [33m+[39m [34m7[39m][33m.[39mdurationMs [33m=[39m [34m999[39m[33m;[39m
+    [90m124|[39m     [34mexpect[39m([34mvalidateResult[39m(invalid[33m,[39m [32m"selection"[39m[33m,[39m [32m"abc"[39m))[33m.[39m[34mtoEqual[39m(
+    [90m   |[39m                                                         [31m^[39m
+    [90m125|[39m       expect.arrayContaining(["measured operation log does not match r…
+    [90m126|[39m     )[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m7 passed[39m[22m[90m (8)[39m
+[2m   Start at [22m 21:28:16
+[2m   Duration [22m 282ms[2m (transform 55ms, setup 0ms, import 80ms, tests 23ms, environment 0ms)[22m
+
+
+[exit status: 1]
