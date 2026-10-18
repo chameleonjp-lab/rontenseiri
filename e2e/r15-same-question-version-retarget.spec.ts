@@ -13,11 +13,13 @@ const OLD_VERSION = "question-version-original";
 const QUESTION = "question-cost";
 const REASON =
   "原文を確認し、同一問いの旧版から現行版へ回答を明示的に付け替える";
-type Correction = "retarget" | "fulfillment";
+type Correction = "retarget" | "fulfillment" | "kind";
 const reasonFor = (correction: Correction) =>
   correction === "retarget"
     ? REASON
-    : "回答があることと要求を満たしたことを分け、要求充足だけを未充足に訂正する";
+    : correction === "fulfillment"
+      ? "回答があることと要求を満たしたことを分け、要求充足だけを未充足に訂正する"
+      : "応答種別だけを反論に訂正し、要求充足と対象旧版と回答発言を保持する";
 const WARNING = "訂正の影響があるため、この振り返りは要再確認です。";
 
 type Envelope = {
@@ -38,7 +40,9 @@ async function fixture(correction: Correction) {
     ]),
     correction === "retarget"
       ? "R15 同一問い内の回答版付替えの保存・リロード・Undo"
-      : "R15 要求充足訂正の保存・リロード・Undo",
+      : correction === "fulfillment"
+        ? "R15 要求充足訂正の保存・リロード・Undo"
+        : "R15 応答種別訂正の保存・リロード・Undo",
     "full",
   );
   expect(p.utterances.map((u) => u.quote)).toEqual([
@@ -244,6 +248,11 @@ async function summaries(page: Page, needsReview: boolean) {
     await expect(
       summary.getByText(`${id} の付替え前の到達点`, { exact: true }),
     ).toBeVisible();
+    await expect(
+      summary
+        .locator(".assessment-grid")
+        .getByText("回答あり", { exact: true }),
+    ).toBeVisible();
     if (needsReview && id === "A")
       await expect(summary.getByText(WARNING, { exact: true })).toBeVisible();
     else
@@ -283,6 +292,9 @@ async function responseUI(
   await expect(card).toContainText(
     `要求充足：${changed && correction === "fulfillment" ? "未充足" : "充足"}`,
   );
+  await expect(card.locator(".reasoning-tags > span").first()).toHaveText(
+    changed && correction === "kind" ? "反論" : "回答",
+  );
   await expect(card).not.toContainText("evidence-answer");
   return panel;
 }
@@ -307,7 +319,9 @@ function assertCorrection(p: Project, before: Project, correction: Correction) {
       ...r,
       ...(correction === "retarget"
         ? { questionVersionId: NEW_VERSION }
-        : { fulfillment: "not-fulfilled" }),
+        : correction === "fulfillment"
+          ? { fulfillment: "not-fulfilled" }
+          : { kind: "counterargument" }),
     })),
   );
   expect(p.agendas).toEqual(
@@ -362,11 +376,13 @@ function assertCorrection(p: Project, before: Project, correction: Correction) {
   });
 }
 
-for (const correction of ["retarget", "fulfillment"] as const) {
+for (const correction of ["retarget", "fulfillment", "kind"] as const) {
   test(
     correction === "retarget"
       ? "R15: 通常UIの同一問い内の旧版から現行版への回答付替えは依存まとめだけを失効し、保存・リロード・Undo後も整合する"
-      : "R15: 通常UIの要求充足のみの訂正は応答種別・対象旧版・回答ありを保ち、保存・リロード・Undoで整合する",
+      : correction === "fulfillment"
+        ? "R15: 通常UIの要求充足のみの訂正は応答種別・対象旧版・回答ありを保ち、保存・リロード・Undoで整合する"
+        : "R15: 通常UIの応答種別のみの訂正は要求充足・対象旧版・回答発言を保ち、保存・リロード・Undoで整合する",
     async ({ page }) => {
       await page.goto("/");
       await page.locator("input[type=file]").setInputFiles({
@@ -421,6 +437,8 @@ for (const correction of ["retarget", "fulfillment"] as const) {
       expect(baseline.reasoning!.responses[0]).toMatchObject({
         questionVersionId: OLD_VERSION,
         utteranceIds: ["U02"],
+        kind: "answer",
+        fulfillment: "fulfilled",
         evidenceIds: [],
         counterargumentToClaimIds: [],
       });
@@ -458,13 +476,17 @@ for (const correction of ["retarget", "fulfillment"] as const) {
       await expect(kind).toHaveValue("answer");
       await expect(fulfillment).toHaveValue("fulfilled");
       if (correction === "retarget") await version.selectOption(NEW_VERSION);
-      else await fulfillment.selectOption("not-fulfilled");
+      else if (correction === "fulfillment")
+        await fulfillment.selectOption("not-fulfilled");
+      else await kind.selectOption("counterargument");
       await expect(version).toHaveValue(
         correction === "retarget" ? NEW_VERSION : OLD_VERSION,
       );
-      await expect(kind).toHaveValue("answer");
+      await expect(kind).toHaveValue(
+        correction === "kind" ? "counterargument" : "answer",
+      );
       await expect(fulfillment).toHaveValue(
-        correction === "retarget" ? "fulfilled" : "not-fulfilled",
+        correction === "fulfillment" ? "not-fulfilled" : "fulfilled",
       );
       await expect(form.getByRole("checkbox", { name: /U02/ })).toBeChecked();
       await form
