@@ -2,7 +2,13 @@ import { expect, test, type Page } from "@playwright/test";
 import type { LocalRunRecord } from "../src/storage/analysis-runs";
 import type { ReconciliationResult } from "../src/analysis/bounded-reconcile";
 import { inventoryManifest } from "../src/analysis/span-inventory";
-import { sampleProject } from "../src/analysis/sample";
+import type { Project } from "../src/domain/types";
+import {
+  installProjectReadGate,
+  armProjectReadGate,
+  projectReadGateState,
+  releaseProjectReadGate,
+} from "./helpers/project-read-gate";
 
 const widths = [650, 651, 900, 901] as const;
 
@@ -39,7 +45,7 @@ async function savedProjects(page: Page) {
       request.onerror = () => reject(request.error);
     });
     try {
-      return await new Promise<unknown[]>((resolve, reject) => {
+      return await new Promise<Project[]>((resolve, reject) => {
         const request = db
           .transaction("projects")
           .objectStore("projects")
@@ -55,11 +61,12 @@ async function savedProjects(page: Page) {
 
 async function openInventory(page: Page) {
   const menu = page.getByRole("button", { name: "メニュー", exact: true });
-  if (await menu.isVisible()) await menu.click();
   const entry = page.getByRole("button", {
     name: "原文範囲台帳",
     exact: true,
   });
+  await expect(entry.or(menu).filter({ visible: true }).first()).toBeVisible();
+  if (!(await entry.isVisible())) await menu.click();
   await expect(entry).toBeVisible();
   await entry.click();
   await expect(
@@ -87,8 +94,25 @@ async function setup(page: Page, width: number) {
 
 async function reopenSavedProject(page: Page) {
   await page.reload();
+  await armProjectReadGate(page);
   await page.locator("button.recent-open").first().click();
-  await openInventory(page);
+  await expect
+    .poll(() => projectReadGateState(page))
+    .toMatchObject({ blocked: true, reads: 1 });
+  let finished = false;
+  const opening = openInventory(page).then(() => {
+    finished = true;
+  });
+  const duringRead = await projectReadGateState(page);
+  expect(duringRead.blocked).toBe(true);
+  expect(finished).toBe(false);
+  await releaseProjectReadGate(page);
+  await opening;
+  return {
+    duringRead,
+    openingFinishedBeforeRead: false,
+    afterRead: await projectReadGateState(page),
+  };
 }
 
 for (const width of widths) {
@@ -98,6 +122,40 @@ for (const width of widths) {
     const requests: Array<{ url: string; method: string }> = [];
     const workers: string[] = [];
     const sockets: string[] = [];
+    const writes: Array<{ database: string; store?: string; method: string }> =
+      [];
+    await installProjectReadGate(page);
+    await page.exposeFunction(
+      "__r22ObserveWrite",
+      (write: (typeof writes)[number]) => writes.push(write),
+    );
+    await page.addInitScript(() => {
+      const pending: Promise<unknown>[] = [];
+      (window as any).__r22WriteNotices = pending;
+      const trace = (database: string, method: string, store?: string) => {
+        if (
+          !["rontenseiri-projects-v1", "rontenseiri-analysis-runs-v1"].includes(
+            database,
+          )
+        )
+          return;
+        pending.push(
+          (window as any).__r22ObserveWrite({ database, store, method }),
+        );
+      };
+      const transaction = IDBDatabase.prototype.transaction;
+      IDBDatabase.prototype.transaction = function (...args: any[]) {
+        if (args[1] === "readwrite") trace(this.name, "readwrite-transaction");
+        return Reflect.apply(transaction, this, args);
+      } as typeof transaction;
+      for (const method of ["put", "add", "delete", "clear"] as const) {
+        const native = IDBObjectStore.prototype[method];
+        IDBObjectStore.prototype[method] = function (...args: any[]) {
+          trace(this.transaction.db.name, method, this.name);
+          return Reflect.apply(native, this, args);
+        } as any;
+      }
+    });
     page.on("request", (request) =>
       requests.push({ url: request.url(), method: request.method() }),
     );
@@ -106,6 +164,7 @@ for (const width of widths) {
 
     await setup(page, width);
     const projectsBefore = await savedProjects(page);
+    expect(projectsBefore).toHaveLength(1);
     await page
       .getByRole("button", { name: "意味解析なしで台帳を開始", exact: true })
       .click();
@@ -119,18 +178,32 @@ for (const width of widths) {
     expect(first.state).toBe("partial");
     expect(firstReconciled.results).toHaveLength(8);
     expect(firstReconciled.cursor.nextPairIndex).toBe(8);
-    const manifest = inventoryManifest(sampleProject());
-    const total =
-      (manifest.candidates.length * (manifest.candidates.length - 1)) / 2;
+    const manifest = inventoryManifest(projectsBefore[0]);
+    // Independent row-major manifest oracle: do not call the reconciler to
+    // manufacture the expected page from the implementation under test.
+    const expectedPairs = manifest.candidates.flatMap((left, index) =>
+      manifest.candidates.slice(index + 1).map((right) => ({
+        leftId: left.id,
+        rightId: right.id,
+        disposition: "hold",
+      })),
+    );
+    const total = expectedPairs.length;
+    expect(firstReconciled.results).toEqual(expectedPairs.slice(0, 8));
     expect(firstReconciled.unexaminedRanges).toEqual([
       { start: 8, end: total },
     ]);
 
-    await reopenSavedProject(page);
+    await page.evaluate(() => Promise.all((window as any).__r22WriteNotices));
+    const writesBeforeReload = writes.length;
+    const navigationReadiness = await reopenSavedProject(page);
     await expect(page.getByTestId("inventory-state")).toContainText(
       "部分結果（保存済み）",
     );
     expect(await record(page)).toEqual(first);
+    await page.evaluate(() => Promise.all((window as any).__r22WriteNotices));
+    const reloadWrites = writes.slice(writesBeforeReload);
+    expect(reloadWrites).toEqual([]);
 
     await page
       .getByRole("button", { name: "保存済みペアの次ページへ", exact: true })
@@ -153,7 +226,14 @@ for (const width of widths) {
     expect(resumedReconciled.results.slice(0, 8)).toEqual(
       firstReconciled.results,
     );
+    expect(resumedReconciled.results.slice(8, 16)).toEqual(
+      expectedPairs.slice(8, 16),
+    );
+    expect(resumedReconciled.results).toEqual(expectedPairs.slice(0, 16));
     expect(resumedReconciled.cursor.nextPairIndex).toBe(16);
+    expect(resumedReconciled.unexaminedRanges).toEqual([
+      { start: 16, end: total },
+    ]);
     expect(
       new Set(
         resumedReconciled.results.map(
@@ -190,6 +270,9 @@ for (const width of widths) {
           sockets,
           first,
           resumed,
+          expectedPairs: expectedPairs.slice(0, 16),
+          reloadWrites,
+          navigationReadiness,
           projectUnchanged: true,
           scope: "real inventory Worker + IndexedDB; no external AI/model",
         },

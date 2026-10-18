@@ -50,7 +50,7 @@ PR #15も外部でマージされ、追加追補は `main@8d6faa09951c47594df7c6
 
 ## 境界幅での実Workerライフサイクル回帰
 
-R21/R22の次の限定テストスライスは、保存競合PR #16を未マージの計画依存として通常mergeし、別のPRへ分離する。`e2e/span-inventory-responsive.spec.ts` は650/651/900/901pxそれぞれでメニュー／台帳入口に到達し、実inventory Workerの8ペアpartial保存、read-only再読込でレコード厳密不変、16ペアへの再開とprefix保持・重複なし、Project保存DB不変を確認する。入口がクリックできるだけの回帰とは区別する。
+R21/R22の次の限定テストスライスは、保存競合PR #16を未マージの計画依存として通常mergeし、別のPRへ分離する。`e2e/span-inventory-responsive.spec.ts` は650/651/900/901pxそれぞれでメニュー／台帳入口に到達し、実inventory Workerの8ペアpartial保存、reloadから再表示までのレコード厳密不変と同DBのreadwrite transaction／put・add・delete・clear観測ゼロ、16ペアへの再開を確認する。実際の保存Projectのmanifestを独立した二重ループで列挙した期待値に対し、先頭8ペアと再開suffix（index 8–15）のID・hold・順序、および全16ペアの完全一致と未検査範囲をassertする。prefix保持・重複なしだけで無欠落とは扱わない。Project保存DBも不変で、入口がクリックできるだけの回帰とは区別する。
 
 各幅で実Worker URLと全requestを採取し、inventory Worker以外・外部origin・非GET・外部WebSocketを拒否する。開発Chromiumの可変viewportの証拠であり、スマホ実機・画面キーボード・SR・実ネットワーク／production SW・G4/G5・R21/R22全体の合格とは扱わない。意味判定や自動議題／関係変更を追加する実装ではない。
 
