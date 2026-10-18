@@ -223,7 +223,13 @@ export async function runLocalTransport(
           scenario,
           workerController.signal,
         );
-        await session.run(signal);
+        const result = await session.run(signal);
+        // This transport-only UI has no partial-result presentation or resume policy.
+        // Never publish a future partial adapter response as a completed run.
+        if (result.status !== "complete")
+          throw new Error(
+            "部分照合結果は輸送fixtureの完了として保存できません",
+          );
         await publish("completed");
       } catch (error) {
         const cancelled =
