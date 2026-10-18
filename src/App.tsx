@@ -513,7 +513,7 @@ export default function App() {
                   {savedAt ? `最後の保存：${savedAt}` : "まだ保存していません"}
                 </small>
               </span>
-              <button onClick={save}>
+              <button onClick={save} aria-label="この端末に保存">
                 <Save size={16} />
                 <span>この端末に保存</span>
               </button>
