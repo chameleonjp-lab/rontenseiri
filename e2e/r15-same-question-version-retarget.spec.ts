@@ -13,6 +13,11 @@ const OLD_VERSION = "question-version-original";
 const QUESTION = "question-cost";
 const REASON =
   "原文を確認し、同一問いの旧版から現行版へ回答を明示的に付け替える";
+type Correction = "retarget" | "fulfillment";
+const reasonFor = (correction: Correction) =>
+  correction === "retarget"
+    ? REASON
+    : "回答があることと要求を満たしたことを分け、要求充足だけを未充足に訂正する";
 const WARNING = "訂正の影響があるため、この振り返りは要再確認です。";
 
 type Envelope = {
@@ -21,7 +26,7 @@ type Envelope = {
   project: Project;
 };
 
-async function fixture() {
+async function fixture(correction: Correction) {
   const p = createProject(
     await parseInputs([
       {
@@ -31,7 +36,9 @@ async function fixture() {
         text: "費用は？\n100円です\n別件の会場は確定した。",
       },
     ]),
-    "R15 同一問い内の回答版付替えの保存・リロード・Undo",
+    correction === "retarget"
+      ? "R15 同一問い内の回答版付替えの保存・リロード・Undo"
+      : "R15 要求充足訂正の保存・リロード・Undo",
     "full",
   );
   expect(p.utterances.map((u) => u.quote)).toEqual([
@@ -246,7 +253,11 @@ async function summaries(page: Page, needsReview: boolean) {
   }
 }
 
-async function responseUI(page: Page, retargeted: boolean) {
+async function responseUI(
+  page: Page,
+  changed: boolean,
+  correction: Correction,
+) {
   await page
     .locator(".sidebar-agendas")
     .getByRole("button", { name: /Agenda A/ })
@@ -267,14 +278,16 @@ async function responseUI(page: Page, retargeted: boolean) {
   const card = responses.locator("article.reasoning-card");
   await expect(card).toHaveCount(1);
   await expect(card).toContainText(
-    `問い版 ${retargeted ? NEW_VERSION : OLD_VERSION} · 発言 U02`,
+    `問い版 ${changed && correction === "retarget" ? NEW_VERSION : OLD_VERSION} · 発言 U02`,
   );
-  await expect(card).toContainText("要求充足：充足");
+  await expect(card).toContainText(
+    `要求充足：${changed && correction === "fulfillment" ? "未充足" : "充足"}`,
+  );
   await expect(card).not.toContainText("evidence-answer");
   return panel;
 }
 
-function assertRetarget(p: Project, before: Project) {
+function assertCorrection(p: Project, before: Project, correction: Correction) {
   expect(p.id).toBe(before.id);
   expect(p.sources).toEqual(before.sources);
   expect(p.utterances).toEqual(before.utterances);
@@ -287,12 +300,14 @@ function assertRetarget(p: Project, before: Project) {
   } = before.reasoning!;
   expect(originalRevisions).toEqual([]);
   expect(graph).toEqual(originalGraph);
-  // Exact object comparison preserves identity, answer utterances, kind,
-  // fulfillment, evidence, counterarguments, note, actor and original time.
+  // Exact object comparison changes only the chosen field; all other response
+  // identity, provenance and relation fields remain fixed.
   expect(responses).toEqual(
     originalResponses.map((r) => ({
       ...r,
-      questionVersionId: NEW_VERSION,
+      ...(correction === "retarget"
+        ? { questionVersionId: NEW_VERSION }
+        : { fulfillment: "not-fulfilled" }),
     })),
   );
   expect(p.agendas).toEqual(
@@ -302,7 +317,7 @@ function assertRetarget(p: Project, before: Project) {
   expect(p.revisions[0]).toMatchObject({
     kind: "reasoning:response-updated",
     targetId: RESPONSE,
-    reason: REASON,
+    reason: reasonFor(correction),
   });
   const snapshotBefore = p.revisions[0].before as {
     reasoning: Project["reasoning"];
@@ -330,7 +345,7 @@ function assertRetarget(p: Project, before: Project) {
     OLD_VERSION,
   );
   expect(snapshotAfter.reasoning!.responses[0].questionVersionId).toBe(
-    NEW_VERSION,
+    correction === "retarget" ? NEW_VERSION : OLD_VERSION,
   );
   expect(revisions).toHaveLength(1);
   expect(p.revisions[0].id).toEqual(expect.stringMatching(/^revision-.+/));
@@ -343,149 +358,174 @@ function assertRetarget(p: Project, before: Project) {
     targetId: RESPONSE,
     before: { revisionId: p.revisions[0].id },
     after: { revisionId: p.revisions[0].id },
-    reason: REASON,
+    reason: reasonFor(correction),
   });
 }
 
-test("R15: 通常UIの同一問い内の旧版から現行版への回答付替えは依存まとめだけを失効し、保存・リロード・Undo後も整合する", async ({
-  page,
-}) => {
-  await page.goto("/");
-  await page.locator("input[type=file]").setInputFiles({
-    name: "r15-same-question-version-retarget-fixture.json",
-    mimeType: "application/json",
-    buffer: Buffer.from(exportProject(await fixture(), "json")),
-  });
-  await expect(page.getByRole("status")).toContainText("別コピーとして復元");
-  const baseline = (await preview(page)).project;
-  // Assert the intended graph, including identity/order and absent bypasses.
-  expect(baseline.reasoning!.questions).toEqual([
-    {
-      id: QUESTION,
-      origin: "original",
-      versionIds: [OLD_VERSION, NEW_VERSION],
-      currentVersionId: NEW_VERSION,
-    },
-  ]);
-  expect(
-    baseline.reasoning!.questionVersions.map((v) => ({
-      id: v.id,
-      questionId: v.questionId,
-      status: v.status,
-      sources: v.sourceUtteranceIds,
-    })),
-  ).toEqual([
-    {
-      id: OLD_VERSION,
-      questionId: QUESTION,
-      status: "superseded",
-      sources: ["U01"],
-    },
-    {
-      id: NEW_VERSION,
-      questionId: QUESTION,
-      status: "active",
-      sources: ["U01"],
-    },
-  ]);
-  expect(baseline.relations).toEqual([]);
-  expect(baseline.reasoning).toMatchObject({
-    evidence: [],
-    items: [],
-    interpretations: [],
-    positionChanges: [],
-    exclusiveGroups: [],
-    uncertaintyPropagation: [],
-  });
-  expect(baseline.reasoning!.responses).toHaveLength(1);
-  expect(baseline.reasoning!.responses[0]).toMatchObject({
-    questionVersionId: OLD_VERSION,
-    utteranceIds: ["U02"],
-    evidenceIds: [],
-    counterargumentToClaimIds: [],
-  });
-  expect(baseline.agendas.map((a) => a.summaryDependencies)).toEqual([
-    ["U02"],
-    ["U03"],
-  ]);
-  expect(baseline.revisions).toEqual([]);
-  expect(baseline.agendas.every((a) => !a.needsReview)).toBe(true);
-  await page
-    .getByRole("button", { name: "この端末に保存", exact: true })
-    .click();
-  const initial = await durable(page, baseline.id, 0);
-  expect(content(initial)).toEqual(content(baseline));
-  await attach(
-    "r15-same-question-version-retarget-initial-stored.json",
-    initial,
-  );
+for (const correction of ["retarget", "fulfillment"] as const) {
+  test(
+    correction === "retarget"
+      ? "R15: 通常UIの同一問い内の旧版から現行版への回答付替えは依存まとめだけを失効し、保存・リロード・Undo後も整合する"
+      : "R15: 通常UIの要求充足のみの訂正は応答種別・対象旧版・回答ありを保ち、保存・リロード・Undoで整合する",
+    async ({ page }) => {
+      await page.goto("/");
+      await page.locator("input[type=file]").setInputFiles({
+        name: "r15-same-question-version-retarget-fixture.json",
+        mimeType: "application/json",
+        buffer: Buffer.from(exportProject(await fixture(correction), "json")),
+      });
+      await expect(page.getByRole("status")).toContainText(
+        "別コピーとして復元",
+      );
+      const baseline = (await preview(page)).project;
+      // Assert the intended graph, including identity/order and absent bypasses.
+      expect(baseline.reasoning!.questions).toEqual([
+        {
+          id: QUESTION,
+          origin: "original",
+          versionIds: [OLD_VERSION, NEW_VERSION],
+          currentVersionId: NEW_VERSION,
+        },
+      ]);
+      expect(
+        baseline.reasoning!.questionVersions.map((v) => ({
+          id: v.id,
+          questionId: v.questionId,
+          status: v.status,
+          sources: v.sourceUtteranceIds,
+        })),
+      ).toEqual([
+        {
+          id: OLD_VERSION,
+          questionId: QUESTION,
+          status: "superseded",
+          sources: ["U01"],
+        },
+        {
+          id: NEW_VERSION,
+          questionId: QUESTION,
+          status: "active",
+          sources: ["U01"],
+        },
+      ]);
+      expect(baseline.relations).toEqual([]);
+      expect(baseline.reasoning).toMatchObject({
+        evidence: [],
+        items: [],
+        interpretations: [],
+        positionChanges: [],
+        exclusiveGroups: [],
+        uncertaintyPropagation: [],
+      });
+      expect(baseline.reasoning!.responses).toHaveLength(1);
+      expect(baseline.reasoning!.responses[0]).toMatchObject({
+        questionVersionId: OLD_VERSION,
+        utteranceIds: ["U02"],
+        evidenceIds: [],
+        counterargumentToClaimIds: [],
+      });
+      expect(baseline.agendas.map((a) => a.summaryDependencies)).toEqual([
+        ["U02"],
+        ["U03"],
+      ]);
+      expect(baseline.revisions).toEqual([]);
+      expect(baseline.agendas.every((a) => !a.needsReview)).toBe(true);
+      await page
+        .getByRole("button", { name: "この端末に保存", exact: true })
+        .click();
+      const initial = await durable(page, baseline.id, 0);
+      expect(content(initial)).toEqual(content(baseline));
+      await attach(`r15-response-${correction}-initial-stored.json`, initial);
 
-  const panel = await responseUI(page, false);
-  await panel
-    .getByRole("button", { name: `応答 ${RESPONSE} を修正`, exact: true })
-    .click();
-  const form = panel.getByRole("form", { name: "応答関係の編集" });
-  const version = form.getByRole("combobox", {
-    name: "対象問い版",
-    exact: true,
-  });
-  await expect(version).toHaveValue(OLD_VERSION);
-  await version.selectOption(NEW_VERSION);
-  await expect(version).toHaveValue(NEW_VERSION);
-  await expect(form.getByRole("checkbox", { name: /U02/ })).toBeChecked();
-  await form.getByLabel("登録理由", { exact: true }).fill(REASON);
-  await form
-    .getByRole("button", { name: "応答の修正を保存", exact: true })
-    .click();
-  // No explicit save: wait for the real autosave debounce and IDB transaction.
-  const revised = await durable(page, baseline.id, 1);
-  assertRetarget(revised, baseline);
-  expect(revised.storageRevision).toBeGreaterThan(initial.storageRevision!);
-  await attach(
-    "r15-same-question-version-retarget-revised-stored.json",
-    revised,
-  );
+      const panel = await responseUI(page, false, correction);
+      await panel
+        .getByRole("button", { name: `応答 ${RESPONSE} を修正`, exact: true })
+        .click();
+      const form = panel.getByRole("form", { name: "応答関係の編集" });
+      const version = form.getByRole("combobox", {
+        name: "対象問い版",
+        exact: true,
+      });
+      await expect(version).toHaveValue(OLD_VERSION);
+      const kind = form.getByRole("combobox", {
+        name: "応答種別",
+        exact: true,
+      });
+      const fulfillment = form.getByRole("combobox", {
+        name: "要求充足",
+        exact: true,
+      });
+      await expect(kind).toHaveValue("answer");
+      await expect(fulfillment).toHaveValue("fulfilled");
+      if (correction === "retarget") await version.selectOption(NEW_VERSION);
+      else await fulfillment.selectOption("not-fulfilled");
+      await expect(version).toHaveValue(
+        correction === "retarget" ? NEW_VERSION : OLD_VERSION,
+      );
+      await expect(kind).toHaveValue("answer");
+      await expect(fulfillment).toHaveValue(
+        correction === "retarget" ? "fulfilled" : "not-fulfilled",
+      );
+      await expect(form.getByRole("checkbox", { name: /U02/ })).toBeChecked();
+      await form
+        .getByLabel("登録理由", { exact: true })
+        .fill(reasonFor(correction));
+      await form
+        .getByRole("button", { name: "応答の修正を保存", exact: true })
+        .click();
+      // No explicit save: wait for the real autosave debounce and IDB transaction.
+      const revised = await durable(page, baseline.id, 1);
+      assertCorrection(revised, baseline, correction);
+      expect(revised.storageRevision).toBeGreaterThan(initial.storageRevision!);
+      await attach(`r15-response-${correction}-revised-stored.json`, revised);
 
-  await reloadAndOpen(page, revised);
-  await summaries(page, true);
-  await responseUI(page, true);
-  const reloaded = await preview(page, { id: baseline.id, revisionCount: 1 });
-  assertRetarget(reloaded.project, baseline);
-  expect(content(reloaded.project)).toEqual(content(revised));
-  await attach(
-    "r15-same-question-version-retarget-reloaded-full-output.json",
-    reloaded,
-  );
-  await page.getByRole("button", { name: "訂正履歴", exact: true }).click();
-  await expect(page.getByText(REASON, { exact: true })).toBeVisible();
-  await page
-    .getByRole("button", { name: "直前の訂正を元に戻す", exact: true })
-    .click();
-  const undone = await durable(page, baseline.id, 2);
-  expect(undone.agendas).toEqual(baseline.agendas);
-  expect(undone.reasoning).toEqual(baseline.reasoning);
-  expect(undone.sources).toEqual(baseline.sources);
-  expect(undone.utterances).toEqual(baseline.utterances);
-  expect(undone.relations).toEqual(baseline.relations);
-  expect(undone.revisions[0]).toEqual(revised.revisions[0]);
-  expect(undone.revisions[1]).toMatchObject({
-    kind: "undo",
-    after: { targetRevisionId: revised.revisions[0].id },
-  });
-  expect(undone.storageRevision).toBeGreaterThan(revised.storageRevision!);
-  await attach("r15-same-question-version-retarget-undone-stored.json", undone);
+      await reloadAndOpen(page, revised);
+      await summaries(page, true);
+      await responseUI(page, true, correction);
+      const reloaded = await preview(page, {
+        id: baseline.id,
+        revisionCount: 1,
+      });
+      assertCorrection(reloaded.project, baseline, correction);
+      expect(content(reloaded.project)).toEqual(content(revised));
+      await attach(
+        `r15-response-${correction}-reloaded-full-output.json`,
+        reloaded,
+      );
+      await page.getByRole("button", { name: "訂正履歴", exact: true }).click();
+      await expect(
+        page.getByText(reasonFor(correction), { exact: true }),
+      ).toBeVisible();
+      await page
+        .getByRole("button", { name: "直前の訂正を元に戻す", exact: true })
+        .click();
+      const undone = await durable(page, baseline.id, 2);
+      expect(undone.agendas).toEqual(baseline.agendas);
+      expect(undone.reasoning).toEqual(baseline.reasoning);
+      expect(undone.sources).toEqual(baseline.sources);
+      expect(undone.utterances).toEqual(baseline.utterances);
+      expect(undone.relations).toEqual(baseline.relations);
+      expect(undone.revisions[0]).toEqual(revised.revisions[0]);
+      expect(undone.revisions[1]).toMatchObject({
+        kind: "undo",
+        after: { targetRevisionId: revised.revisions[0].id },
+      });
+      expect(undone.storageRevision).toBeGreaterThan(revised.storageRevision!);
+      await attach(`r15-response-${correction}-undone-stored.json`, undone);
 
-  await reloadAndOpen(page, undone);
-  await summaries(page, false);
-  await responseUI(page, false);
-  const final = await preview(page, { id: baseline.id, revisionCount: 2 });
-  expect(content(final.project)).toEqual(content(undone));
-  await page.getByRole("button", { name: "訂正履歴", exact: true }).click();
-  await expect(
-    page.getByRole("button", { name: "直前の訂正を元に戻す", exact: true }),
-  ).toBeDisabled();
-  await attach(
-    "r15-same-question-version-retarget-undone-reloaded-full-output.json",
-    final,
+      await reloadAndOpen(page, undone);
+      await summaries(page, false);
+      await responseUI(page, false, correction);
+      const final = await preview(page, { id: baseline.id, revisionCount: 2 });
+      expect(content(final.project)).toEqual(content(undone));
+      await page.getByRole("button", { name: "訂正履歴", exact: true }).click();
+      await expect(
+        page.getByRole("button", { name: "直前の訂正を元に戻す", exact: true }),
+      ).toBeDisabled();
+      await attach(
+        `r15-response-${correction}-undone-reloaded-full-output.json`,
+        final,
+      );
+    },
   );
-});
+}
