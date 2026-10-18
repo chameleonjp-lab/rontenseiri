@@ -1,9 +1,13 @@
+import { loadProject } from "../storage/projects";
+import { canonicalSettings } from "./session";
+import { activeSources } from "../domain/capacity";
 import {
   inventoryManifest,
   INVENTORY_CHARS,
   INVENTORY_CONFIG,
   INVENTORY_LIMITS,
   validateSpanCandidate,
+  parseInventoryPage,
   parseInventoryResult,
 } from "./span-inventory";
 import type { FixtureCandidate } from "./bounded-reconcile";
@@ -91,7 +95,7 @@ export function createInventoryWorker(
         phase: "reconcile",
         candidates: manifest,
         cursor: previous?.cursor,
-      });
+      }).then((value) => parseInventoryPage(value, manifest));
     },
   };
   return {
@@ -108,7 +112,7 @@ export function inventoryRunId(project: Project) {
 function inventoryOptions(project: Project) {
   const manifest = inventoryManifest(project);
   return {
-    project,
+    project: { ...project, sources: activeSources(project) },
     maxChars: INVENTORY_CHARS,
     overlapChars: 0,
     configId: INVENTORY_CONFIG,
@@ -167,6 +171,34 @@ export async function inspectInventoryRecord(
     throw new Error("保存状態と結果状態が一致しません");
   return result;
 }
+/**
+ * A project revision for the inventory save gate. `updatedAt` is deliberately
+ * excluded because IndexedDB assigns it during the completed save transaction;
+ * every other field, including storageRevision, participates in the match.
+ */
+export function inventoryProjectRevision(project: Project): string {
+  return canonicalSettings({ ...project, updatedAt: "" });
+}
+
+export async function assertInventoryDurable(project: Project) {
+  if (!project.saved)
+    throw new Error("台帳を開始する前に現在版をこの端末に保存してください");
+  let durable: Project;
+  try {
+    durable = await loadProject(project.id);
+  } catch {
+    throw new Error(
+      "現在版の永続保存を確認できません。保存完了後に台帳を開始してください",
+    );
+  }
+  if (
+    !durable.saved ||
+    inventoryProjectRevision(project) !== inventoryProjectRevision(durable)
+  )
+    throw new Error(
+      "現在版の永続保存を確認できません。保存完了後に台帳を開始してください",
+    );
+}
 export async function runSpanInventory(
   project: Project,
   signal: AbortSignal,
@@ -178,6 +210,8 @@ export async function runSpanInventory(
   const owner = crypto.randomUUID(); // A new generation for every start/resume attempt.
   return withAnalysisOwnership(
     async () => {
+      if (signal.aborted) throw new DOMException("cancelled", "AbortError");
+      await assertInventoryDurable(snapshot);
       if (signal.aborted) throw new DOMException("cancelled", "AbortError");
       const existing = await readLocalRun(id);
       const runId = existing?.runId ?? crypto.randomUUID();

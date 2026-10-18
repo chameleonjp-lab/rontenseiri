@@ -15,6 +15,7 @@ import {
 import {
   inspectInventoryRecord,
   inventoryRunId,
+  inventoryProjectRevision,
 } from "../src/analysis/inventory-run";
 import { AnalysisSession } from "../src/analysis/session";
 
@@ -112,4 +113,64 @@ describe("source span inventory is not model/semantic output", () => {
       }),
     ).rejects.toThrow();
   });
+  it("uses the durable semantic revision, not the save timestamp", () => {
+    const saved = sampleProject();
+    saved.saved = true;
+    saved.storageRevision = 4;
+    const sameRevision = structuredClone(saved);
+    sameRevision.updatedAt = "2099-01-01T00:00:00.000Z";
+    expect(inventoryProjectRevision(sameRevision)).toBe(
+      inventoryProjectRevision(saved),
+    );
+
+    const dirty = structuredClone(saved);
+    dirty.utterances[0].classification =
+      dirty.utterances[0].classification === "main" ? "derived" : "main";
+    expect(inventoryProjectRevision(dirty)).not.toBe(
+      inventoryProjectRevision(saved),
+    );
+    const otherStorageRevision = structuredClone(saved);
+    otherStorageRevision.storageRevision = 5;
+    expect(inventoryProjectRevision(otherStorageRevision)).not.toBe(
+      inventoryProjectRevision(saved),
+    );
+  });
+});
+
+it("source correction → fresh inventory selects the utterance-referenced current version, never historical first version", async () => {
+  const { reviseSource } = await import("../src/domain/project");
+  const original = sampleProject();
+  const historical = structuredClone(original.sources[0]);
+  const corrected = reviseSource(
+    original,
+    "U01",
+    "訂正後の台帳専用本文😀。",
+    "台帳の現行版回帰",
+  );
+  expect(corrected.sources[0]).toEqual(historical);
+  expect(corrected.sources.length).toBeGreaterThan(original.sources.length);
+  const manifest = inventoryManifest(corrected);
+  const currentVersion = corrected.utterances.find(
+    (u) => u.id === "U01",
+  )!.sourceVersionId;
+  expect(manifest.source.versionId).toBe(currentVersion);
+  expect(manifest.source.versionId).not.toBe(historical.versionId);
+  expect(manifest.source.text).toContain("訂正後の台帳専用本文😀。");
+  expect(
+    corrected.utterances
+      .filter((u) => u.sourceId === manifest.source.id)
+      .every((u) => u.sourceVersionId === currentVersion),
+  ).toBe(true);
+  expect(
+    manifest.chunks.some((c) => c.text.includes("訂正後の台帳専用本文😀。")),
+  ).toBe(true);
+  expect(
+    manifest.chunks.every((c) => c.sourceVersionId === currentVersion),
+  ).toBe(true);
+  expect(
+    manifest.candidates.every((c) =>
+      c.evidence.every((s) => s.sourceVersionId === currentVersion),
+    ),
+  ).toBe(true);
+  expect(original.sources[0]).toEqual(historical);
 });
