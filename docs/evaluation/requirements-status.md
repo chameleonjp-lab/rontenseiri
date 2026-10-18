@@ -44,6 +44,10 @@
 | R32 | 部分実装 | `analysis/client.ts`, session/checkpoint, ReadinessPanel                                | core/分析               | モデル単体・実アプリ・配信、取得量・中止条件の境界未完了                 |
 | R33 | 未実装   | `evals/cases.json`と評価APIの固定基盤                                                   | 21ケースはnot-run       | 担当・実機・許諾・変更時再実行・G8計画未確保                             |
 
+## P2の限定的な経路追加
+
+[ローカル解析経路の取消・再開](local-analysis-run.md)で、R22/R24/R26/R32のうち固定入力・設定、検証済みcheckpoint、取消・厳密再開・旧run排除を通常UI→実Worker→IndexedDBで検査する。これは明示的なモデルなしfixtureであり、実モデル経路の完成やAI品質の証拠ではない。上表の部分実装判定とG0–G8の総合判定は変更しない。今回の実測値・件数はPR headと一致するCI artifactを正本とし、上記の過去の件数へ加算してゲートを合格扱いしない。
+
 ## 入力・配布の明示的な境界
 
 - **通常UIで対応:** テキスト貼付、TXT/MD、SRT/VTTのP0範囲。

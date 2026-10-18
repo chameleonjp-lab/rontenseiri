@@ -1,3 +1,4 @@
+import LocalRunPanel from "./components/LocalRunPanel";
 import { projectCoverageComplete } from "./domain/coverage";
 import { exportProject } from "./export/project";
 import ReasoningPanel from "./components/ReasoningPanel";
@@ -1857,6 +1858,7 @@ function AIDialog({
   }
   return (
     <>
+      <LocalRunPanel project={project} />
       <div className="eyebrow">ON-DEVICE AI · EXPERIMENTAL</div>
       <h2>端末内AIの成立性を評価</h2>
       <div className="export-warning">

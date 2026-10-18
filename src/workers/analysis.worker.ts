@@ -1,8 +1,20 @@
-import { CreateMLCEngine } from "@mlc-ai/web-llm";
+import { fixtureCandidate } from "../analysis/fixture-protocol";
+import type { AnalysisChunk } from "../analysis/session";
 import prompt from "../../prompts/analysis.system.txt?raw";
 
 type Chunk = { ids: string[]; text: string };
-type Request = { type: "analyze"; modelId: string; chunks: Chunk[] };
+type Request =
+  | { type: "analyze"; modelId: string; chunks: Chunk[] }
+  | {
+      type: "transport-fixture";
+      runId: string;
+      generationId: string;
+      requestId: number;
+      scenario: string;
+      phase: "candidate" | "reconcile";
+      chunk?: AnalysisChunk;
+      chunkIds?: string[];
+    };
 const post = (message: unknown) => self.postMessage(message);
 const run = async (fn: () => Promise<void>) => {
   const locks = (self.navigator as Navigator & { locks?: LockManager }).locks;
@@ -35,6 +47,34 @@ function parseJson(text: string): unknown {
 }
 
 self.onmessage = async (event: MessageEvent<Request>) => {
+  if (event.data?.type === "transport-fixture") {
+    const request = event.data;
+    // Deterministic, explicit transport fixture: no model, inference, fetch or fallback.
+    await new Promise((resolve) => setTimeout(resolve, 400));
+    if (
+      request.scenario === "fail-second" &&
+      request.phase === "candidate" &&
+      request.requestId === 2
+    ) {
+      post({
+        runId: request.runId,
+        generationId: request.generationId,
+        requestId: request.requestId,
+        error: "決定的fixtureの2件目失敗（AIではありません）",
+      });
+    } else {
+      post({
+        runId: request.runId,
+        generationId: request.generationId,
+        requestId: request.requestId,
+        value:
+          request.phase === "candidate" && request.chunk
+            ? fixtureCandidate(request.chunk)
+            : { mode: "transport-only", chunkIds: request.chunkIds },
+      });
+    }
+    return;
+  }
   if (event.data?.type !== "analyze") return;
   const { modelId, chunks } = event.data;
   try {
@@ -49,6 +89,7 @@ self.onmessage = async (event: MessageEvent<Request>) => {
         type: "progress",
         text: "モデルを準備しています（明示的な解析開始後のみ取得します。会話本文は送信しません）",
       });
+      const { CreateMLCEngine } = await import("@mlc-ai/web-llm");
       const engine = await CreateMLCEngine(modelId, {
         initProgressCallback: (p) => post({ type: "progress", text: p.text }),
       });
