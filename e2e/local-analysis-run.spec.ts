@@ -315,13 +315,18 @@ test("IndexedDB: A取消→B所有→A遅延保存拒否、active transaction取
         record.id,
         "generation-B",
         (current: LocalRunRecord) => {
-          mid.abort();
-          return { ...current, state: "completed" };
+          // The put is issued synchronously after this updater returns. Abort
+          // in the next microtask, before its asynchronous request can commit.
+          queueMicrotask(() => mid.abort());
+          return { ...current, error: "must never be committed" };
         },
         mid.signal,
       );
-    } catch {
-      midCancelled = true;
+    } catch (error) {
+      midCancelled =
+        mid.signal.aborted &&
+        error instanceof DOMException &&
+        error.name === "AbortError";
     }
     const atomicFaults: string[] = [];
     for (const kind of ["cursor-only", "result-only"]) {
