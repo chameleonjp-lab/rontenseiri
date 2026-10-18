@@ -1,4 +1,16 @@
 /* Canvas-only density rules. Source quotes stay untouched; only their presentation is compact. */
+.canvas-review-banner {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin: 10px 0;
+  padding: 10px 12px;
+  border: 1px solid #d29b2e;
+  border-radius: 6px;
+  background: #fff8e6;
+  color: #5b4100;
+}
+
 .canvas-section .flow-container .speech-node {
   height: 96px;
   min-height: 96px;

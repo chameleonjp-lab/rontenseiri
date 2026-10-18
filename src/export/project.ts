@@ -126,6 +126,11 @@ function projectDto(p: Project, includeAdvanced = false): Project {
   }
   return result;
 }
+function hasExclusiveInterpretationGroups(p: Project): boolean {
+  return (p.reasoning?.exclusiveGroups.length ?? 0) > 0;
+}
+const exclusiveExportLimitation =
+  "排他的な解釈候補を含むため、この形式では不確定性と排他関係を保持できません。全体JSON出力を使用してください。";
 function limitedProject(
   p: Project,
   agenda: Agenda,
@@ -334,6 +339,10 @@ function exportProjectCore(
   const scopedAgenda = agenda ? scoped.agendas[0] : undefined;
   const names = pseudonymize ? pseudonymMap(scoped.utterances) : undefined;
   if (format === "json") {
+    // Full JSON is the lossless backup path; limited JSON must not silently
+    // omit the optional reasoning graph (including exclusive alternatives).
+    if (agenda && hasExclusiveInterpretationGroups(p))
+      throw new Error(exclusiveExportLimitation);
     if (pseudonymize)
       scoped.utterances = scoped.utterances.map((u) => ({
         ...u,
@@ -363,6 +372,8 @@ function exportProjectCore(
     if (bytes(text) > MAX) throw new Error("出力が50MiBを超えています");
     return text;
   }
+  if (hasExclusiveInterpretationGroups(p))
+    throw new Error(exclusiveExportLimitation);
   if (format === "md")
     return markdown(
       scoped,

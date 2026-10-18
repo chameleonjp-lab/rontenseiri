@@ -1,0 +1,3722 @@
+{
+  "config": {
+    "argv": [
+      "/usr/local/bin/node",
+      "/workspace/rontenseiri-r12-manual/node_modules/.bin/playwright",
+      "test",
+      "--grep-invert",
+      "各100操作で観測する|手動の排他解釈"
+    ],
+    "configFile": "/workspace/rontenseiri-r12-manual/playwright.config.ts",
+    "rootDir": "/workspace/rontenseiri-r12-manual/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/workspace/rontenseiri-r12-manual/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/rontenseiri-r12-manual/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/workspace/rontenseiri-r12-manual/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/workspace/rontenseiri-r12-manual/e2e",
+        "snapshotDir": "/workspace/rontenseiri-r12-manual/e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:4208",
+          "viewport": {
+            "width": 1440,
+            "height": 980
+          },
+          "headless": true,
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "launchOptions": {
+            "args": [
+              "--no-sandbox"
+            ]
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/r12-full-regression-e2e-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 4208 --strictPort",
+      "url": "http://127.0.0.1:4208",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "app.spec.ts",
+      "file": "app.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "home, fixed agenda fixture and no unsolicited external request",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1389,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:23:37.301Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-cbeb9a229a18d0ad3c71",
+          "file": "app.spec.ts",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "collapse, pan, zoom and view switches preserve semantic positions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2191,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:23:38.804Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-4fb75399f0afc0ab6d2c",
+          "file": "app.spec.ts",
+          "line": 43,
+          "column": 1
+        },
+        {
+          "title": "keyboard detail, classification, exact source revision and history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1889,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:23:41.011Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-0975579e4341d2ae3462",
+          "file": "app.spec.ts",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "manual text input, extraction preview, summary editing and explicit save",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2536,
+                  "error": {
+                    "message": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-0/traces/c31ff144dc4fee3acd0a-a6e684e1d9b35d73e3e6-recording6.trace'",
+                    "stack": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-0/traces/c31ff144dc4fee3acd0a-a6e684e1d9b35d73e3e6-recording6.trace'"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-0/traces/c31ff144dc4fee3acd0a-a6e684e1d9b35d73e3e6-recording6.trace'"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:23:42.917Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/app-manual-text-input-extr-d3934-y-editing-and-explicit-save/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/app-manual-text-input-extr-d3934-y-editing-and-explicit-save/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/app-manual-text-input-extr-d3934-y-editing-and-explicit-save/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-a6e684e1d9b35d73e3e6",
+          "file": "app.spec.ts",
+          "line": 146,
+          "column": 1
+        },
+        {
+          "title": "limited JSON preview excludes other agenda and restores to a new copy",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2281,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:23:46.131Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-29cff8651e40de578aad",
+          "file": "app.spec.ts",
+          "line": 197,
+          "column": 1
+        },
+        {
+          "title": "A-B-A occurrences and membership-only correction can be undone without changing evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2374,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:23:51.054Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-7e0968fc05f480359531",
+          "file": "app.spec.ts",
+          "line": 268,
+          "column": 1
+        },
+        {
+          "title": "folded branches are unavailable for limited export and dialog focus is trapped",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2367,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:23:53.450Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-1bac483986564a81b2d6",
+          "file": "app.spec.ts",
+          "line": 314,
+          "column": 1
+        },
+        {
+          "title": "pointer selection reaches nodes and agenda headers while blank space pans",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2634,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:23:55.839Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-9d019bc92dbfe60e12ae",
+          "file": "app.spec.ts",
+          "line": 350,
+          "column": 1
+        }
+      ],
+      "suites": [
+        {
+          "title": "mobile touch emulation (not iPhone real-device certification)",
+          "file": "app.spec.ts",
+          "line": 228,
+          "column": 6,
+          "specs": [
+            {
+              "title": "same agenda can be reviewed vertically with next action first",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2516,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-18T13:23:48.520Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-aa4a92d2d5404374b783",
+              "file": "app.spec.ts",
+              "line": 234,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "collapsed-focus-recovery.spec.ts",
+      "file": "collapsed-focus-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "折り畳み後に原文から開いた非表示ノードをbuttonで閉じてもBODYやhiddenへフォーカスしない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2306,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:23:58.517Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "focus-recovery-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAiZm9jdXMtcmVjb3ZlcnktYXNzZXJ0aW9uIiwKICAib3JpZ2luYWxJZCI6ICJVMDMiLAogICJvcmlnaW5hbFZpc2libGVBZnRlckNvbGxhcHNlIjogZmFsc2UsCiAgImZvY3VzIjogewogICAgInRhZyI6ICJCVVRUT04iLAogICAgImlkIjogbnVsbCwKICAgICJhcmlhTGFiZWwiOiAi6K2w6aGMMDEg6YCxMeaXpeOBruWcqOWuheWLpOWLmeOCkuippuOBmeOBiyDorbDpoYzjgpLpgbjmip4iLAogICAgImZsb3dOb2RlSWQiOiAiYWdlbmRhLeitsOmhjDAxIiwKICAgICJjbGFzc05hbWUiOiAiYWdlbmRhLWZyYW1lLXRpdGxlIG5vZHJhZyBub3BhbiIsCiAgICAiYm9keSI6IGZhbHNlLAogICAgImhpZGRlbkFuY2VzdG9yIjogbnVsbCwKICAgICJpbmVydCI6IGZhbHNlLAogICAgImFyaWFIaWRkZW4iOiBmYWxzZSwKICAgICJjc3NWaXNpYmlsaXR5IjogInZpc2libGUiLAogICAgImNzc0Rpc3BsYXkiOiAiZmxleCIsCiAgICAicmVjdHMiOiAxCiAgfQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c1823185f6e369b30eb-cd3f4468fc886a7bd6a3",
+          "file": "collapsed-focus-recovery.spec.ts",
+          "line": 115,
+          "column": 3
+        },
+        {
+          "title": "折り畳み後に原文から開いた非表示ノードをescapeで閉じてもBODYやhiddenへフォーカスしない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1832,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:00.840Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "focus-recovery-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAiZm9jdXMtcmVjb3ZlcnktYXNzZXJ0aW9uIiwKICAib3JpZ2luYWxJZCI6ICJVMDMiLAogICJvcmlnaW5hbFZpc2libGVBZnRlckNvbGxhcHNlIjogZmFsc2UsCiAgImZvY3VzIjogewogICAgInRhZyI6ICJCVVRUT04iLAogICAgImlkIjogbnVsbCwKICAgICJhcmlhTGFiZWwiOiAi6K2w6aGMMDEg6YCxMeaXpeOBruWcqOWuheWLpOWLmeOCkuippuOBmeOBiyDorbDpoYzjgpLpgbjmip4iLAogICAgImZsb3dOb2RlSWQiOiAiYWdlbmRhLeitsOmhjDAxIiwKICAgICJjbGFzc05hbWUiOiAiYWdlbmRhLWZyYW1lLXRpdGxlIG5vZHJhZyBub3BhbiIsCiAgICAiYm9keSI6IGZhbHNlLAogICAgImhpZGRlbkFuY2VzdG9yIjogbnVsbCwKICAgICJpbmVydCI6IGZhbHNlLAogICAgImFyaWFIaWRkZW4iOiBmYWxzZSwKICAgICJjc3NWaXNpYmlsaXR5IjogInZpc2libGUiLAogICAgImNzc0Rpc3BsYXkiOiAiZmxleCIsCiAgICAicmVjdHMiOiAxCiAgfQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c1823185f6e369b30eb-263adb8a182350287c08",
+          "file": "collapsed-focus-recovery.spec.ts",
+          "line": 115,
+          "column": 3
+        },
+        {
+          "title": "折り畳みなしの表示中ノードはEscapeと閉じるボタンの両方で元ノードへ戻る",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1817,
+                  "error": {
+                    "message": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-1/traces/3c1823185f6e369b30eb-0e83b25ca0bdd1eafe84-recording14.trace'",
+                    "stack": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-1/traces/3c1823185f6e369b30eb-0e83b25ca0bdd1eafe84-recording14.trace'"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-1/traces/3c1823185f6e369b30eb-0e83b25ca0bdd1eafe84-recording14.trace'"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:02.688Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "focus-recovery-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAicG9zaXRpdmUtY29udHJvbCIsCiAgIm9yaWdpbmFsSWQiOiAiVTAxIiwKICAiZXNjYXBlRm9jdXMiOiB7CiAgICAidGFnIjogIkJVVFRPTiIsCiAgICAiaWQiOiBudWxsLAogICAgImFyaWFMYWJlbCI6ICJVMDEgQeOBleOCkyDpgLEx5pel44Gu5Zyo5a6F5Yuk5YuZ44KS6Kmm44GX44Gm44G/44Gf44GE44Gn44GZ44CCIOips+e0sOOCkumWi+OBjyIsCiAgICAiZmxvd05vZGVJZCI6ICJVMDEiLAogICAgImNsYXNzTmFtZSI6ICJzcGVlY2gtaGl0IG5vZHJhZyBub3BhbiIsCiAgICAiYm9keSI6IGZhbHNlLAogICAgImhpZGRlbkFuY2VzdG9yIjogbnVsbCwKICAgICJpbmVydCI6IGZhbHNlLAogICAgImFyaWFIaWRkZW4iOiBmYWxzZSwKICAgICJjc3NWaXNpYmlsaXR5IjogInZpc2libGUiLAogICAgImNzc0Rpc3BsYXkiOiAiYmxvY2siLAogICAgInJlY3RzIjogMQogIH0sCiAgImJ1dHRvbkZvY3VzIjogewogICAgInRhZyI6ICJCVVRUT04iLAogICAgImlkIjogbnVsbCwKICAgICJhcmlhTGFiZWwiOiAiVTAxIEHjgZXjgpMg6YCxMeaXpeOBruWcqOWuheWLpOWLmeOCkuippuOBl+OBpuOBv+OBn+OBhOOBp+OBmeOAgiDoqbPntLDjgpLplovjgY8iLAogICAgImZsb3dOb2RlSWQiOiAiVTAxIiwKICAgICJjbGFzc05hbWUiOiAic3BlZWNoLWhpdCBub2RyYWcgbm9wYW4iLAogICAgImJvZHkiOiBmYWxzZSwKICAgICJoaWRkZW5BbmNlc3RvciI6IG51bGwsCiAgICAiaW5lcnQiOiBmYWxzZSwKICAgICJhcmlhSGlkZGVuIjogZmFsc2UsCiAgICAiY3NzVmlzaWJpbGl0eSI6ICJ2aXNpYmxlIiwKICAgICJjc3NEaXNwbGF5IjogImJsb2NrIiwKICAgICJyZWN0cyI6IDEKICB9Cn0="
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/collapsed-focus-recovery-折-650f2-ードはEscapeと閉じるボタンの両方で元ノードへ戻る/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/collapsed-focus-recovery-折-650f2-ードはEscapeと閉じるボタンの両方で元ノードへ戻る/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/collapsed-focus-recovery-折-650f2-ードはEscapeと閉じるボタンの両方で元ノードへ戻る/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "3c1823185f6e369b30eb-0e83b25ca0bdd1eafe84",
+          "file": "collapsed-focus-recovery.spec.ts",
+          "line": 161,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "domain-consistency.spec.ts",
+      "file": "domain-consistency.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "直接APIの復帰なしは正規化され、矛盾した外部状態の保存を拒否する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1019,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:05.305Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f2e70affc1869ed57b35-7a85c2efd16e4daa3881",
+          "file": "domain-consistency.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "draft-recovery-guard.spec.ts",
+      "file": "draft-recovery-guard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "saved Project with only an omission form draft protects view and copy switches",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1945,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:06.486Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "15dafb4c1adcfca6bfa4-94b59c85ab1c23358ddc",
+          "file": "draft-recovery-guard.spec.ts",
+          "line": 25,
+          "column": 1
+        },
+        {
+          "title": "summary draft survives form close/reopen and unrelated durable save; leaving asks",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1661,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:08.454Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "15dafb4c1adcfca6bfa4-7389ba95d4cdfc7b68d0",
+          "file": "draft-recovery-guard.spec.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "reasoning form and utterance boundary drafts guard the views that would discard them",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1885,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:10.139Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "15dafb4c1adcfca6bfa4-ba41535231bc234e4b60",
+          "file": "draft-recovery-guard.spec.ts",
+          "line": 86,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "escape-editing.spec.ts",
+      "file": "escape-editing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Escape in a text input retains the inspector draft; explicit exit restores node focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1534,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:12.059Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d3b2c6c31246f23a6bd4-16acc4d0f035c4fcfedc",
+          "file": "escape-editing.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "Escape in the source textarea does not discard the unsaved quotation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1379,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:13.618Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d3b2c6c31246f23a6bd4-57100bd9fd1fbd33225b",
+          "file": "escape-editing.spec.ts",
+          "line": 40,
+          "column": 1
+        },
+        {
+          "title": "IME composition and already-consumed Escape do not close details",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1454,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:15.014Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d3b2c6c31246f23a6bd4-9ddcada19cdf3d220139",
+          "file": "escape-editing.spec.ts",
+          "line": 53,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "focus-recovery-race.spec.ts",
+      "file": "focus-recovery-race.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "delayed detail-close focus recovery must not steal a newer keyboard navigation target",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1359,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:16.490Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ef655a3f0109eaef7fb1-745a0c43cf3d23e5f9a8",
+          "file": "focus-recovery-race.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "focus.spec.ts",
+      "file": "focus.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "U01をEnterで詳細化し、詳細を閉じると元のnode buttonへfocusを戻す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1370,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:17.876Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d21847c9dcced81f7ac2-908a1682fe7785d92d99",
+          "file": "focus.spec.ts",
+          "line": 37,
+          "column": 1
+        },
+        {
+          "title": "図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 2636,
+                  "error": {
+                    "message": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-2/traces/d21847c9dcced81f7ac2-324497105fe214016edc-recording18.trace'",
+                    "stack": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-2/traces/d21847c9dcced81f7ac2-324497105fe214016edc-recording18.trace'"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-2/traces/d21847c9dcced81f7ac2-324497105fe214016edc-recording18.trace'"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:19.261Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/focus-図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/focus-図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/focus-図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "d21847c9dcced81f7ac2-324497105fe214016edc",
+          "file": "focus.spec.ts",
+          "line": 49,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "fold-export-composition.spec.ts",
+      "file": "fold-export-composition.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fold, search, limited export and re-expand preserve scope and node identity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4257,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:22.810Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "24d6d31fdb8957c8ec1c-6107f02158b11881eb70",
+          "file": "fold-export-composition.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "g5-recovery.spec.ts",
+      "file": "g5-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "2ページ共有contextで旧revisionの保存を拒否し、最新保存内容を保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5948,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:27.352Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "284f3b23d7deea5be032-3612c43b5a5deb3c38a7",
+          "file": "g5-recovery.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "不正JSONのfile UI importでも既存作業を変更しない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1644,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:33.317Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "284f3b23d7deea5be032-4bd6074995c91830c814",
+          "file": "g5-recovery.spec.ts",
+          "line": 121,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "incoming-context-refresh.spec.ts",
+      "file": "incoming-context-refresh.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "browser component: 保持線に表示した根拠本文の変更でも承認を無効化する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1572,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:35.033Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "60bfb7fdc6aa294c4d07-d84383407e413e5a2c5d",
+          "file": "incoming-context-refresh.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "browser component: 確認に表示していない無関係な本文変更では承認と下書きを維持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1593,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:36.626Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "60bfb7fdc6aa294c4d07-4558898555ae05eed8b8",
+          "file": "incoming-context-refresh.spec.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "browser component: 根拠IDにない対象発言でも表示本文変更後は再承認を要求する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2465,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:38.255Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "60bfb7fdc6aa294c4d07-8a263bdb5f1f84931b79",
+          "file": "incoming-context-refresh.spec.ts",
+          "line": 88,
+          "column": 1
+        },
+        {
+          "title": "browser component: 承認後の復帰線付け替えで再承認前の解除を拒否する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2426,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:40.761Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "60bfb7fdc6aa294c4d07-b40c35fb9a4cf20634eb",
+          "file": "incoming-context-refresh.spec.ts",
+          "line": 119,
+          "column": 1
+        },
+        {
+          "title": "browser component: 承認後の根拠ID差し替えで再承認前の解除を拒否する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1675,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:43.213Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "60bfb7fdc6aa294c4d07-f52edd45049ffed0da0b",
+          "file": "incoming-context-refresh.spec.ts",
+          "line": 171,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "incoming-returns.spec.ts",
+      "file": "incoming-returns.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "複数のincoming復帰線は始点と全根拠を説明し、全解除は対象だけ、UndoはID・順序・根拠まで復元",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4326,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:44.934Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e46623d30f9337c75c8c-f9bea23e3e103278ef7c",
+          "file": "incoming-returns.spec.ts",
+          "line": 57,
+          "column": 1
+        },
+        {
+          "title": "複数incomingの保持選択は全edgeのID・順序・根拠を変えない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1747,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:49.280Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e46623d30f9337c75c8c-407478875ea3e5a888e4",
+          "file": "incoming-returns.spec.ts",
+          "line": 134,
+          "column": 1
+        },
+        {
+          "title": "確認選択後に原文モードで根拠本文を保存すると選択を無効化し、再承認までは解除しない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3453,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:51.045Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e46623d30f9337c75c8c-2eaa09c1cc70a2c37af4",
+          "file": "incoming-returns.spec.ts",
+          "line": 153,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "input-provenance.spec.ts",
+      "file": "input-provenance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "入力外の欠落申告は下書きと適用を区別し、保存・キーボードUndo・JSON別コピーで保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4138,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:54.533Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "be302458f4203dba960e-c6ef8aabce054c3cc9dd",
+          "file": "input-provenance.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "VTT本文統合と一cue訂正は時刻行を引用に入れず来歴を保存・JSON復元・Undoする",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5402,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:24:58.690Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "be302458f4203dba960e-dacdb03ae6c8a6a7bc48",
+          "file": "input-provenance.spec.ts",
+          "line": 129,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "inspector-draft-sync.spec.ts",
+      "file": "inspector-draft-sync.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "classification save then Undo restores the dropdown for the same selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1667,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:04.112Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03afcfe9979527226877-cdcd68c93e3b64964ee1",
+          "file": "inspector-draft-sync.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "source quote save then Undo restores the latest textarea for the same selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1759,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:05.795Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03afcfe9979527226877-a96ffdeae5cf8ebab33a",
+          "file": "inspector-draft-sync.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "an unrelated browser save does not clear an in-progress Inspector draft",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 1484,
+                  "error": {
+                    "message": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-3/traces/03afcfe9979527226877-6ce7e23e93957ee79410-recording30.network'",
+                    "stack": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-3/traces/03afcfe9979527226877-6ce7e23e93957ee79410-recording30.network'"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-3/traces/03afcfe9979527226877-6ce7e23e93957ee79410-recording30.network'"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:07.567Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/inspector-draft-sync-an-un-a5631-in-progress-Inspector-draft/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/inspector-draft-sync-an-un-a5631-in-progress-Inspector-draft/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/inspector-draft-sync-an-un-a5631-in-progress-Inspector-draft/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "03afcfe9979527226877-6ce7e23e93957ee79410",
+          "file": "inspector-draft-sync.spec.ts",
+          "line": 76,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "inspector-membership-draft.spec.ts",
+      "file": "inspector-membership-draft.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "変更理由の未保存ドラフトは議題所属変更後も保持され後続保存に使える",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2428,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:09.785Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "inspector-draft-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAicGFzcyIsCiAgImRyYWZ0RmllbGQiOiAi5aSJ5pu055CG55SxIiwKICAibWVtYmVyc2hpcCI6IHsKICAgICJmcm9tIjogIuitsOmhjDAxIiwKICAgICJ0byI6ICLorbDpoYwwMiIsCiAgICAiYm91bmRhcnlSZWFzb24iOiAibWVtYmVyc2hpcCBkcmFmdCByZXBybzogbW92ZSBVMDEiCiAgfSwKICAicGVyc2lzdGVkQnkiOiAiY2xhc3NpZmljYXRpb24gY29ycmVjdGlvbiBoaXN0b3J5Igp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f0d7854aa0eefb48ec-0f9a93558657769b602c",
+          "file": "inspector-membership-draft.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "話者の未保存ドラフトは議題所属変更後も保持され後続保存にpersistする",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1961,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:12.375Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "inspector-draft-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAicGFzcyIsCiAgImRyYWZ0RmllbGQiOiAi6Kmx6ICFIiwKICAibWVtYmVyc2hpcCI6IHsKICAgICJmcm9tIjogIuitsOmhjDAxIiwKICAgICJ0byI6ICLorbDpoYwwMiIsCiAgICAiYm91bmRhcnlSZWFzb24iOiAibWVtYmVyc2hpcCBkcmFmdCByZXBybzogbW92ZSBVMDEiCiAgfSwKICAicGVyc2lzdGVkQnkiOiAic3BlYWtlciBjb3JyZWN0aW9uIGhpc3RvcnkiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f0d7854aa0eefb48ec-c094906b303b237fc077",
+          "file": "inspector-membership-draft.spec.ts",
+          "line": 84,
+          "column": 1
+        },
+        {
+          "title": "原文ドラフトは分類モードの保存後も保持される",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1853,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:14.363Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "inspector-draft-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAiZXhwZWN0ZWQtcHJlc2VydmF0aW9uLWFzc2VydGlvbiIsCiAgImRyYWZ0RmllbGQiOiAi6KiC5q2j5b6M44Gu5Y6f5paHIiwKICAiZXhwZWN0ZWQiOiAicXVvdGUgZHJhZnQgcmVtYWlucyBhZnRlciBjbGFzc2lmaWNhdGlvbi1tb2RlIHNhdmUiLAogICJkcmFmdFF1b3RlIjogIumAsTHml6Xjga7lnKjlroXli6Tli5njgpLoqabjgZfjgabjgb/jgZ/jgYTjgafjgZnjgILvvIhjcm9zcy1tb2RlIGRyYWZ0IHJlcHJv77yJIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f0d7854aa0eefb48ec-18030235d54a14fac70c",
+          "file": "inspector-membership-draft.spec.ts",
+          "line": 119,
+          "column": 1
+        },
+        {
+          "title": "原文ドラフトは所属保存後も保持され後続の原文保存が再読込後も残る",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3477,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:16.234Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "inspector-draft-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAicGFzcyIsCiAgImRyYWZ0UXVvdGUiOiAi6YCxMeaXpeOBruWcqOWuheWLpOWLmeOCkuippuOBl+OBpuOBv+OBn+OBhOOBp+OBmeOAgu+8iOaJgOWxnuS/neWtmOWJjeOBruacquS/neWtmOODieODqeODleODiO+8iSIsCiAgInNhdmVkUXVvdGUiOiAi6YCxMeaXpeOBruWcqOWuheWLpOWLmeOCkuippuOBl+OBpuOBv+OBn+OBhOOBp+OBmeOAgu+8iOaJgOWxnuS/neWtmOWJjeOBruacquS/neWtmOODieODqeODleODiO+8ie+8iOW+jOe2muOBruWOn+aWh+S/neWtmO+8iSIsCiAgInNvdXJjZVJlYXNvbiI6ICLmiYDlsZ7kv53lrZjlvozjga7ljp/mlofoqILmraPnkIbnlLEiLAogICJtZW1iZXJzaGlwIjogewogICAgImZyb20iOiAi6K2w6aGMMDEiLAogICAgInRvIjogIuitsOmhjDAyIiwKICAgICJib3VuZGFyeVJlYXNvbiI6ICJtZW1iZXJzaGlwIGRyYWZ0IHJlcHJvOiBtb3ZlIFUwMSIKICB9LAogICJwZXJzaXN0ZWRCeSI6ICJJbmRleGVkREIgYW5kIGNvcnJlY3Rpb24taGlzdG9yeSBET00gYWZ0ZXIgcmVsb2FkIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f0d7854aa0eefb48ec-59fd891c4a8e6b779697",
+          "file": "inspector-membership-draft.spec.ts",
+          "line": 152,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "large-canvas.spec.ts",
+      "file": "large-canvas.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "50,000文字・500発言の全体表示とパン入力を実データ経路で確認",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3995,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:19.761Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2cb75f73d78f311bc19b-82e5e5746c9dbb4723b9",
+          "file": "large-canvas.spec.ts",
+          "line": 7,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "lazy-details.spec.ts",
+      "file": "lazy-details.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "依存候補はdetailsを開くまで生成せず、閉じても入力draftを保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1555,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:23.781Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "df9eb8070f8200e0756b-716684319c5aa9b17141",
+          "file": "lazy-details.spec.ts",
+          "line": 12,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "lineage-import-rejection.spec.ts",
+      "file": "lineage-import-rejection.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "説明のないlineage old IDの完全JSONを拒否して現在の作業・元の保存版を保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1303,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:25.368Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "be57210589cffd04243b-77c01384d2d19a0e8ac8",
+          "file": "lineage-import-rejection.spec.ts",
+          "line": 8,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "local-analysis-run.spec.ts",
+      "file": "local-analysis-run.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "実Workerで開始→取消→再読込→k+1再開、先行chunk厳密一致、通信観測は別assert",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8886,
+                  "error": {
+                    "message": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-4/traces/bc56a295e2b967109201-f93b23b01bacd1c98360-recording14.trace'",
+                    "stack": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-4/traces/bc56a295e2b967109201-f93b23b01bacd1c98360-recording14.trace'"
+                  },
+                  "errors": [
+                    {
+                      "message": "Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-4/traces/bc56a295e2b967109201-f93b23b01bacd1c98360-recording14.trace'"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:26.708Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "p2-network-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXF1ZXN0cyI6IFsKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L0B2aXRlL2NsaWVudCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvbWFpbi50c3g/dD0xNzkyMzI5OTIxMjEwIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L0ByZWFjdC1yZWZyZXNoIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL3JlYWN0LmpzP3Y9NmY3NWUwNmMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3QtZG9tX2NsaWVudC5qcz92PTZmNzVlMDZjIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9BcHAudHN4P3Q9MTc5MjMyOTkyMTIxMCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvc3R5bGVzLmNzcyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9yZWFjdF9qc3gtZGV2LXJ1bnRpbWUuanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvdml0ZS9kaXN0L2NsaWVudC9lbnYubWpzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL3JlYWN0LUJ3TXNCN0g3LmpzP3Y9NmY3NWUwNmMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvTG9jYWxSdW5QYW5lbC50c3giLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9jb3ZlcmFnZS50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZXhwb3J0L3Byb2plY3QudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL1JlYXNvbmluZ1BhbmVsLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvQ292ZXJhZ2VQYW5lbC50c3g/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL1JlYWRpbmVzc1BhbmVsLnRzeCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9sdWNpZGUtcmVhY3QuanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9EaXNjdXNzaW9uQ2FudmFzLnRzeCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9FeHBvcnREaWFsb2cudHN4P3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9JbnNwZWN0b3IudHN4P3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9PbWlzc2lvbkZpZWxkcy50c3giLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvZHJhZnQtZ3VhcmQudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9yZXZpc2lvbnMudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL3VzZU1vZGFsRm9jdXMudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi90eXBlcy50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3Byb2plY3QudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vY29tcGxldGVuZXNzLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvaW5wdXQvcGFyc2UudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL3N0b3JhZ2UvcHJvamVjdHMudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9hbmFseXNpcy9zYW1wbGUudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL2NsaWVudC50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL2xvY2FsLXJ1bi50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvb3duZXJzaGlwLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9zdG9yYWdlL2FuYWx5c2lzLXJ1bnMudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvQ29tcGxldGVuZXNzRWRpdG9yLnRzeD90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9jYXBhY2l0eS50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZGlhZ25vc3RpY3MvaW5kZXgudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RpYWdub3N0aWNzL29mZmxpbmUudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvcmVhZGluZXNzLmNzcyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9NYW51YWxJbnRlcnByZXRhdGlvbnMudHN4P3Q9MTc5MjMyOTkyMTIxMCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3JlYXNvbmluZy50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvcmVhc29uaW5nLmNzcyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZGlhZ25vc3RpY3MvbWV0cmljcy50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZXhwb3J0L3N2Zy50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9yZWFjdC1kb20tREpVVThzVHMuanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9icmFuY2gtZWRnZS12aXNpYmlsaXR5LnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0JyYW5jaFZpc2liaWxpdHkudHN4IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL2NhbnZhcy1tb2RlbC50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9AeHlmbG93X3JlYWN0LmpzP3Y9NmY3NWUwNmMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzL0B4eWZsb3cvcmVhY3QvZGlzdC9zdHlsZS5jc3MiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvY2FudmFzLWNvbXBhY3QuY3NzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL3JldHVybi10YXJnZXQtb3B0aW9uLnRzeCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3NuYXBzaG90LnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL1V0dGVyYW5jZUJvdW5kYXJ5RWRpdG9yLnRzeD90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvTGF6eURldGFpbHMudHN4IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vaW52YWxpZGF0aW9uLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL3NvdXJjZS1kcmFmdHMudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9jdWUtcHJvdmVuYW5jZS50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3JlYXNvbmluZy12YWxpZGF0aW9uLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2xpbmVhZ2UtdmFsaWRhdGlvbi50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9pZGIuanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvZml4dHVyZS1wcm90b2NvbC50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvc2Vzc2lvbi50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZGlhZ25vc3RpY3MvbG9nLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vcmVsYXRpb24tbGFiZWwudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9sYXlvdXQudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvbWFudWFsLWludGVycHJldGF0aW9ucy5jc3MiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9tYW51YWwtaW50ZXJwcmV0YXRpb25zLnRzP3Q9MTc5MjMyOTkyMTIxMCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3V0dGVyYW5jZS1lZGl0aW5nLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2RlcGVuZGVuY2llcy50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvanN4LXJ1bnRpbWUtRGFkNXdLOHouanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvd29ya2Vycy9hbmFseXNpcy53b3JrZXIudHM/d29ya2VyX2ZpbGUmdHlwZT1tb2R1bGUiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzL3ZpdGUvZGlzdC9jbGllbnQvZW52Lm1qcyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvZml4dHVyZS1wcm90b2NvbC50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9wcm9tcHRzL2FuYWx5c2lzLnN5c3RlbS50eHQ/aW1wb3J0JnJhdyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC8iLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvQHZpdGUvY2xpZW50IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9tYWluLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvQHJlYWN0LXJlZnJlc2giLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzL3ZpdGUvZGlzdC9jbGllbnQvZW52Lm1qcyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9yZWFjdC5qcz92PTZmNzVlMDZjIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL3JlYWN0LWRvbV9jbGllbnQuanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvQXBwLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL3N0eWxlcy5jc3MiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3RfanN4LWRldi1ydW50aW1lLmpzP3Y9NmY3NWUwNmMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3QtQndNc0I3SDcuanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9yZWFjdC1kb20tREpVVThzVHMuanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9Mb2NhbFJ1blBhbmVsLnRzeCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2NvdmVyYWdlLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9leHBvcnQvcHJvamVjdC50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvUmVhc29uaW5nUGFuZWwudHN4P3Q9MTc5MjMyOTkyMTIxMCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9Db3ZlcmFnZVBhbmVsLnRzeD90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvUmVhZGluZXNzUGFuZWwudHN4IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL2x1Y2lkZS1yZWFjdC5qcz92PTZmNzVlMDZjIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0Rpc2N1c3Npb25DYW52YXMudHN4IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0V4cG9ydERpYWxvZy50c3g/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0luc3BlY3Rvci50c3g/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL09taXNzaW9uRmllbGRzLnRzeCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9kcmFmdC1ndWFyZC50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3JldmlzaW9ucy50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvdXNlTW9kYWxGb2N1cy50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3R5cGVzLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vcHJvamVjdC50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9jb21wbGV0ZW5lc3MudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9pbnB1dC9wYXJzZS50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvc3RvcmFnZS9wcm9qZWN0cy50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL3NhbXBsZS50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvY2xpZW50LnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvbG9jYWwtcnVuLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9hbmFseXNpcy9vd25lcnNoaXAudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL3N0b3JhZ2UvYW5hbHlzaXMtcnVucy50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZGlhZ25vc3RpY3MvbWV0cmljcy50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZXhwb3J0L3N2Zy50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2NhcGFjaXR5LnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL01hbnVhbEludGVycHJldGF0aW9ucy50c3g/dD0xNzkyMzI5OTIxMjEwIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vcmVhc29uaW5nLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9yZWFzb25pbmcuY3NzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0NvbXBsZXRlbmVzc0VkaXRvci50c3g/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kaWFnbm9zdGljcy9pbmRleC50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZGlhZ25vc3RpY3Mvb2ZmbGluZS50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9yZWFkaW5lc3MuY3NzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL2JyYW5jaC1lZGdlLXZpc2liaWxpdHkudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvQnJhbmNoVmlzaWJpbGl0eS50c3giLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvY2FudmFzLW1vZGVsLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL0B4eWZsb3dfcmVhY3QuanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvQHh5Zmxvdy9yZWFjdC9kaXN0L3N0eWxlLmNzcyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9jYW52YXMtY29tcGFjdC5jc3MiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvcmV0dXJuLXRhcmdldC1vcHRpb24udHN4IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vc25hcHNob3QudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvVXR0ZXJhbmNlQm91bmRhcnlFZGl0b3IudHN4P3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9MYXp5RGV0YWlscy50c3giLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9pbnZhbGlkYXRpb24udHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvc291cmNlLWRyYWZ0cy50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2N1ZS1wcm92ZW5hbmNlLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vcmVhc29uaW5nLXZhbGlkYXRpb24udHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vbGluZWFnZS12YWxpZGF0aW9uLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL2lkYi5qcz92PTZmNzVlMDZjIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL2pzeC1ydW50aW1lLURhZDV3Szh6LmpzP3Y9NmY3NWUwNmMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL2ZpeHR1cmUtcHJvdG9jb2wudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL3Nlc3Npb24udHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9yZWxhdGlvbi1sYWJlbC50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2xheW91dC50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9tYW51YWwtaW50ZXJwcmV0YXRpb25zLmNzcyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL21hbnVhbC1pbnRlcnByZXRhdGlvbnMudHM/dD0xNzkyMzI5OTIxMjEwIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kaWFnbm9zdGljcy9sb2cudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi91dHRlcmFuY2UtZWRpdGluZy50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9kZXBlbmRlbmNpZXMudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy93b3JrZXJzL2FuYWx5c2lzLndvcmtlci50cz93b3JrZXJfZmlsZSZ0eXBlPW1vZHVsZSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvdml0ZS9kaXN0L2NsaWVudC9lbnYubWpzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9hbmFseXNpcy9maXh0dXJlLXByb3RvY29sLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3Byb21wdHMvYW5hbHlzaXMuc3lzdGVtLnR4dD9pbXBvcnQmcmF3IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4LyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9Adml0ZS9jbGllbnQiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL21haW4udHN4P3Q9MTc5MjMyOTkyMTIxMCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9AcmVhY3QtcmVmcmVzaCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9yZWFjdC5qcz92PTZmNzVlMDZjIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL3JlYWN0LWRvbV9jbGllbnQuanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvQXBwLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL3N0eWxlcy5jc3MiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3RfanN4LWRldi1ydW50aW1lLmpzP3Y9NmY3NWUwNmMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3QtQndNc0I3SDcuanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9yZWFjdC1kb20tREpVVThzVHMuanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvdml0ZS9kaXN0L2NsaWVudC9lbnYubWpzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0xvY2FsUnVuUGFuZWwudHN4IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vY292ZXJhZ2UudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2V4cG9ydC9wcm9qZWN0LnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9SZWFzb25pbmdQYW5lbC50c3g/dD0xNzkyMzI5OTIxMjEwIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0NvdmVyYWdlUGFuZWwudHN4P3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9SZWFkaW5lc3NQYW5lbC50c3giLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvbHVjaWRlLXJlYWN0LmpzP3Y9NmY3NWUwNmMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvRGlzY3Vzc2lvbkNhbnZhcy50c3giLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvRXhwb3J0RGlhbG9nLnRzeD90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvSW5zcGVjdG9yLnRzeD90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvT21pc3Npb25GaWVsZHMudHN4IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL2RyYWZ0LWd1YXJkLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vcmV2aXNpb25zLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy91c2VNb2RhbEZvY3VzLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vdHlwZXMudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9wcm9qZWN0LnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2NvbXBsZXRlbmVzcy50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2lucHV0L3BhcnNlLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9zdG9yYWdlL3Byb2plY3RzLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvc2FtcGxlLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9hbmFseXNpcy9jbGllbnQudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9hbmFseXNpcy9sb2NhbC1ydW4udHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL293bmVyc2hpcC50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvc3RvcmFnZS9hbmFseXNpcy1ydW5zLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL01hbnVhbEludGVycHJldGF0aW9ucy50c3g/dD0xNzkyMzI5OTIxMjEwIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vcmVhc29uaW5nLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9yZWFzb25pbmcuY3NzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kaWFnbm9zdGljcy9tZXRyaWNzLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9leHBvcnQvc3ZnLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vY2FwYWNpdHkudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvQ29tcGxldGVuZXNzRWRpdG9yLnRzeD90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RpYWdub3N0aWNzL2luZGV4LnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kaWFnbm9zdGljcy9vZmZsaW5lLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL3JlYWRpbmVzcy5jc3MiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9pbnZhbGlkYXRpb24udHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9zbmFwc2hvdC50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9icmFuY2gtZWRnZS12aXNpYmlsaXR5LnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0JyYW5jaFZpc2liaWxpdHkudHN4IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL2NhbnZhcy1tb2RlbC50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9AeHlmbG93X3JlYWN0LmpzP3Y9NmY3NWUwNmMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzL0B4eWZsb3cvcmVhY3QvZGlzdC9zdHlsZS5jc3MiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvY2FudmFzLWNvbXBhY3QuY3NzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL3JldHVybi10YXJnZXQtb3B0aW9uLnRzeCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9VdHRlcmFuY2VCb3VuZGFyeUVkaXRvci50c3g/dD0xNzkyMzI5ODYzMjc5IiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0xhenlEZXRhaWxzLnRzeCIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9zb3VyY2UtZHJhZnRzLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL2lkYi5qcz92PTZmNzVlMDZjIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9hbmFseXNpcy9maXh0dXJlLXByb3RvY29sLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9hbmFseXNpcy9zZXNzaW9uLnRzIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vY3VlLXByb3ZlbmFuY2UudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9yZWFzb25pbmctdmFsaWRhdGlvbi50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9saW5lYWdlLXZhbGlkYXRpb24udHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvanN4LXJ1bnRpbWUtRGFkNXdLOHouanM/dj02Zjc1ZTA2YyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9tYW51YWwtaW50ZXJwcmV0YXRpb25zLmNzcyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL21hbnVhbC1pbnRlcnByZXRhdGlvbnMudHM/dD0xNzkyMzI5OTIxMjEwIiwKICAgICAgIm1ldGhvZCI6ICJHRVQiLAogICAgICAiYm9keSI6IG51bGwKICAgIH0sCiAgICB7CiAgICAgICJ1cmwiOiAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vcmVsYXRpb24tbGFiZWwudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9sYXlvdXQudHMiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfSwKICAgIHsKICAgICAgInVybCI6ICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RpYWdub3N0aWNzL2xvZy50cyIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3V0dGVyYW5jZS1lZGl0aW5nLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAgICJtZXRob2QiOiAiR0VUIiwKICAgICAgImJvZHkiOiBudWxsCiAgICB9LAogICAgewogICAgICAidXJsIjogImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2RlcGVuZGVuY2llcy50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgICAibWV0aG9kIjogIkdFVCIsCiAgICAgICJib2R5IjogbnVsbAogICAgfQogIF0sCiAgInNvY2tldHMiOiBbCiAgICAid3M6Ly8xMjcuMC4wLjE6NDIwOC8/dG9rZW49MzlCOElrLVh3aGEwIiwKICAgICJ3czovLzEyNy4wLjAuMTo0MjA4Lz90b2tlbj0zOUI4SWstWHdoYTAiLAogICAgIndzOi8vMTI3LjAuMC4xOjQyMDgvP3Rva2VuPTM5QjhJay1Yd2hhMCIKICBdLAogICJ3b3JrZXJzIjogWwogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvd29ya2Vycy9hbmFseXNpcy53b3JrZXIudHM/d29ya2VyX2ZpbGUmdHlwZT1tb2R1bGUiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvd29ya2Vycy9hbmFseXNpcy53b3JrZXIudHM/d29ya2VyX2ZpbGUmdHlwZT1tb2R1bGUiCiAgXSwKICAiZXh0ZXJuYWwiOiBbXSwKICAiZmluaXNoZWRSZXF1ZXN0cyI6IFsKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL21haW4udHN4P3Q9MTc5MjMyOTkyMTIxMCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L0ByZWFjdC1yZWZyZXNoIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvQHZpdGUvY2xpZW50IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3QuanM/dj02Zjc1ZTA2YyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy92aXRlL2Rpc3QvY2xpZW50L2Vudi5tanMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvc3R5bGVzLmNzcyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL3JlYWN0X2pzeC1kZXYtcnVudGltZS5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3QtQndNc0I3SDcuanM/dj02Zjc1ZTA2YyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9BcHAudHN4P3Q9MTc5MjMyOTkyMTIxMCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0xvY2FsUnVuUGFuZWwudHN4IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9jb3ZlcmFnZS50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0NvdmVyYWdlUGFuZWwudHN4P3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL1JlYWRpbmVzc1BhbmVsLnRzeCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL1JlYXNvbmluZ1BhbmVsLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZXhwb3J0L3Byb2plY3QudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3QtZG9tX2NsaWVudC5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvT21pc3Npb25GaWVsZHMudHN4IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvRGlzY3Vzc2lvbkNhbnZhcy50c3giLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9FeHBvcnREaWFsb2cudHN4P3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL2RyYWZ0LWd1YXJkLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvSW5zcGVjdG9yLnRzeD90PTE3OTIzMjk4NjMyNzkiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3R5cGVzLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9yZXZpc2lvbnMudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9wcm9qZWN0LnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vY29tcGxldGVuZXNzLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL3VzZU1vZGFsRm9jdXMudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvc2FtcGxlLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL3N0b3JhZ2UvcHJvamVjdHMudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2lucHV0L3BhcnNlLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL2NsaWVudC50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvbG9jYWwtcnVuLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL293bmVyc2hpcC50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9zdG9yYWdlL2FuYWx5c2lzLXJ1bnMudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9Db21wbGV0ZW5lc3NFZGl0b3IudHN4P3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vY2FwYWNpdHkudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZGlhZ25vc3RpY3MvaW5kZXgudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9yZWFkaW5lc3MuY3NzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RpYWdub3N0aWNzL29mZmxpbmUudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9yZWFzb25pbmcuY3NzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9yZWFzb25pbmcudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RpYWdub3N0aWNzL21ldHJpY3MudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZXhwb3J0L3N2Zy50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL3JlYWN0LWRvbS1ESlVVOHNUcy5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvTWFudWFsSW50ZXJwcmV0YXRpb25zLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9sdWNpZGUtcmVhY3QuanM/dj02Zjc1ZTA2YyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL2JyYW5jaC1lZGdlLXZpc2liaWxpdHkudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9CcmFuY2hWaXNpYmlsaXR5LnRzeCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL2NhbnZhcy1tb2RlbC50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL2NhbnZhcy1jb21wYWN0LmNzcyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy9AeHlmbG93L3JlYWN0L2Rpc3Qvc3R5bGUuY3NzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvcmV0dXJuLXRhcmdldC1vcHRpb24udHN4IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9zbmFwc2hvdC50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0xhenlEZXRhaWxzLnRzeCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL1V0dGVyYW5jZUJvdW5kYXJ5RWRpdG9yLnRzeD90PTE3OTIzMjk4NjMyNzkiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9zb3VyY2UtZHJhZnRzLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9pbnZhbGlkYXRpb24udHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2N1ZS1wcm92ZW5hbmNlLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9saW5lYWdlLXZhbGlkYXRpb24udHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvZml4dHVyZS1wcm90b2NvbC50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vcmVhc29uaW5nLXZhbGlkYXRpb24udHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvaWRiLmpzP3Y9NmY3NWUwNmMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZGlhZ25vc3RpY3MvbG9nLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9yZWxhdGlvbi1sYWJlbC50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL21hbnVhbC1pbnRlcnByZXRhdGlvbnMuY3NzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9sYXlvdXQudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvc2Vzc2lvbi50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vbWFudWFsLWludGVycHJldGF0aW9ucy50cz90PTE3OTIzMjk5MjEyMTAiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2RlcGVuZGVuY2llcy50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3V0dGVyYW5jZS1lZGl0aW5nLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL0B4eWZsb3dfcmVhY3QuanM/dj02Zjc1ZTA2YyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL2pzeC1ydW50aW1lLURhZDV3Szh6LmpzP3Y9NmY3NWUwNmMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvd29ya2Vycy9hbmFseXNpcy53b3JrZXIudHM/d29ya2VyX2ZpbGUmdHlwZT1tb2R1bGUiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvdml0ZS9kaXN0L2NsaWVudC9lbnYubWpzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvcHJvbXB0cy9hbmFseXNpcy5zeXN0ZW0udHh0P2ltcG9ydCZyYXciLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvZml4dHVyZS1wcm90b2NvbC50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4LyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L0B2aXRlL2NsaWVudCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9tYWluLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9yZWFjdC5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3QtZG9tX2NsaWVudC5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3RfanN4LWRldi1ydW50aW1lLmpzP3Y9NmY3NWUwNmMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9yZWFjdC1Cd01zQjdINy5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3QtZG9tLURKVVU4c1RzLmpzP3Y9NmY3NWUwNmMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9AcmVhY3QtcmVmcmVzaCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy92aXRlL2Rpc3QvY2xpZW50L2Vudi5tanMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvQXBwLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvc3R5bGVzLmNzcyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL2x1Y2lkZS1yZWFjdC5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvTG9jYWxSdW5QYW5lbC50c3giLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2NvdmVyYWdlLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2V4cG9ydC9wcm9qZWN0LnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL1JlYXNvbmluZ1BhbmVsLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9Db3ZlcmFnZVBhbmVsLnRzeD90PTE3OTIzMjk4NjMyNzkiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9SZWFkaW5lc3NQYW5lbC50c3giLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9EaXNjdXNzaW9uQ2FudmFzLnRzeCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0V4cG9ydERpYWxvZy50c3g/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvSW5zcGVjdG9yLnRzeD90PTE3OTIzMjk4NjMyNzkiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9PbWlzc2lvbkZpZWxkcy50c3giLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9kcmFmdC1ndWFyZC50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vcmV2aXNpb25zLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL3VzZU1vZGFsRm9jdXMudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3R5cGVzLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9wcm9qZWN0LnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vY29tcGxldGVuZXNzLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9pbnB1dC9wYXJzZS50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9zdG9yYWdlL3Byb2plY3RzLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9hbmFseXNpcy9zYW1wbGUudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvY2xpZW50LnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL0B4eWZsb3dfcmVhY3QuanM/dj02Zjc1ZTA2YyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL2lkYi5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvanN4LXJ1bnRpbWUtRGFkNXdLOHouanM/dj02Zjc1ZTA2YyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9hbmFseXNpcy9sb2NhbC1ydW4udHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvb3duZXJzaGlwLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL3N0b3JhZ2UvYW5hbHlzaXMtcnVucy50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kaWFnbm9zdGljcy9tZXRyaWNzLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2V4cG9ydC9zdmcudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2NhcGFjaXR5LnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvTWFudWFsSW50ZXJwcmV0YXRpb25zLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3JlYXNvbmluZy50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9yZWFzb25pbmcuY3NzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvQ29tcGxldGVuZXNzRWRpdG9yLnRzeD90PTE3OTIzMjk4NjMyNzkiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZGlhZ25vc3RpY3MvaW5kZXgudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZGlhZ25vc3RpY3Mvb2ZmbGluZS50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL3JlYWRpbmVzcy5jc3MiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9icmFuY2gtZWRnZS12aXNpYmlsaXR5LnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvQnJhbmNoVmlzaWJpbGl0eS50c3giLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9jYW52YXMtbW9kZWwudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvQHh5Zmxvdy9yZWFjdC9kaXN0L3N0eWxlLmNzcyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL2NhbnZhcy1jb21wYWN0LmNzcyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL3JldHVybi10YXJnZXQtb3B0aW9uLnRzeCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vc25hcHNob3QudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9VdHRlcmFuY2VCb3VuZGFyeUVkaXRvci50c3g/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvTGF6eURldGFpbHMudHN4IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9pbnZhbGlkYXRpb24udHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9zb3VyY2UtZHJhZnRzLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9jdWUtcHJvdmVuYW5jZS50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vcmVhc29uaW5nLXZhbGlkYXRpb24udHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9saW5lYWdlLXZhbGlkYXRpb24udHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvZml4dHVyZS1wcm90b2NvbC50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9hbmFseXNpcy9zZXNzaW9uLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9yZWxhdGlvbi1sYWJlbC50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vbGF5b3V0LnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvbWFudWFsLWludGVycHJldGF0aW9ucy5jc3MiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL21hbnVhbC1pbnRlcnByZXRhdGlvbnMudHM/dD0xNzkyMzI5OTIxMjEwIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RpYWdub3N0aWNzL2xvZy50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vdXR0ZXJhbmNlLWVkaXRpbmcudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9kZXBlbmRlbmNpZXMudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL3dvcmtlcnMvYW5hbHlzaXMud29ya2VyLnRzP3dvcmtlcl9maWxlJnR5cGU9bW9kdWxlIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzL3ZpdGUvZGlzdC9jbGllbnQvZW52Lm1qcyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9hbmFseXNpcy9maXh0dXJlLXByb3RvY29sLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvcHJvbXB0cy9hbmFseXNpcy5zeXN0ZW0udHh0P2ltcG9ydCZyYXciLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC8iLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvbWFpbi50c3g/dD0xNzkyMzI5OTIxMjEwIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3QuanM/dj02Zjc1ZTA2YyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL3JlYWN0LWRvbV9jbGllbnQuanM/dj02Zjc1ZTA2YyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL3JlYWN0X2pzeC1kZXYtcnVudGltZS5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvcmVhY3QtQndNc0I3SDcuanM/dj02Zjc1ZTA2YyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy8udml0ZS9kZXBzL3JlYWN0LWRvbS1ESlVVOHNUcy5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvQHZpdGUvY2xpZW50IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvQHJlYWN0LXJlZnJlc2giLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvdml0ZS9kaXN0L2NsaWVudC9lbnYubWpzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL3N0eWxlcy5jc3MiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvQXBwLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9Mb2NhbFJ1blBhbmVsLnRzeCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vY292ZXJhZ2UudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9SZWFzb25pbmdQYW5lbC50c3g/dD0xNzkyMzI5OTIxMjEwIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2V4cG9ydC9wcm9qZWN0LnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0NvdmVyYWdlUGFuZWwudHN4P3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL1JlYWRpbmVzc1BhbmVsLnRzeCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL0V4cG9ydERpYWxvZy50c3g/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvT21pc3Npb25GaWVsZHMudHN4IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvZHJhZnQtZ3VhcmQudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy91c2VNb2RhbEZvY3VzLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9yZXZpc2lvbnMudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvRGlzY3Vzc2lvbkNhbnZhcy50c3giLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9JbnNwZWN0b3IudHN4P3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vdHlwZXMudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvaW5wdXQvcGFyc2UudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2NvbXBsZXRlbmVzcy50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvc3RvcmFnZS9wcm9qZWN0cy50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvc2FtcGxlLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL2NsaWVudC50cz90PTE3OTIzMjk4NjMyNzkiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvYW5hbHlzaXMvb3duZXJzaGlwLnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL2xvY2FsLXJ1bi50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9zdG9yYWdlL2FuYWx5c2lzLXJ1bnMudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3Byb2plY3QudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvQHh5Zmxvd19yZWFjdC5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvbm9kZV9tb2R1bGVzLy52aXRlL2RlcHMvaWRiLmpzP3Y9NmY3NWUwNmMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9qc3gtcnVudGltZS1EYWQ1d0s4ei5qcz92PTZmNzVlMDZjIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9yZWFzb25pbmcudHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvTWFudWFsSW50ZXJwcmV0YXRpb25zLnRzeD90PTE3OTIzMjk5MjEyMTAiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9yZWFzb25pbmcuY3NzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RpYWdub3N0aWNzL21ldHJpY3MudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZXhwb3J0L3N2Zy50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vY2FwYWNpdHkudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9yZWFkaW5lc3MuY3NzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2NvbXBvbmVudHMvYnJhbmNoLWVkZ2UtdmlzaWJpbGl0eS50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vc25hcHNob3QudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9Db21wbGV0ZW5lc3NFZGl0b3IudHN4P3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L25vZGVfbW9kdWxlcy9AeHlmbG93L3JlYWN0L2Rpc3Qvc3R5bGUuY3NzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RpYWdub3N0aWNzL2luZGV4LnRzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9pbnZhbGlkYXRpb24udHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9jYW52YXMtY29tcGFjdC5jc3MiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9yZXR1cm4tdGFyZ2V0LW9wdGlvbi50c3giLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9jYW52YXMtbW9kZWwudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9CcmFuY2hWaXNpYmlsaXR5LnRzeCIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL3NvdXJjZS1kcmFmdHMudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9VdHRlcmFuY2VCb3VuZGFyeUVkaXRvci50c3g/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL2ZpeHR1cmUtcHJvdG9jb2wudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvY29tcG9uZW50cy9MYXp5RGV0YWlscy50c3giLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZGlhZ25vc3RpY3Mvb2ZmbGluZS50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vY3VlLXByb3ZlbmFuY2UudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2xpbmVhZ2UtdmFsaWRhdGlvbi50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vcmVhc29uaW5nLXZhbGlkYXRpb24udHM/dD0xNzkyMzI5ODYzMjc5IiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2FuYWx5c2lzL3Nlc3Npb24udHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9ub2RlX21vZHVsZXMvLnZpdGUvZGVwcy9sdWNpZGUtcmVhY3QuanM/dj02Zjc1ZTA2YyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9jb21wb25lbnRzL21hbnVhbC1pbnRlcnByZXRhdGlvbnMuY3NzIiwKICAgICJodHRwOi8vMTI3LjAuMC4xOjQyMDgvc3JjL2RvbWFpbi9yZWxhdGlvbi1sYWJlbC50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kaWFnbm9zdGljcy9sb2cudHMiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL2xheW91dC50cyIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vZGVwZW5kZW5jaWVzLnRzP3Q9MTc5MjMyOTg2MzI3OSIsCiAgICAiaHR0cDovLzEyNy4wLjAuMTo0MjA4L3NyYy9kb21haW4vbWFudWFsLWludGVycHJldGF0aW9ucy50cz90PTE3OTIzMjk5MjEyMTAiLAogICAgImh0dHA6Ly8xMjcuMC4wLjE6NDIwOC9zcmMvZG9tYWluL3V0dGVyYW5jZS1lZGl0aW5nLnRzP3Q9MTc5MjMyOTg2MzI3OSIKICBdLAogICJmYWlsZWRSZXF1ZXN0cyI6IFtdLAogICJyZXN1bWVkUmVxdWVzdHMiOiBbCiAgICAic2FtcGxlLXNvdXJjZTpzYW1wbGUtc291cmNlLXYxOjIiLAogICAgInNhbXBsZS1zb3VyY2U6c2FtcGxlLXNvdXJjZS12MTozIiwKICAgICJzYW1wbGUtc291cmNlOnNhbXBsZS1zb3VyY2UtdjE6NCIsCiAgICAic2FtcGxlLXNvdXJjZTpzYW1wbGUtc291cmNlLXYxOjUiLAogICAgInNhbXBsZS1zb3VyY2U6c2FtcGxlLXNvdXJjZS12MTo2IiwKICAgICJzYW1wbGUtc291cmNlOnNhbXBsZS1zb3VyY2UtdjE6NyIKICBdLAogICJzZXJ2aWNlV29ya2VyU2NvcGUiOiAiZGV2LXNlcnZlcjogbm8gYWN0aXZlIFNlcnZpY2UgV29ya2VyOyBwcm9kdWN0aW9uIFNXIHJlcXVlc3RzIHVudmVyaWZpZWQiLAogICJjYW5jZWxsYXRpb25NcyI6IDExMy40ODAwNjI5OTk5OTkwNiwKICAiayI6IDIsCiAgInRvdGFsIjogOAp9"
+                    },
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/local-analysis-run-実Worker-7de01-再開、先行chunk厳密一致、通信観測は別assert/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/local-analysis-run-実Worker-7de01-再開、先行chunk厳密一致、通信観測は別assert/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/rontenseiri-r12-manual/test-results/local-analysis-run-実Worker-7de01-再開、先行chunk厳密一致、通信観測は別assert/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "bc56a295e2b967109201-f93b23b01bacd1c98360",
+          "file": "local-analysis-run.spec.ts",
+          "line": 75,
+          "column": 1
+        },
+        {
+          "title": "失敗・未完了・不一致checkpoint拒否を区別し、失敗を完了と表示しない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8726,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:36.355Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc56a295e2b967109201-1c0d6a1b9aff303a59a4",
+          "file": "local-analysis-run.spec.ts",
+          "line": 223,
+          "column": 1
+        },
+        {
+          "title": "IndexedDB: A取消→B所有→A遅延保存拒否、active transaction取消、半端commit拒否",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2386,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:45.220Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc56a295e2b967109201-c385922e8ba2808fd800",
+          "file": "local-analysis-run.spec.ts",
+          "line": 269,
+          "column": 1
+        },
+        {
+          "title": "破損cursor/result/引用spanの再開拒否はDB全体を不変にする",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4208,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:47.624Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc56a295e2b967109201-6b9102e76134cfd7f5a8",
+          "file": "local-analysis-run.spec.ts",
+          "line": 371,
+          "column": 1
+        },
+        {
+          "title": "動作確認の取消・再開でfocusを保持し、Tab往復とEscape/×で同じ取消方針を使う",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3331,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:51.849Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc56a295e2b967109201-5564a2d6c46c37ce3838",
+          "file": "local-analysis-run.spec.ts",
+          "line": 460,
+          "column": 1
+        },
+        {
+          "title": "通常UI cancelが実保存中のputをabortし、遅延応答後・reload後にもcheckpointを追加しない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3989,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:55.193Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "p2-ui-cancel-during-real-commit",
+                      "contentType": "application/json",
+                      "body": "ewogICJjYW5jZWxsYXRpb25NcyI6IDY0LjQ3NzI5Mjk5OTk5OTkyLAogICJydW5JZCI6ICIzYmYxOWE2ZC02ZjJiLTQwYzctODk3OC0xM2I4YWQxODUyMDgiLAogICJnZW5lcmF0aW9uSWQiOiAiYWM3MzZmZWYtN2VmZS00Y2NjLTgzNmQtOTAxZTZjMjRlMGVmIiwKICAibmV4dENodW5rIjogMSwKICAiZXZlbnRzIjogWwogICAgewogICAgICAic3RhdGUiOiAicnVubmluZyIsCiAgICAgICJldmVudCI6ICJjb21wbGV0ZSIKICAgIH0sCiAgICB7CiAgICAgICJzdGF0ZSI6ICJydW5uaW5nIiwKICAgICAgIm5leHRDaHVuayI6IDAsCiAgICAgICJldmVudCI6ICJjb21wbGV0ZSIKICAgIH0sCiAgICB7CiAgICAgICJzdGF0ZSI6ICJydW5uaW5nIiwKICAgICAgIm5leHRDaHVuayI6IDEsCiAgICAgICJldmVudCI6ICJjb21wbGV0ZSIKICAgIH0sCiAgICB7CiAgICAgICJzdGF0ZSI6ICJydW5uaW5nIiwKICAgICAgIm5leHRDaHVuayI6IDIsCiAgICAgICJldmVudCI6ICJhYm9ydCIKICAgIH0sCiAgICB7CiAgICAgICJzdGF0ZSI6ICJjYW5jZWxsZWQiLAogICAgICAibmV4dENodW5rIjogMSwKICAgICAgImV2ZW50IjogImNvbXBsZXRlIgogICAgfQogIF0sCiAgIm5hdGl2ZVB1dFN1Y2NlZWRlZCI6IHRydWUsCiAgImhlbGRQdXRBYm9ydGVkIjogdHJ1ZSwKICAiaGVsZFB1dENvbW1pdHRlZCI6IGZhbHNlCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "bc56a295e2b967109201-7213a43f5dc7b69c1e46",
+          "file": "local-analysis-run.spec.ts",
+          "line": 529,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "manual-repair.spec.ts",
+      "file": "manual-repair.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "通常UI 1440px: 原文→関連修正→解除→Undo→保存をキーボードだけで完了",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 19484,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:25:59.240Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f6773312989431553a32-e3078a671b3fed6b22b8",
+          "file": "manual-repair.spec.ts",
+          "line": 34,
+          "column": 3
+        },
+        {
+          "title": "通常UI 390px: 原文→関連修正→解除→Undo→保存をキーボードだけで完了",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 90000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 20222,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:26:18.746Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f6773312989431553a32-985d21ba20e79cb8c370",
+          "file": "manual-repair.spec.ts",
+          "line": 34,
+          "column": 3
+        },
+        {
+          "title": "非空応答・根拠・全履歴のIndexedDB→full JSON→reload→Undo一致",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1805,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:26:38.984Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f6773312989431553a32-f06e6409de8ab9e65384",
+          "file": "manual-repair.spec.ts",
+          "line": 228,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "modal-background-state.spec.ts",
+      "file": "modal-background-state.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modal button preserves prior inert and aria-hidden background states across reopen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1819,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:26:40.826Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "755214fd49ed50243725-29ffb2674bfc21f2a451",
+          "file": "modal-background-state.spec.ts",
+          "line": 17,
+          "column": 3
+        },
+        {
+          "title": "modal escape preserves prior inert and aria-hidden background states across reopen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1495,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:26:42.661Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "755214fd49ed50243725-39b48f78b4b1bd892d8f",
+          "file": "modal-background-state.spec.ts",
+          "line": 17,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "navigation-readiness.spec.ts",
+      "file": "navigation-readiness.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "navigation readiness 1440px: native project reload waits for the visible desktop/mobile entry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3421,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:26:44.184Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "navigation-readiness-1440-reload-0.json",
+                      "contentType": "application/json",
+                      "body": "eyJ3aWR0aCI6MTQ0MCwiY3ljbGUiOjAsIndvdWxkQ2hvb3NlSGlkZGVuTWVudSI6dHJ1ZSwiZHVyaW5nUmVhZCI6eyJibG9ja2VkIjp0cnVlLCJyZWFkcyI6MX0sInN0YXRlIjp7InZpZXdwb3J0IjoxNDQwLCJtZW51RGlzcGxheSI6Im5vbmUiLCJ3b3Jrc3BhY2VNb3VudGVkIjp0cnVlfX0="
+                    },
+                    {
+                      "name": "navigation-readiness-1440-reload-1.json",
+                      "contentType": "application/json",
+                      "body": "eyJ3aWR0aCI6MTQ0MCwiY3ljbGUiOjEsIndvdWxkQ2hvb3NlSGlkZGVuTWVudSI6dHJ1ZSwiZHVyaW5nUmVhZCI6eyJibG9ja2VkIjp0cnVlLCJyZWFkcyI6MX0sInN0YXRlIjp7InZpZXdwb3J0IjoxNDQwLCJtZW51RGlzcGxheSI6Im5vbmUiLCJ3b3Jrc3BhY2VNb3VudGVkIjp0cnVlfX0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b92492feb3156ce59fdd-91fc01624c14257c099f",
+          "file": "navigation-readiness.spec.ts",
+          "line": 13,
+          "column": 3
+        },
+        {
+          "title": "navigation readiness 390px: native project reload waits for the visible desktop/mobile entry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4906,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:26:47.624Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "navigation-readiness-390-reload-0.json",
+                      "contentType": "application/json",
+                      "body": "eyJ3aWR0aCI6MzkwLCJjeWNsZSI6MCwid291bGRDaG9vc2VIaWRkZW5NZW51Ijp0cnVlLCJkdXJpbmdSZWFkIjp7ImJsb2NrZWQiOnRydWUsInJlYWRzIjoxfSwic3RhdGUiOnsidmlld3BvcnQiOjM5MCwibWVudURpc3BsYXkiOiJmbGV4Iiwid29ya3NwYWNlTW91bnRlZCI6dHJ1ZX19"
+                    },
+                    {
+                      "name": "navigation-readiness-390-reload-1.json",
+                      "contentType": "application/json",
+                      "body": "eyJ3aWR0aCI6MzkwLCJjeWNsZSI6MSwid291bGRDaG9vc2VIaWRkZW5NZW51Ijp0cnVlLCJkdXJpbmdSZWFkIjp7ImJsb2NrZWQiOnRydWUsInJlYWRzIjoxfSwic3RhdGUiOnsidmlld3BvcnQiOjM5MCwibWVudURpc3BsYXkiOiJmbGV4Iiwid29ya3NwYWNlTW91bnRlZCI6dHJ1ZX19"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b92492feb3156ce59fdd-483ef4d63652e55c0758",
+          "file": "navigation-readiness.spec.ts",
+          "line": 13,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "offline.spec.ts",
+      "file": "offline.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "production explicit preparation supports offline shell and keeps cache scoped",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "offline.spec.ts requires the dedicated production preview config",
+                  "location": {
+                    "file": "/workspace/rontenseiri-r12-manual/e2e/offline.spec.ts",
+                    "line": 7,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 117,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:26:52.555Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "offline.spec.ts requires the dedicated production preview config",
+                      "location": {
+                        "file": "/workspace/rontenseiri-r12-manual/e2e/offline.spec.ts",
+                        "line": 7,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "586fc5283fd8ec7c7982-0c48ebe939aa1860c43a",
+          "file": "offline.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "persistence-focus.spec.ts",
+      "file": "persistence-focus.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real input survives same-tab recent reopen, correction history, and Undo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3031,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:26:52.693Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6e8ba5437b75b6b8192a-e43ddc58dc181105761f",
+          "file": "persistence-focus.spec.ts",
+          "line": 50,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "preimport-omissions.spec.ts",
+      "file": "preimport-omissions.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "読み込み前の欠落申告を保存し、JSON境界とUndoで状態を保つ",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3324,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:26:55.746Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "119c1709defdc41b6662-43e03ac2d02ff3921ce2",
+          "file": "preimport-omissions.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "読み込み前のunreportedを空申告と混同せず引き渡す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1867,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:26:59.086Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "119c1709defdc41b6662-8b0dc614a11e76453bf8",
+          "file": "preimport-omissions.spec.ts",
+          "line": 131,
+          "column": 3
+        },
+        {
+          "title": "読み込み前のreported-emptyを空申告と混同せず引き渡す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1977,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:00.969Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "119c1709defdc41b6662-7960f08dad4d7ee8b59a",
+          "file": "preimport-omissions.spec.ts",
+          "line": 131,
+          "column": 3
+        },
+        {
+          "title": "読み込み前のreset-unreportedを空申告と混同せず引き渡す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2075,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:02.976Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "119c1709defdc41b6662-68b2621432e5b72d542d",
+          "file": "preimport-omissions.spec.ts",
+          "line": 131,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "question-summary-persistence.spec.ts",
+      "file": "question-summary-persistence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "問い改版と撤回の再確認状態・旧版応答を保存復元しUndoで元へ戻す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 851,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:05.073Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09725b61b169be309a13-4faad3aa1db41f9df438",
+          "file": "question-summary-persistence.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "reasoning.spec.ts",
+      "file": "reasoning.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "マウスとキーボードで、明示選択した発言だけに問いを追加できる",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1530,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:05.949Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "af8ccfa76b50f8052b96-54b1534a2c88520746e7",
+          "file": "reasoning.spec.ts",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "問い改訂は旧版を応答対象として保持し、共通Undoと原文IDへ戻れる",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2839,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:07.493Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "af8ccfa76b50f8052b96-e118c9f2e99ad6876949",
+          "file": "reasoning.spec.ts",
+          "line": 28,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "retained-branches.spec.ts",
+      "file": "retained-branches.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "枝DOMは保持しつつ視覚・AX・focusから除外し、同じ要素と配置で再展開する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3244,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:10.359Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "21fb194d37763e732bc3-b4c9a344fb87ea0b32b1",
+          "file": "retained-branches.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "折り畳み中の派生→本筋→UndoでCSS・inert・AXと枝の座標を復元する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2812,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:13.619Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "21fb194d37763e732bc3-8153d2f70b762059beac",
+          "file": "retained-branches.spec.ts",
+          "line": 132,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "return-correction.spec.ts",
+      "file": "return-correction.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "復帰なしを実保存・同一タブ再開しても旧edgeが残らず、復帰先は不変",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1889,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:16.455Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ff2a422fe75333d1008f-29a451224f093b5fcc50",
+          "file": "return-correction.spec.ts",
+          "line": 68,
+          "column": 1
+        },
+        {
+          "title": "復帰先分類と関係を明示的に扱い、同時変更を一回のUndoで戻す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2072,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:18.356Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ff2a422fe75333d1008f-d7d139a2457fb8d403d9",
+          "file": "return-correction.spec.ts",
+          "line": 95,
+          "column": 1
+        },
+        {
+          "title": "分類を派生へ訂正しても明示選択した復帰線を保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1807,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:20.441Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ff2a422fe75333d1008f-b8b81410eda5c43c3126",
+          "file": "return-correction.spec.ts",
+          "line": 126,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "rich-persistence.spec.ts",
+      "file": "rich-persistence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "rich状態r1/r2が原文版・問い版・旧版応答・履歴・Undoまで永続化される",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6800,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:22.276Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b772f4fde68058e084e5-f6196bd926150fbecd54",
+          "file": "rich-persistence.spec.ts",
+          "line": 88,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "save-failure-recovery.spec.ts",
+      "file": "save-failure-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "P5 quota: failed r2 retains exact persisted r1 and drafts; full current JSON restores only as a copy",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6647,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:29.129Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7a0b11e63cc83bbb00a3-ec9d0fb7305b6f469a50",
+          "file": "save-failure-recovery.spec.ts",
+          "line": 275,
+          "column": 3
+        },
+        {
+          "title": "P5 first-save quota: current correction has a full backup without any last-saved ref",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3336,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:35.789Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7a0b11e63cc83bbb00a3-baa9ce6c48d1c343532e",
+          "file": "save-failure-recovery.spec.ts",
+          "line": 404,
+          "column": 3
+        },
+        {
+          "title": "P5 abort: failed r2 retains exact persisted r1 and drafts; full current JSON restores only as a copy",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6346,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:39.139Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7a0b11e63cc83bbb00a3-3a462aa4e55c180df4b2",
+          "file": "save-failure-recovery.spec.ts",
+          "line": 275,
+          "column": 3
+        },
+        {
+          "title": "P5 first-save abort: current correction has a full backup without any last-saved ref",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3160,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:45.501Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7a0b11e63cc83bbb00a3-0ab14257a79a4b197987",
+          "file": "save-failure-recovery.spec.ts",
+          "line": 404,
+          "column": 3
+        },
+        {
+          "title": "P5 autosave failure keeps the focused draft; later successful autosave clears stale failure state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3976,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:48.675Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7a0b11e63cc83bbb00a3-19fa3f66f3e3a3e413eb",
+          "file": "save-failure-recovery.spec.ts",
+          "line": 462,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "source-draft-navigation.spec.ts",
+      "file": "source-draft-navigation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2617,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:52.676Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "02ffaf1728b82c1627d7-07abf927209bfa1afe34",
+          "file": "source-draft-navigation.spec.ts",
+          "line": 41,
+          "column": 1
+        },
+        {
+          "title": "複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1795,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:55.306Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "02ffaf1728b82c1627d7-4a76060fa92f4de93682",
+          "file": "source-draft-navigation.spec.ts",
+          "line": 124,
+          "column": 1
+        },
+        {
+          "title": "明示破棄は選んだ字幕本文の原文と理由だけを戻す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1577,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:27:57.113Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "02ffaf1728b82c1627d7-b14d018715c4e1641e06",
+          "file": "source-draft-navigation.spec.ts",
+          "line": 164,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "split-evidence.spec.ts",
+      "file": "split-evidence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "発言分割の実選択・保存・復元",
+          "file": "split-evidence.spec.ts",
+          "line": 61,
+          "column": 6,
+          "specs": [
+            {
+              "title": "left 選択を実UIで完了する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/workspace/rontenseiri-r12-manual/e2e/split-evidence.spec.ts",
+                        "line": 61,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4634,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-18T13:27:58.728Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/workspace/rontenseiri-r12-manual/e2e/split-evidence.spec.ts",
+                            "line": 61,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d817a5c758f98a2a59bc-c10e1daaf20ec6492d06",
+              "file": "split-evidence.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "right 選択を実UIで完了する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/workspace/rontenseiri-r12-manual/e2e/split-evidence.spec.ts",
+                        "line": 61,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4270,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-18T13:28:03.383Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/workspace/rontenseiri-r12-manual/e2e/split-evidence.spec.ts",
+                            "line": 61,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d817a5c758f98a2a59bc-e0fb462d4714b011eb2a",
+              "file": "split-evidence.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "both 選択を実UIで完了する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/workspace/rontenseiri-r12-manual/e2e/split-evidence.spec.ts",
+                        "line": 61,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4254,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-18T13:28:07.672Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/workspace/rontenseiri-r12-manual/e2e/split-evidence.spec.ts",
+                            "line": 61,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d817a5c758f98a2a59bc-b8174865400fca418a37",
+              "file": "split-evidence.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "unresolved 選択を実UIで完了する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/workspace/rontenseiri-r12-manual/e2e/split-evidence.spec.ts",
+                        "line": 61,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4248,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-18T13:28:11.949Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/workspace/rontenseiri-r12-manual/e2e/split-evidence.spec.ts",
+                            "line": 61,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d817a5c758f98a2a59bc-efc9226746e2cb0d7835",
+              "file": "split-evidence.spec.ts",
+              "line": 69,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "storage-conflict.spec.ts",
+      "file": "storage-conflict.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "旧保存版の上書きを拒否し、新版・履歴・Undo後の保存版を保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 891,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:28:16.228Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "633dc31e7868ad12c4ca-6b3f2dfdc5f2830b88c1",
+          "file": "storage-conflict.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "undo-escape-regression.spec.ts",
+      "file": "undo-escape-regression.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "last node selection returns focus after Escape",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1464,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:28:17.150Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8192d45284d6f4f2b164-85237595d0afa4796b5c",
+          "file": "undo-escape-regression.spec.ts",
+          "line": 11,
+          "column": 1
+        },
+        {
+          "title": "Escape restores the latest node when the transcript origin was unmounted",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1551,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:28:18.634Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8192d45284d6f4f2b164-98c60b271fe0e1fbfecd",
+          "file": "undo-escape-regression.spec.ts",
+          "line": 26,
+          "column": 1
+        },
+        {
+          "title": "Undo becomes disabled after the only revision is undone",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1928,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T13:28:20.206Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8192d45284d6f4f2b164-d93c21662bd9c08ae0ac",
+          "file": "undo-escape-regression.spec.ts",
+          "line": 45,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-18T13:23:34.664Z",
+    "duration": 287800.66000000003,
+    "expected": 83,
+    "skipped": 1,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

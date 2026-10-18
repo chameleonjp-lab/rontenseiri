@@ -1,0 +1,192 @@
+
+Running 89 tests using 1 worker
+
+  ✓   1 e2e/app.spec.ts:12:1 › home, fixed agenda fixture and no unsolicited external request (1.4s)
+  ✓   2 e2e/app.spec.ts:43:1 › collapse, pan, zoom and view switches preserve semantic positions (2.2s)
+  ✓   3 e2e/app.spec.ts:104:1 › keyboard detail, classification, exact source revision and history (1.9s)
+  ✘   4 e2e/app.spec.ts:146:1 › manual text input, extraction preview, summary editing and explicit save (2.5s)
+  ✓   5 e2e/app.spec.ts:197:1 › limited JSON preview excludes other agenda and restores to a new copy (2.3s)
+  ✓   6 e2e/app.spec.ts:234:3 › mobile touch emulation (not iPhone real-device certification) › same agenda can be reviewed vertically with next action first (2.5s)
+  ✓   7 e2e/app.spec.ts:268:1 › A-B-A occurrences and membership-only correction can be undone without changing evidence (2.4s)
+  ✓   8 e2e/app.spec.ts:314:1 › folded branches are unavailable for limited export and dialog focus is trapped (2.4s)
+  ✓   9 e2e/app.spec.ts:350:1 › pointer selection reaches nodes and agenda headers while blank space pans (2.6s)
+  ✓  10 e2e/collapsed-focus-recovery.spec.ts:115:3 › 折り畳み後に原文から開いた非表示ノードをbuttonで閉じてもBODYやhiddenへフォーカスしない (2.3s)
+  ✓  11 e2e/collapsed-focus-recovery.spec.ts:115:3 › 折り畳み後に原文から開いた非表示ノードをescapeで閉じてもBODYやhiddenへフォーカスしない (1.8s)
+  ✘  12 e2e/collapsed-focus-recovery.spec.ts:161:1 › 折り畳みなしの表示中ノードはEscapeと閉じるボタンの両方で元ノードへ戻る (1.8s)
+  ✓  13 e2e/domain-consistency.spec.ts:3:1 › 直接APIの復帰なしは正規化され、矛盾した外部状態の保存を拒否する (1.0s)
+  ✓  14 e2e/draft-recovery-guard.spec.ts:25:1 › saved Project with only an omission form draft protects view and copy switches (1.9s)
+  ✓  15 e2e/draft-recovery-guard.spec.ts:60:1 › summary draft survives form close/reopen and unrelated durable save; leaving asks (1.7s)
+  ✓  16 e2e/draft-recovery-guard.spec.ts:86:1 › reasoning form and utterance boundary drafts guard the views that would discard them (1.9s)
+  ✓  17 e2e/escape-editing.spec.ts:16:1 › Escape in a text input retains the inspector draft; explicit exit restores node focus (1.5s)
+  ✓  18 e2e/escape-editing.spec.ts:40:1 › Escape in the source textarea does not discard the unsaved quotation (1.4s)
+  ✓  19 e2e/escape-editing.spec.ts:53:1 › IME composition and already-consumed Escape do not close details (1.5s)
+  ✓  20 e2e/focus-recovery-race.spec.ts:3:1 › delayed detail-close focus recovery must not steal a newer keyboard navigation target (1.4s)
+  ✓  21 e2e/focus.spec.ts:37:1 › U01をEnterで詳細化し、詳細を閉じると元のnode buttonへfocusを戻す (1.4s)
+  ✘  22 e2e/focus.spec.ts:49:1 › 図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる (2.6s)
+  ✓  23 e2e/fold-export-composition.spec.ts:3:1 › fold, search, limited export and re-expand preserve scope and node identity (4.3s)
+  ✓  24 e2e/g5-recovery.spec.ts:36:1 › 2ページ共有contextで旧revisionの保存を拒否し、最新保存内容を保持する (5.9s)
+  ✓  25 e2e/g5-recovery.spec.ts:121:1 › 不正JSONのfile UI importでも既存作業を変更しない (1.6s)
+  ✓  26 e2e/incoming-context-refresh.spec.ts:29:1 › browser component: 保持線に表示した根拠本文の変更でも承認を無効化する (1.6s)
+  ✓  27 e2e/incoming-context-refresh.spec.ts:60:1 › browser component: 確認に表示していない無関係な本文変更では承認と下書きを維持する (1.6s)
+  ✓  28 e2e/incoming-context-refresh.spec.ts:88:1 › browser component: 根拠IDにない対象発言でも表示本文変更後は再承認を要求する (2.5s)
+  ✓  29 e2e/incoming-context-refresh.spec.ts:119:1 › browser component: 承認後の復帰線付け替えで再承認前の解除を拒否する (2.4s)
+  ✓  30 e2e/incoming-context-refresh.spec.ts:171:1 › browser component: 承認後の根拠ID差し替えで再承認前の解除を拒否する (1.7s)
+  ✓  31 e2e/incoming-returns.spec.ts:57:1 › 複数のincoming復帰線は始点と全根拠を説明し、全解除は対象だけ、UndoはID・順序・根拠まで復元 (4.3s)
+  ✓  32 e2e/incoming-returns.spec.ts:134:1 › 複数incomingの保持選択は全edgeのID・順序・根拠を変えない (1.7s)
+  ✓  33 e2e/incoming-returns.spec.ts:153:1 › 確認選択後に原文モードで根拠本文を保存すると選択を無効化し、再承認までは解除しない (3.5s)
+  ✓  34 e2e/input-provenance.spec.ts:55:1 › 入力外の欠落申告は下書きと適用を区別し、保存・キーボードUndo・JSON別コピーで保持する (4.1s)
+  ✓  35 e2e/input-provenance.spec.ts:129:1 › VTT本文統合と一cue訂正は時刻行を引用に入れず来歴を保存・JSON復元・Undoする (5.4s)
+  ✓  36 e2e/inspector-draft-sync.spec.ts:38:1 › classification save then Undo restores the dropdown for the same selection (1.7s)
+  ✓  37 e2e/inspector-draft-sync.spec.ts:55:1 › source quote save then Undo restores the latest textarea for the same selection (1.8s)
+  ✘  38 e2e/inspector-draft-sync.spec.ts:76:1 › an unrelated browser save does not clear an in-progress Inspector draft (1.5s)
+  ✓  39 e2e/inspector-membership-draft.spec.ts:55:1 › 変更理由の未保存ドラフトは議題所属変更後も保持され後続保存に使える (2.4s)
+  ✓  40 e2e/inspector-membership-draft.spec.ts:84:1 › 話者の未保存ドラフトは議題所属変更後も保持され後続保存にpersistする (2.0s)
+  ✓  41 e2e/inspector-membership-draft.spec.ts:119:1 › 原文ドラフトは分類モードの保存後も保持される (1.9s)
+  ✓  42 e2e/inspector-membership-draft.spec.ts:152:1 › 原文ドラフトは所属保存後も保持され後続の原文保存が再読込後も残る (3.5s)
+  ✓  43 e2e/large-canvas.spec.ts:7:1 › 50,000文字・500発言の全体表示とパン入力を実データ経路で確認 (4.0s)
+  ✓  44 e2e/lazy-details.spec.ts:12:1 › 依存候補はdetailsを開くまで生成せず、閉じても入力draftを保持する (1.6s)
+  ✓  45 e2e/lineage-import-rejection.spec.ts:8:1 › 説明のないlineage old IDの完全JSONを拒否して現在の作業・元の保存版を保持する (1.3s)
+  ✘  46 e2e/local-analysis-run.spec.ts:75:1 › 実Workerで開始→取消→再読込→k+1再開、先行chunk厳密一致、通信観測は別assert (8.9s)
+  ✓  47 e2e/local-analysis-run.spec.ts:223:1 › 失敗・未完了・不一致checkpoint拒否を区別し、失敗を完了と表示しない (8.7s)
+  ✓  48 e2e/local-analysis-run.spec.ts:269:1 › IndexedDB: A取消→B所有→A遅延保存拒否、active transaction取消、半端commit拒否 (2.4s)
+  ✓  49 e2e/local-analysis-run.spec.ts:371:1 › 破損cursor/result/引用spanの再開拒否はDB全体を不変にする (4.2s)
+  ✓  50 e2e/local-analysis-run.spec.ts:460:1 › 動作確認の取消・再開でfocusを保持し、Tab往復とEscape/×で同じ取消方針を使う (3.3s)
+  ✓  51 e2e/local-analysis-run.spec.ts:529:1 › 通常UI cancelが実保存中のputをabortし、遅延応答後・reload後にもcheckpointを追加しない (4.0s)
+  ✓  52 e2e/manual-repair.spec.ts:34:3 › 通常UI 1440px: 原文→関連修正→解除→Undo→保存をキーボードだけで完了 (19.5s)
+  ✓  53 e2e/manual-repair.spec.ts:34:3 › 通常UI 390px: 原文→関連修正→解除→Undo→保存をキーボードだけで完了 (20.2s)
+  ✓  54 e2e/manual-repair.spec.ts:228:1 › 非空応答・根拠・全履歴のIndexedDB→full JSON→reload→Undo一致 (1.8s)
+  ✓  55 e2e/modal-background-state.spec.ts:17:3 › modal button preserves prior inert and aria-hidden background states across reopen (1.8s)
+  ✓  56 e2e/modal-background-state.spec.ts:17:3 › modal escape preserves prior inert and aria-hidden background states across reopen (1.5s)
+  ✓  57 e2e/navigation-readiness.spec.ts:13:3 › navigation readiness 1440px: native project reload waits for the visible desktop/mobile entry (3.4s)
+  ✓  58 e2e/navigation-readiness.spec.ts:13:3 › navigation readiness 390px: native project reload waits for the visible desktop/mobile entry (4.9s)
+  -  59 e2e/offline.spec.ts:3:1 › production explicit preparation supports offline shell and keeps cache scoped
+  ✓  60 e2e/persistence-focus.spec.ts:50:1 › real input survives same-tab recent reopen, correction history, and Undo (3.0s)
+  ✓  61 e2e/preimport-omissions.spec.ts:36:1 › 読み込み前の欠落申告を保存し、JSON境界とUndoで状態を保つ (3.3s)
+  ✓  62 e2e/preimport-omissions.spec.ts:131:3 › 読み込み前のunreportedを空申告と混同せず引き渡す (1.9s)
+  ✓  63 e2e/preimport-omissions.spec.ts:131:3 › 読み込み前のreported-emptyを空申告と混同せず引き渡す (2.0s)
+  ✓  64 e2e/preimport-omissions.spec.ts:131:3 › 読み込み前のreset-unreportedを空申告と混同せず引き渡す (2.1s)
+  ✓  65 e2e/question-summary-persistence.spec.ts:3:1 › 問い改版と撤回の再確認状態・旧版応答を保存復元しUndoで元へ戻す (851ms)
+  ✓  66 e2e/reasoning.spec.ts:12:1 › マウスとキーボードで、明示選択した発言だけに問いを追加できる (1.5s)
+  ✓  67 e2e/reasoning.spec.ts:28:1 › 問い改訂は旧版を応答対象として保持し、共通Undoと原文IDへ戻れる (2.8s)
+  ✓  68 e2e/retained-branches.spec.ts:4:1 › 枝DOMは保持しつつ視覚・AX・focusから除外し、同じ要素と配置で再展開する (3.2s)
+  ✓  69 e2e/retained-branches.spec.ts:132:1 › 折り畳み中の派生→本筋→UndoでCSS・inert・AXと枝の座標を復元する (2.8s)
+  ✓  70 e2e/return-correction.spec.ts:68:1 › 復帰なしを実保存・同一タブ再開しても旧edgeが残らず、復帰先は不変 (1.9s)
+  ✓  71 e2e/return-correction.spec.ts:95:1 › 復帰先分類と関係を明示的に扱い、同時変更を一回のUndoで戻す (2.1s)
+  ✓  72 e2e/return-correction.spec.ts:126:1 › 分類を派生へ訂正しても明示選択した復帰線を保持する (1.8s)
+  ✓  73 e2e/rich-persistence.spec.ts:88:1 › rich状態r1/r2が原文版・問い版・旧版応答・履歴・Undoまで永続化される (6.8s)
+  ✓  74 e2e/save-failure-recovery.spec.ts:275:3 › P5 quota: failed r2 retains exact persisted r1 and drafts; full current JSON restores only as a copy (6.6s)
+  ✓  75 e2e/save-failure-recovery.spec.ts:404:3 › P5 first-save quota: current correction has a full backup without any last-saved ref (3.3s)
+  ✓  76 e2e/save-failure-recovery.spec.ts:275:3 › P5 abort: failed r2 retains exact persisted r1 and drafts; full current JSON restores only as a copy (6.3s)
+  ✓  77 e2e/save-failure-recovery.spec.ts:404:3 › P5 first-save abort: current correction has a full backup without any last-saved ref (3.2s)
+  ✓  78 e2e/save-failure-recovery.spec.ts:462:1 › P5 autosave failure keeps the focused draft; later successful autosave clears stale failure state (4.0s)
+  ✓  79 e2e/source-draft-navigation.spec.ts:41:1 › 未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない (2.6s)
+  ✓  80 e2e/source-draft-navigation.spec.ts:124:1 › 複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する (1.8s)
+  ✓  81 e2e/source-draft-navigation.spec.ts:164:1 › 明示破棄は選んだ字幕本文の原文と理由だけを戻す (1.6s)
+  ✓  82 e2e/split-evidence.spec.ts:69:5 › 発言分割の実選択・保存・復元 › left 選択を実UIで完了する (4.6s)
+  ✓  83 e2e/split-evidence.spec.ts:69:5 › 発言分割の実選択・保存・復元 › right 選択を実UIで完了する (4.3s)
+  ✓  84 e2e/split-evidence.spec.ts:69:5 › 発言分割の実選択・保存・復元 › both 選択を実UIで完了する (4.3s)
+  ✓  85 e2e/split-evidence.spec.ts:69:5 › 発言分割の実選択・保存・復元 › unresolved 選択を実UIで完了する (4.2s)
+  ✓  86 e2e/storage-conflict.spec.ts:3:1 › 旧保存版の上書きを拒否し、新版・履歴・Undo後の保存版を保持する (891ms)
+  ✓  87 e2e/undo-escape-regression.spec.ts:11:1 › last node selection returns focus after Escape (1.5s)
+  ✓  88 e2e/undo-escape-regression.spec.ts:26:1 › Escape restores the latest node when the transcript origin was unmounted (1.6s)
+  ✓  89 e2e/undo-escape-regression.spec.ts:45:1 › Undo becomes disabled after the only revision is undone (1.9s)
+
+
+  1) e2e/app.spec.ts:146:1 › manual text input, extraction preview, summary editing and explicit save 
+
+    Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-0/traces/c31ff144dc4fee3acd0a-a6e684e1d9b35d73e3e6-recording6.trace'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/app-manual-text-input-extr-d3934-y-editing-and-explicit-save/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/app-manual-text-input-extr-d3934-y-editing-and-explicit-save/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/app-manual-text-input-extr-d3934-y-editing-and-explicit-save/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/app-manual-text-input-extr-d3934-y-editing-and-explicit-save/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) e2e/collapsed-focus-recovery.spec.ts:161:1 › 折り畳みなしの表示中ノードはEscapeと閉じるボタンの両方で元ノードへ戻る ───────────
+
+    Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-1/traces/3c1823185f6e369b30eb-0e83b25ca0bdd1eafe84-recording14.trace'
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/collapsed-focus-recovery-折-650f2-ードはEscapeと閉じるボタンの両方で元ノードへ戻る/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/collapsed-focus-recovery-折-650f2-ードはEscapeと閉じるボタンの両方で元ノードへ戻る/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/collapsed-focus-recovery-折-650f2-ードはEscapeと閉じるボタンの両方で元ノードへ戻る/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/collapsed-focus-recovery-折-650f2-ードはEscapeと閉じるボタンの両方で元ノードへ戻る/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) e2e/focus.spec.ts:49:1 › 図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる ────────────────────────
+
+    Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-2/traces/d21847c9dcced81f7ac2-324497105fe214016edc-recording18.trace'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/focus-図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/focus-図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/focus-図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/focus-図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) e2e/inspector-draft-sync.spec.ts:76:1 › an unrelated browser save does not clear an in-progress Inspector draft 
+
+    Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-3/traces/03afcfe9979527226877-6ce7e23e93957ee79410-recording30.network'
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/inspector-draft-sync-an-un-a5631-in-progress-Inspector-draft/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/inspector-draft-sync-an-un-a5631-in-progress-Inspector-draft/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/inspector-draft-sync-an-un-a5631-in-progress-Inspector-draft/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/inspector-draft-sync-an-un-a5631-in-progress-Inspector-draft/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) e2e/local-analysis-run.spec.ts:75:1 › 実Workerで開始→取消→再読込→k+1再開、先行chunk厳密一致、通信観測は別assert ────────
+
+    Error: browserContext.close: ENOENT: no such file or directory, open '/workspace/rontenseiri-r12-manual/test-results/.playwright-artifacts-4/traces/bc56a295e2b967109201-f93b23b01bacd1c98360-recording14.trace'
+
+    attachment #2: screenshot (image/png) ──────────────────────────────────────────────────────────
+    test-results/local-analysis-run-実Worker-7de01-再開、先行chunk厳密一致、通信観測は別assert/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: test-results/local-analysis-run-実Worker-7de01-再開、先行chunk厳密一致、通信観測は別assert/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/local-analysis-run-実Worker-7de01-再開、先行chunk厳密一致、通信観測は別assert/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/local-analysis-run-実Worker-7de01-再開、先行chunk厳密一致、通信観測は別assert/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5 failed
+    e2e/app.spec.ts:146:1 › manual text input, extraction preview, summary editing and explicit save 
+    e2e/collapsed-focus-recovery.spec.ts:161:1 › 折り畳みなしの表示中ノードはEscapeと閉じるボタンの両方で元ノードへ戻る ────────────
+    e2e/focus.spec.ts:49:1 › 図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる ─────────────────────────
+    e2e/inspector-draft-sync.spec.ts:76:1 › an unrelated browser save does not clear an in-progress Inspector draft 
+    e2e/local-analysis-run.spec.ts:75:1 › 実Workerで開始→取消→再読込→k+1再開、先行chunk厳密一致、通信観測は別assert ─────────
+  1 skipped
+  83 passed (4.8m)
