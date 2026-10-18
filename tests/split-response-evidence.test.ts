@@ -211,10 +211,22 @@ describe("split response evidence", () => {
       reasoningDestinations: { [evidenceId]: "both" },
     });
     expect(split.reasoning!.evidence[0].sourceIds).toEqual(sourceIds);
+    const expectedIds = [
+      ...split.utterances
+        .filter((u) => u.sourceId === root.sourceId)
+        .map((u) => u.id),
+      other.id,
+    ];
+    expect(split.reasoning!.evidence[0].utteranceIds).toEqual(expectedIds);
 
     const restored = importProject(exportProject(split, "json"));
     expect(restored.reasoning!.evidence[0].sourceIds).toEqual(sourceIds);
+    expect(restored.reasoning!.evidence[0].utteranceIds).toEqual(expectedIds);
     const undone = undoLastRevision(split);
     expect(undone.reasoning!.evidence[0].sourceIds).toEqual(sourceIds);
+    expect(undone.reasoning!.evidence[0].utteranceIds).toEqual([
+      root.id,
+      other.id,
+    ]);
   });
 });

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import Inspector from "../../src/components/Inspector";
 import { reviseSource } from "../../src/domain/project";
+import { correctReturn } from "../../src/domain/revisions";
 import { incomingReturnsFixture } from "../../tests/fixtures/incoming-returns";
 
 /** Browser component host: exercise prop updates without changing selection. */
@@ -20,6 +21,29 @@ function IncomingContextHost() {
   }
   return (
     <>
+      <button
+        onClick={() =>
+          setProject((current) => ({
+            ...current,
+            relations: current.relations.map((r) =>
+              r.id === "incoming-fixture-return-u03-u10"
+                ? { ...r, evidenceIds: ["U10", "U16"] }
+                : r,
+            ),
+          }))
+        }
+      >
+        表示中の根拠IDを差し替える
+      </button>
+      <button
+        onClick={() =>
+          setProject((current) =>
+            correctReturn(current, "U08", "U09", "承認後の復帰先付け替え"),
+          )
+        }
+      >
+        表示中の復帰線を付け替える
+      </button>
       <button
         onClick={() =>
           setProject((current) => ({
