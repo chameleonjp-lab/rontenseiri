@@ -138,6 +138,13 @@ export function moveUtterance(
 
 function restoreLegacy(project: Project, revision: Revision): boolean {
   const before = revision.before as any;
+  if (revision.kind === "project-completeness" && before) {
+    project.extent = before.extent;
+    if (Object.prototype.hasOwnProperty.call(before, "omissions"))
+      project.omissions = clone(before.omissions);
+    else delete project.omissions;
+    return true;
+  }
   if (revision.kind === "source-coverage" && before?.versionId) {
     const source = project.sources.find(
       (s) => s.versionId === before.versionId,

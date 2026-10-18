@@ -1,0 +1,16 @@
+{
+  "baselineRepo": "/workspace/rontenseiri-implementation",
+  "auditWorktree": "/workspace/rontenseiri-p1-baseline-audit",
+  "exactGitHEAD": "0c4b58f25fa1f0d7d66b66007a5070bea312f731",
+  "diagnosticTest": "tests/p1-negative-diagnostic.test.ts",
+  "copiedTestSource": "/workspace/rontenseiri-p1-input-provenance/artifacts/p1-provenance/baseline-0c4b58f25fa1f0d7d66b66007a5070bea312f731/p1-negative-diagnostic.test.ts.txt",
+  "fullTestLog": "/workspace/rontenseiri-p1-input-provenance/artifacts/p1-provenance/baseline-0c4b58f25fa1f0d7d66b66007a5070bea312f731/p1-negative-diagnostic.test.log",
+  "expectedFailureExitCode": 1,
+  "actualExitCode": 1,
+  "failureObserved": true,
+  "auditWorktreeStatus": "?? node_modules\n?? tests/p1-negative-diagnostic.test.ts",
+  "sha256": {
+    "p1-negative-diagnostic.test.ts.txt": "79b8060041b064b2fdfa70dbad07dea8855f046a8e677ea30f581b22d6f209b7",
+    "p1-negative-diagnostic.test.log": "55f0683629cdde79a9d1672305c57904cf1028312ed90a2bdb50a3f91bee4e02"
+  }
+}

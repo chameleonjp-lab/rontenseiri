@@ -71,7 +71,18 @@ export default function Inspector({
   const [speaker, setSpeaker] = useState(u.speaker);
   const [important, setImportant] = useState(u.important);
   const [reason, setReason] = useState("");
-  const [quote, setQuote] = useState(u.quote);
+  const source = project.sources.find((s) => s.versionId === u.sourceVersionId);
+  const [cueSpanIndex, setCueSpanIndex] = useState(0);
+  const editingCueIndex = Math.min(
+    cueSpanIndex,
+    Math.max(0, (u.cueSpans?.length ?? 1) - 1),
+  );
+  const editingSpan = u.cueSpans?.[editingCueIndex];
+  const editableQuote =
+    editingSpan && source
+      ? source.text.slice(editingSpan.start, editingSpan.end)
+      : u.quote;
+  const [quote, setQuote] = useState(editableQuote);
   const [mode, setMode] = useState<"classification" | "source">(
     "classification",
   );
@@ -91,8 +102,8 @@ export default function Inspector({
     setImportant(u.important);
   }, [utteranceId, u.important]);
   useEffect(() => {
-    setQuote(u.quote);
-  }, [utteranceId, u.quote]);
+    setQuote(editableQuote);
+  }, [utteranceId, editableQuote, editingCueIndex]);
   useEffect(() => {
     setReturnTo(returnValue);
   }, [utteranceId, returnValue]);
@@ -102,7 +113,6 @@ export default function Inspector({
   useEffect(() => {
     setIncomingReturnAction("");
   }, [utteranceId, u.classification, incomingReturnSignature]);
-  const source = project.sources.find((s) => s.versionId === u.sourceVersionId);
   const userCorrection = project.revisions.some(
     (r) =>
       r.targetId === u.id &&
@@ -120,8 +130,14 @@ export default function Inspector({
       if (!reason.trim()) throw Error("変更理由を入力してください。");
       let next = project;
       if (mode === "source") {
-        if (quote === u.quote) throw Error("原文に変更がありません。");
-        next = reviseSource(project, u.id, quote, reason);
+        if (quote === editableQuote) throw Error("原文に変更がありません。");
+        next = reviseSource(
+          project,
+          u.id,
+          quote,
+          reason,
+          u.cueSpans ? editingCueIndex : undefined,
+        );
       } else {
         const patch: Record<string, unknown> = {};
         if (classification !== u.classification)
@@ -241,6 +257,27 @@ export default function Inspector({
             <p className="warning-text">訂正の影響：振り返りは要再確認</p>
           )}
         </div>
+        {u.cueSpans && source?.cueLedger && (
+          <details className="cue-provenance">
+            <summary>字幕cueの出典対応</summary>
+            <p>
+              字幕cueは話者の発言境界を自動で断定するものではありません。複数本文の間の表示改行に原文位置はありません。
+            </p>
+            <ol>
+              {u.cueSpans.map((span) => {
+                const cue = source.cueLedger!.find(
+                  (item) => item.id === span.cueId,
+                )!;
+                return (
+                  <li key={`${span.cueId}-${span.start}`}>
+                    {cue.id} · 入力ID：{cue.rawId ?? "未指定"} · {cue.time} ·
+                    UTF-16本文位置 {span.start}–{span.end}
+                  </li>
+                );
+              })}
+            </ol>
+          </details>
+        )}
         <div className="correction-panel">
           <h3>議題内の発言を訂正</h3>
           <div className="segmented">
@@ -400,6 +437,30 @@ export default function Inspector({
             </>
           ) : (
             <>
+              {u.cueSpans && u.cueSpans.length > 1 && (
+                <label className="field">
+                  訂正する字幕本文
+                  <select
+                    aria-label="訂正する字幕本文"
+                    value={editingCueIndex}
+                    onChange={(e) => setCueSpanIndex(Number(e.target.value))}
+                  >
+                    {u.cueSpans.map((span, i) => (
+                      <option key={`${span.cueId}-${span.start}`} value={i}>
+                        本文{i + 1} · {span.cueId} ·{" "}
+                        {
+                          source?.cueLedger?.find(
+                            (cue) => cue.id === span.cueId,
+                          )?.time
+                        }
+                      </option>
+                    ))}
+                  </select>
+                  <small>
+                    選んだ本文spanだけを訂正します。区切り・時刻・ほかのcue本文は書き換えません。
+                  </small>
+                </label>
+              )}
               <label className="field">
                 訂正後の原文
                 <textarea

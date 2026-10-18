@@ -1,3 +1,9 @@
+import { validateOmissions } from "./completeness";
+import {
+  validateSourceCues,
+  validateUtteranceQuote,
+  withCueSpans,
+} from "./cue-provenance";
 import { invalidateDependents } from "./invalidation";
 import { projectCapacity, MAX_BACKUP_BYTES, activeSources } from "./capacity";
 import { semanticSnapshot } from "./snapshot";
@@ -58,6 +64,7 @@ function check(p: Project): Project {
   )
     throw new Error("project history or utterance limit exceeded");
 
+  validateOmissions(p.omissions);
   const sourceIds = new Set<string>();
   const versionIds = new Set<string>();
   const sourceByVersion = new Map<string, Source>();
@@ -77,6 +84,7 @@ function check(p: Project): Project {
       versionIds.has(s.versionId)
     )
       throw new Error("invalid or duplicate source");
+    validateSourceCues(s);
     sourceIds.add(s.id);
     versionIds.add(s.versionId);
     sourceByVersion.set(s.versionId, s);
@@ -100,6 +108,7 @@ function check(p: Project): Project {
       !Number.isInteger(u.end) ||
       !Number.isInteger(u.order) ||
       !Number.isInteger(u.line) ||
+      (u.time !== undefined && !isString(u.time)) ||
       u.start < 0 ||
       u.end < u.start ||
       u.order < 0 ||
@@ -114,13 +123,9 @@ function check(p: Project): Project {
     )
       throw new Error("invalid or duplicate utterance");
     const s = sourceByVersion.get(u.sourceVersionId);
-    if (
-      !s ||
-      s.id !== u.sourceId ||
-      u.end > s.text.length ||
-      s.text.slice(u.start, u.end) !== u.quote
-    )
+    if (!s || s.id !== u.sourceId || u.end > s.text.length)
       throw new Error(`quote mismatch: ${u.id}`);
+    validateUtteranceQuote(s, u);
     uttIds.add(u.id);
     orders.add(u.order);
     uttById.set(u.id, u);
@@ -417,6 +422,7 @@ export function reviseSource(
   utteranceId: string,
   newQuote: string,
   reason: string,
+  cueSpanIndex?: number,
 ): Project {
   const p = check(project),
     u = p.utterances.find((x) => x.id === utteranceId);
@@ -424,8 +430,17 @@ export function reviseSource(
     throw new Error("utterance/reason required");
   const snapshot = semanticSnapshot(p);
   const old = p.sources.find((s) => s.versionId === u.sourceVersionId)!;
-  const at = u.start;
-  const oldEnd = u.end;
+  if (
+    u.cueSpans &&
+    (cueSpanIndex !== undefined || u.cueSpans.length > 1) &&
+    (!Number.isInteger(cueSpanIndex) ||
+      cueSpanIndex! < 0 ||
+      cueSpanIndex! >= u.cueSpans.length)
+  )
+    throw new Error("複数キューの原文は訂正するキューを明示してください");
+  const editedSpan = u.cueSpans?.[cueSpanIndex ?? 0] ?? u;
+  const at = editedSpan.start;
+  const oldEnd = editedSpan.end;
   const revisedText = old.text.slice(0, at) + newQuote + old.text.slice(oldEnd);
   const ns: Source = {
     ...clone(old),
@@ -437,13 +452,40 @@ export function reviseSource(
   };
   p.sources.push(ns);
   const delta = newQuote.length - (oldEnd - at);
+  const rebase = <T extends { start: number; end: number }>(span: T): T => {
+    if (span.end <= at) return { ...span };
+    if (span.start >= oldEnd)
+      return { ...span, start: span.start + delta, end: span.end + delta };
+    if (span.start <= at && span.end >= oldEnd)
+      return { ...span, end: span.end + delta };
+    throw new Error("訂正範囲がキュー本文の途中で交差しています");
+  };
+  if (ns.cueLedger)
+    ns.cueLedger = ns.cueLedger.map((cue) => {
+      const next = rebase(cue);
+      return {
+        ...next,
+        line:
+          (ns.text.slice(0, next.start).match(/\r\n|\n|\r/g) || []).length + 1,
+      };
+    });
   const before = p.utterances
     .filter((x) => x.sourceVersionId === old.versionId)
     .map(clone);
   for (const x of p.utterances.filter(
     (x) => x.sourceVersionId === old.versionId,
   )) {
-    if (x.id === u.id) {
+    if (x.cueSpans) {
+      Object.assign(
+        x,
+        withCueSpans(
+          { ...x, sourceVersionId: ns.versionId },
+          ns,
+          x.cueSpans.map(rebase),
+        ),
+      );
+      if (x.id === u.id) x.coverage = "failed";
+    } else if (x.id === u.id) {
       x.sourceVersionId = ns.versionId;
       x.start = at;
       x.end = at + newQuote.length;
