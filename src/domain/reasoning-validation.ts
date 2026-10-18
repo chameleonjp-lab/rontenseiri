@@ -222,6 +222,77 @@ export function validateReasoning(project: Project): Project {
       typeof i.exclusiveGroupId !== "string"
     )
       throw new Error("invalid interpretation group");
+    if (i.manualExclusive !== undefined) {
+      if (
+        i.manualExclusive !== true ||
+        i.actor !== "manual" ||
+        !["uncertain", "retracted"].includes(i.certainty) ||
+        i.premiseItemIds.length !== 1 ||
+        i.conclusionItemIds.length !== 1 ||
+        i.premiseItemIds[0] === i.conclusionItemIds[0] ||
+        typeof i.candidateName !== "string" ||
+        !i.candidateName.trim() ||
+        !Array.isArray(i.dependentConclusions) ||
+        i.dependentConclusions.some(
+          (d) =>
+            !d ||
+            !itemIds.has(d.id) ||
+            typeof d.name !== "string" ||
+            !d.name.trim(),
+        ) ||
+        new Set(i.dependentConclusions.map((d) => d.id)).size !==
+          i.dependentConclusions.length
+      )
+        throw new Error("invalid manual exclusive interpretation");
+      const group = graph.exclusiveGroups.find(
+        (g) => g.id === i.exclusiveGroupId,
+      );
+      if (
+        !group ||
+        group.interpretationIds.length !== 2 ||
+        group.interpretationIds.some((id) => {
+          const other = graph.interpretations.find(
+            (candidate) => candidate.id === id,
+          );
+          return (
+            !other ||
+            other.manualExclusive !== true ||
+            other.questionVersionId !== i.questionVersionId
+          );
+        })
+      )
+        throw new Error(
+          "manual exclusive pair must share one question version",
+        );
+      if (
+        [...i.premiseItemIds, ...i.conclusionItemIds].some((id) => {
+          const item = graph.items.find((item) => item.id === id)!;
+          return (
+            item.actor !== "manual" ||
+            item.certainty !== i.certainty ||
+            !item.evidenceIds.length ||
+            !item.utteranceIds.length
+          );
+        })
+      )
+        throw new Error(
+          "manual exclusive item must remain unconfirmed with source evidence",
+        );
+      const linkExists = (from: string, to: string) =>
+        graph.uncertaintyPropagation.some(
+          (p) =>
+            p.fromItemId === from &&
+            p.toItemId === to &&
+            p.status === "unresolved",
+        );
+      if (
+        !linkExists(i.premiseItemIds[0], i.conclusionItemIds[0]) ||
+        i.dependentConclusions.some(
+          (d) => !linkExists(i.conclusionItemIds[0], d.id),
+        )
+      )
+        throw new Error("manual exclusive dependency is missing");
+    }
   }
   for (const i of graph.interpretations)
     if (

@@ -110,6 +110,10 @@ export interface Interpretation {
   conclusionItemIds: string[];
   certainty: Certainty;
   exclusiveGroupId?: string;
+  /** User-authored atomic A/B pairs opt into the manual editor explicitly. */
+  manualExclusive?: true;
+  candidateName?: string;
+  dependentConclusions?: Array<{ id: string; name: string }>;
   actor: ReasoningActor;
   time: ReasoningTime;
 }

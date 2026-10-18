@@ -39,7 +39,7 @@ test("問い改訂は旧版を応答対象として保持し、共通Undoと原�
     .click();
   await panel.getByRole("button", { name: "版を変更" }).click();
   await panel.getByLabel("新しい問い").fill("新版の問い");
-  await panel.getByLabel("変更理由").fill("条件を明確化");
+  await panel.getByLabel("変更理由", { exact: true }).fill("条件を明確化");
   await panel.getByRole("button", { name: "新しい版を登録" }).click();
   await expect(panel).toContainText("旧版の応答対象は保持");
   const responseSection = panel

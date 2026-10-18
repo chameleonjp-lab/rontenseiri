@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type FormEvent } from "react";
 import type { Project } from "../domain/types";
 import { useDraftGuard } from "./draft-guard";
+import ManualInterpretations from "./ManualInterpretations";
 import {
   addEvidence,
   addQuestion,
@@ -356,6 +357,11 @@ export default function ReasoningPanel({
               会話本文のみを参加者として扱い、参考資料・後日の説明は分離
             </span>
           </div>
+          <ManualInterpretations
+            project={project}
+            onUpdate={onUpdate}
+            onSelect={onSelect}
+          />
           <div className="reasoning-utterances">
             {utterances.map((u) => (
               <button
@@ -899,7 +905,7 @@ export default function ReasoningPanel({
             )}
           </section>
           <p className="reasoning-muted">
-            時刻は登録時点（recordedAt）と対象時点（asOf）を別に保持します。対象時点未指定を会話時刻とは断定しません。立場変化・排他的解釈の登録操作は未実装です。
+            時刻は登録時点（recordedAt）と対象時点（asOf）を別に保持します。対象時点未指定を会話時刻とは断定しません。排他解釈は手動の未確定A/Bだけ登録できます。立場変化の登録・解釈の自動生成・採用判定は未実装です。
           </p>
         </>
       )}

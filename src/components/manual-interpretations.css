@@ -1,0 +1,31 @@
+.manual-pair-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.manual-interpretations {
+  overflow-wrap: anywhere;
+}
+.manual-interpretations fieldset {
+  min-width: 0;
+}
+.manual-interpretations textarea,
+.manual-interpretations select,
+.manual-interpretations input:not([type="checkbox"]) {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.manual-interpretations .reasoning-actions {
+  flex-wrap: wrap;
+}
+.manual-interpretations button {
+  height: auto;
+  min-height: 36px;
+  white-space: normal;
+}
+@media (max-width: 700px) {
+  .manual-pair-columns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

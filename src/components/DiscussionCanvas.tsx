@@ -396,6 +396,14 @@ function CanvasContent({
           </button>
         </div>
       </div>
+      {(project.reasoning?.exclusiveGroups.length ?? 0) > 0 && (
+        <div className="canvas-review-banner" role="alert">
+          <strong>排他的な解釈候補があります</strong>
+          <span>
+            排他候補の確定状態はこの図では表示していません。手動A/Bは未確定・未採用です。表示中の関係図だけでは一つの結論を確認済みとは扱えません。「問い・根拠」で候補を比較してください。
+          </span>
+        </div>
+      )}
       <CanvasSearch
         open={searchOpen}
         onSearch={search}

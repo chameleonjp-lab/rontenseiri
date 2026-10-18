@@ -1486,6 +1486,16 @@ function Summary({
       )}
       <div className="eyebrow">REVIEW THE AGENDA</div>
       <h1>何が進み、何が残った？</h1>
+      {!!project.reasoning?.exclusiveGroups.length && (
+        <section className="notice" aria-label="排他解釈の注意">
+          <strong>
+            排他解釈の確定状態は、この振り返りでは判定しません。手動A/Bは未確定・未採用です。
+          </strong>
+          <p>
+            この振り返りの到達点・決定表示は候補A/Bの採用を意味しません。両方の前提・結論・明示根拠・依存結論は「問い・根拠」で比較してください。候補を保持できる完全JSON以外の出力は制限しています。
+          </p>
+        </section>
+      )}
       <div className="summary-agenda">
         <div className="summary-agenda-head">
           <div>
