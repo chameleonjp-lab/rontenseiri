@@ -115,7 +115,11 @@ async function completedRecord(project: ReturnType<typeof fixtureProject>) {
   } satisfies LocalRunRecord;
 }
 class FixtureLocks {
-  async request(_name: string, callback: (lock: Lock | null) => Promise<void>) {
+  async request(
+    _name: string,
+    _options: LockOptions,
+    callback: (lock: Lock | null) => Promise<void>,
+  ) {
     await callback({ name: "rontenseiri-analysis" } as Lock);
   }
 }
