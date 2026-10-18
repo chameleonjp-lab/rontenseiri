@@ -1,12 +1,84 @@
 # rontenseiri — 論点整理
 
-文字起こし済みの会話から、問い・回答・論点の変化・未回答・合意と、根拠の原文との対応を調べるための開発計画です。人が後から解釈や誤りを確認・訂正できることを目指します。
+文字起こし済みの会話を、起点となる議題ごとに振り返るローカルWebアプリです。時間は左から右へ進み、本筋から派生・ずれが下に伸びます。同じ議題に戻ったときは、同じ議題IDを引き継ぎます。
 
-**2026年10月17日現在:** 要件・設計・実装計画のレビュー段階です。アプリ本体・端末内AI・日本語性能の実測・公開サイトはまだありません。
+**現在は操作できる設計検証版です。R01–R33の全面完了、検証完了、P0合格、正式公開を意味しません。** AIはdisabled（開始不可）です。日本語品質、モデル取得、GPUメモリ、実Mac/Windows/iPhone、G8被験者評価、権利・配布承認は未確認です。外部AIで代行した結果や、サンプルを本物の解析結果として表示しません。
 
-- [統合要件・開発計画 v0.4：第1–20章、R01–R33](docs/requirements-and-development-plan.md)
-- [全33件の追加要件レビュー：現行記載、追加要件、受入条件、根拠](docs/reviews/requirements-gap-review-2026-10-17.md)
+## 動かす
 
-方針はオープンソース・無料利用を目指すこと、会話を外部に送らない端末内処理、原文に戻れる整理、訂正履歴、保存と復元です。音声・動画・OCR・外部AIへの自動送信・外部検索は今回の対象外です。
+Node.js 22.12以降（CIは24）を用意します。
 
-**マージ・実装着手・公開は、文書のPRとは別に承認・評価します。**
+```sh
+npm ci
+npm run dev
+```
+
+表示されたローカルURLを開き、「サンプルを見てみる」で架空の会話を確認できます。「新しく始める」ではUTF-8のTXT・MD・SRT・VTTとテキスト貼り付けに対応します。初期状態は未整理です。
+
+追加予定の親ブランチスクリプト（現時点ではpackage.jsonへ未追加）:
+
+```sh
+npm run test:offline   # production静的shellの明示オフライン準備
+npm run benchmark      # Node/Linuxのソフトウェア計測
+npm run evaluate       # 21架空日本語ケース（実モデル予測がないためnot-run）
+npm run check:format   # 親でscripts/publicも対象へ追加予定
+```
+
+## できること
+
+- ノードや議題枠をクリック・タップして選択。空白ドラッグでキャンバス移動、ピンチや＋／−で拡大縮小。
+- 枝の折り畳み、隠れた件数表示、全体表示、選択ノードへの復帰、発言ID・本文の検索。
+- 図・原文・振り返りで議題ID／発言IDを共有。画面を切り替えてもキャンバスを作り直さず、選択と表示位置を保持。
+- 分類・話者・重要印・復帰関係の手動訂正。「復帰先なし」と「未確定」を区別。
+- 原文訂正は新しい版として追加し、旧版・変更理由・変更前後を履歴に残す。影響するまとめを要再確認にする。
+- 分類とは独立した所属先変更、議題の分割／結合、分割後のlineageと明示した関係移送、共通snapshot Undo。
+- 原文全体のspan coverageを可視化し、未確定範囲を確定済みと混同しない。現行容量と履歴容量を分けて表示。
+- reasoning.ts/types による問い版、応答種別、問い充足、複数根拠、条件・例外、排他的解釈候補、立場API。一部フォームにReasoningPanelを統合（UI・品質評価は未完了）。
+- 混合依存のfixed point無効化、許可DTOだけをexportする限定出力、保存namespace、Web Locks必須のfail-closed所有権。
+- 解析sessionの停止・再開とcheckpoint（現Worker/UIへの完全統合は未了）。新ReadinessPanelで容量・工程・明示オフライン準備を確認。
+- 明示保存後はIndexedDBへ自動保存。全体JSONのバックアップと、新しいコピーとしての復元。
+- 明示選択した発言だけの限定JSON／Markdown／SVG。未選択・折り畳み・他議題・旧版・履歴・全体のまとめを限定出力に混ぜない。
+
+## データと通信の境界
+
+アカウントや外部AIのAPIキーは不要です。会話の外部送信、外部検索、共有URLの生成は実装していません。モデル用Worker／交換可能な解析境界はありますが、AI開始はdisabledです。productionのService Workerによるオフライン準備は**明示操作した静的アセット限定**で、内容hashとscopeを確認します。会話本文・IndexedDB・JSON/API・AIモデルはCacheしません。
+
+保存先はそのブラウザ・そのオリジンのIndexedDBです。保存namespaceは設けていますが、公開オリジンの完全隔離・暗号化・権利者／配布承認は未確認です。サイトデータ消去・容量不足・プレビューURL変更に備え、全体JSONを控えてください。人物ラベルの仮名化は本文や引用中の名前を消す匿名化ではありません。
+
+入力の上限は10ファイル・合計30MiB・合計50,000コードポイント・5,000発言、個別テキストファイル2MiBです。作業JSON／保存は履歴込み50MiBまでです。現行入力容量と履歴・revision容量は別計数ですが、大きな入力の快適性を保証する値ではありません。
+
+PDF／DOCX・OCR・音声／動画・URLは通常UIの入力対応ではありません。PDFブラウザ入力はfail closedです。`src/input/documents.ts`／`docx.ts` は実験APIで通常UI未結線、docx streamingは同期処理のため正式採用前にWorker隔離が必要です。対応を宣言しません（同じDraft PR内の未結線実験へ分離予定）。source input files unsupportedは継続します。
+
+## テストと現在の証拠
+
+```sh
+npm test
+npm run build
+npm audit
+npx playwright install --with-deps chromium
+npm run test:e2e
+```
+
+単体・回帰は計100件（文書実験10件を含む）がローカルで通過。公開版は同一SHAのCI artifact（verified-sha.txtとe2e-results.json）を正本とします。50,000文字・500ノードの表示／パンと、選択・検索・折り畳み各100回のp95≤200msは別の検証です。実機未測定・未達はG5未合格のままです。Node/Linux入出力benchmarkもG4/G5合格を意味しません。架空日本語評価21ケースは実予測0件でnot-runです。
+
+## まだできないこと・未確認事項
+
+問い・応答・立場の型/APIは一部存在しますが、問い版／応答種別／複数根拠／条件等を通常UIへ完全統合した精密品質は未測定です。ReasoningPanelも一部フォームのみです。coverageの未確定表示、lineage、fixed point、checkpoint、所有権などの基盤実装は、Worker/UI全経路の完成を意味しません。
+
+AI品質・モデル取得量・日本語品質、Mac／Windows／iPhone実機、GPUメモリ、PDF/DOCX通常入力、オフライン再起動の利用者経路、G8被験者、LICENSE／権利者／配布承認は未確認です。G0–G8はいずれも総合合格へ変更していません。
+
+**設計検証版の実装と、計画全体の完了・検証完了・公開承認は別です。** 基盤をPR3、文書実験をPR #3（未結線の実験API）へ分離する予定です。
+
+## 設計と証拠
+
+- [統合要件・開発計画 v0.4／R01–R33](docs/requirements-and-development-plan.md)
+- [全33件の追加要件レビュー](docs/reviews/requirements-gap-review-2026-10-17.md)
+- [要件ごとの実装状況・未達ゲート](docs/evaluation/requirements-status.md)
+- [実装検証結果と公開条件](docs/evaluation/implementation-review.md)
+- [アーキテクチャ判断記録](docs/architecture/decisions.md)
+
+### 保存と再開の受入境界
+
+`storageRevision`をIndexedDBのreadwrite transaction内で比較し、旧版による上書きを拒否します。同一タブの最近の作業もDB最新保存を再読込。保存前は一時作業、明示保存後だけ自動保存します。原文の旧版、問い版と旧版への応答、訂正・Undo履歴を保持します。単体失敗再現は`tests/public-review-fixtures.test.ts`と`tests/review-blockers.test.ts`、実ブラウザ経路は`e2e/`を参照してください。
+
+ローカルの並行検証は `PLAYWRIGHT_PORT=4183 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH=/usr/bin/chromium npm run test:e2e` のように専用ポートを指定できます。strictPortにより別checkoutを誤って検証しません。

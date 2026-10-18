@@ -1,0 +1,48 @@
+/* Canvas-only density rules. Source quotes stay untouched; only their presentation is compact. */
+.canvas-section .flow-container .speech-node {
+  height: 96px;
+  min-height: 96px;
+  overflow: hidden;
+}
+.canvas-section .flow-container .speech-hit {
+  height: 94px;
+  min-height: 94px;
+  padding: 8px 10px 7px;
+  pointer-events: auto;
+}
+.canvas-section .flow-container .node-top {
+  margin-bottom: 4px;
+  gap: 6px;
+}
+.canvas-section .flow-container .node-quote {
+  line-height: 1.35;
+  margin-bottom: 5px;
+  -webkit-line-clamp: 2;
+}
+.canvas-section .flow-container .node-footer {
+  min-height: 17px;
+}
+.canvas-section .flow-container .node-time {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+}
+.canvas-section .flow-container .react-flow__node-agenda .agenda-frame {
+  min-height: 0;
+}
+.canvas-section .flow-container .react-flow__minimap {
+  background: #ffffff;
+}
+.canvas-section .flow-container .react-flow__minimap .react-flow__minimap-node {
+  opacity: 1;
+  stroke-width: 2;
+}
+
+/* Folding changes visual state only; graph/DOM identity stays unchanged. */
+.branches-collapsed .react-flow__node.branch-node,
+.branches-collapsed .react-flow__edge.branch-edge,
+.branches-collapsed .branch-minimap {
+  /* NodeWrapper sets visibility inline after measuring. */
+  visibility: hidden !important;
+  pointer-events: none !important;
+}

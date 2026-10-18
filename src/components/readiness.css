@@ -1,0 +1,63 @@
+.readiness-panel {
+  border: 1px solid #d8dee9;
+  border-radius: 10px;
+  padding: 1rem;
+  background: #fff;
+  color: #1f2937;
+}
+.readiness-panel h2,
+.readiness-panel h3 {
+  margin: 0.2rem 0 0.7rem;
+}
+.readiness-panel dl {
+  margin: 0;
+}
+.readiness-panel dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid #eef1f5;
+  padding: 0.45rem 0;
+}
+.readiness-panel dt {
+  font-weight: 600;
+}
+.readiness-panel dd {
+  margin: 0;
+  text-align: right;
+}
+.readiness-warning {
+  color: #7c2d12;
+  font-size: 0.9rem;
+}
+.readiness-panel ul {
+  padding-left: 1.2rem;
+  font-size: 0.85rem;
+}
+.readiness-panel button {
+  padding: 0.5rem 0.7rem;
+}
+.readiness-panel small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #667085;
+}
+.offline-readiness {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  border: 1px solid #dbe4ef;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.offline-readiness p {
+  margin: 0.65rem 0 0;
+  font-size: 0.9rem;
+}
+.readiness-ok {
+  color: #166534;
+  font-weight: 600;
+}
+.readiness-errors {
+  color: #991b1b;
+  margin-bottom: 0;
+}

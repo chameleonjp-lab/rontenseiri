@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Record exact tested commit
+        run: mkdir -p artifacts && git rev-parse HEAD > artifacts/verified-sha.txt && git diff --exit-code
+      - name: Check formatting
+        run: npm run check:format
+      - name: Test
+        run: npm test -- --reporter=default --reporter=json --outputFile=artifacts/unit-results.json
+      - name: Build
+        run: npm run build
+      - name: Audit dependencies
+        run: npm audit --audit-level=moderate
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser acceptance tests
+        run: npm run test:e2e -- --grep-invert "各100操作で観測する"
+      - name: Offline restart acceptance
+        run: npm run test:offline
+      - name: Engineering benchmark and empty evaluation
+        run: npm run benchmark && npm run evaluate
+      - name: 500-node latency budget <=200ms (NOT overall G5)
+        timeout-minutes: 12
+        env:
+          PLAYWRIGHT_PORT: 4183
+          PLAYWRIGHT_REPORT_PATH: artifacts/performance-e2e-results.json
+        run: npx playwright test e2e/performance.spec.ts --output=test-results-performance
+      - name: Keep browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-evidence
+          path: |
+            artifacts/
+            test-results/
+            test-results-offline/
+            test-results-performance/
+          if-no-files-found: ignore
+          retention-days: 7
