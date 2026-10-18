@@ -77,6 +77,11 @@ function effectiveRevision(project: Project): Revision | undefined {
   return undefined;
 }
 
+/** Whether the latest revision that is not already undone can be restored. */
+export function canUndo(project: Project): boolean {
+  return effectiveRevision(project) !== undefined;
+}
+
 function agendaOf(project: Project, utteranceId: string): Agenda | undefined {
   return project.agendas.find((agenda) =>
     agenda.utteranceIds.includes(utteranceId),
@@ -283,6 +288,41 @@ export function correctReturn(
     before,
     after: semanticSnapshot(result),
     reason,
+  });
+  return validateProject(result);
+}
+
+/** Clear only return edges into this target, preserving other returns from each source. */
+export function clearIncomingReturns(
+  project: Project,
+  targetId: string,
+  reason: string,
+): Project {
+  const p = validateProject(project);
+  if (!p.utterances.some((u) => u.id === targetId))
+    throw new Error("復帰先の発言が見つかりません");
+  if (!reason.trim()) throw new Error("復帰関係と変更理由が必要です");
+  const removed = p.relations.filter(
+    (r) => r.kind === "return" && r.to === targetId,
+  );
+  if (!removed.length) throw new Error("解除する復帰線がありません");
+  const before = semanticSnapshot(p);
+  const sourceIds = new Set(removed.map((r) => r.from));
+  p.relations = p.relations.filter(
+    (r) => !(r.kind === "return" && r.to === targetId),
+  );
+  for (const u of p.utterances)
+    if (sourceIds.has(u.id)) u.returnStatus = "unknown";
+  p.updatedAt = now();
+  const result = invalidateDependents(p, [targetId, ...sourceIds]);
+  result.revisions.push({
+    id: makeId("revision"),
+    at: now(),
+    targetId,
+    kind: "incoming-return-clear",
+    before,
+    after: semanticSnapshot(result),
+    reason: reason.trim(),
   });
   return validateProject(result);
 }

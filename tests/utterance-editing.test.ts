@@ -28,10 +28,18 @@ describe("utterance lineage editing", () => {
       "o world",
       "B: reply",
     ]);
-    expect(q.utterances[0].sourceVersionId).toBe(old.sourceVersionId);
-    expect(q.utterances[0].quote).toBe(
-      q.sources[0].text.slice(q.utterances[0].start, q.utterances[0].end),
-    );
+    const [left, right] = q.utterances.slice(0, 2);
+    for (const fragment of [left, right]) {
+      expect(fragment.sourceId).toBe(old.sourceId);
+      expect(fragment.sourceVersionId).toBe(old.sourceVersionId);
+      expect(fragment.start).toBe(
+        fragment === left ? old.start : old.start + 7,
+      );
+      expect(fragment.end).toBe(fragment === left ? old.start + 7 : old.end);
+      expect(fragment.quote).toBe(
+        q.sources[0].text.slice(fragment.start, fragment.end),
+      );
+    }
     expect(q.agendas[0].utteranceIds.slice(0, 2)).toEqual(
       q.utterances.slice(0, 2).map((u) => u.id),
     );

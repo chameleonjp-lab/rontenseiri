@@ -1,0 +1,105 @@
+import { test, expect, type Page } from "@playwright/test";
+import { mkdir, access, writeFile } from "node:fs/promises";
+import { constants } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { join } from "node:path";
+import { parseInputs } from "../../src/input/parse";
+import { createProject } from "../../src/domain/project";
+import { exportProject } from "../../src/export/project";
+
+const SHA = "5b0ac40129ded26a1cff844d7de5937c7f866b12";
+const PROTOCOL = "diagnostic-cdp-short-v1";
+const EVIDENCE = "/workspace/rontenseiri-evidence/investigation-5b0ac40/profiles";
+const OUT = EVIDENCE;
+type Mode = "dev" | "production";
+type Boundary = { start: number; actionReturned: number; settleEnd: number; nextFrame: number; end: number };
+
+async function absent(path: string) { try { await access(path, constants.F_OK); return false; } catch { return true; } }
+async function frame(page: Page) { return page.evaluate(() => new Promise<number>((r) => requestAnimationFrame((t) => r(t)))); }
+async function settle(page: Page, id: string, selected: boolean) {
+  await page.evaluate(async ({ id, selected }) => {
+    let last = "", stable = 0;
+    for (let i = 0; i < 900; i++) {
+      await new Promise<void>((r) => requestAnimationFrame(() => r()));
+      const hit = document.querySelector<HTMLElement>(`[data-id="${CSS.escape(id)}"] .speech-hit`);
+      const canvas = document.querySelector<HTMLElement>(".flow-container");
+      const node = hit?.closest<HTMLElement>(".react-flow__node"); const r = hit?.getBoundingClientRect(); const c = canvas?.getBoundingClientRect();
+      const visible = !!r && !!c && r.width > 0 && r.x >= c.x - 1 && r.y >= c.y - 1 && r.right <= c.right + 1 && r.bottom <= c.bottom + 1 && getComputedStyle(hit).visibility !== "hidden" && !node?.inert && node?.getAttribute("aria-hidden") !== "true";
+      const ok = visible && (!selected || (document.querySelectorAll(`[data-id="${CSS.escape(id)}"] .speech-node.is-selected`).length === 1 && document.querySelector(".inspector")?.textContent?.includes(id)));
+      const now = ok ? [r!.x, r!.y, r!.width, r!.height].map((x) => x.toFixed(1)).join(",") : "";
+      stable = now && now === last ? stable + 1 : 0; last = now;
+      if (stable >= 3) return;
+    }
+    throw new Error(`settle failed: ${id}`);
+  }, { id, selected });
+}
+
+test("diagnostic-cdp-short-v1: 4 selection + 4 search", async ({ page }, testInfo) => {
+  test.setTimeout(180_000);
+  const mode = testInfo.project.name as Mode;
+  const dir = join(EVIDENCE, mode);
+  if (!(await absent(dir))) throw new Error(`既存artifactを拒否: ${dir}`);
+  const testedSha = execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+  const dirty = Boolean(execFileSync("git", ["status", "--porcelain"], { encoding: "utf8" }).trim());
+  expect(testedSha).toBe(SHA); expect(dirty).toBe(false);
+  const identityURL = new URL("/__rontenseiri_build_identity", testInfo.project.use.baseURL as string).href;
+  const response = await page.request.get(identityURL, { headers: { "Cache-Control": "no-cache" } });
+  expect(response.url()).toBe(identityURL); expect(response.ok()).toBeTruthy();
+  const identity = await response.json();
+  expect(identity).toMatchObject({ sha: SHA, buildSha: SHA, dirty: false, mode: mode === "dev" ? "development" : "production" });
+  const text = Array.from({ length: 500 }, (_, i) => `話者: ${String(i).padStart(3, "0")} `.padEnd(99, "あ")).join("\n") + "あ";
+  const parsed = await parseInputs([{ name: "diagnostic-500.txt", text, format: "txt", role: "conversation" }]);
+  const project = createProject(parsed, "diagnostic-500", "full");
+  project.utterances.forEach((u, i) => { if (i % 7 === 0) u.classification = "derived"; else if (i % 11 === 0) u.classification = "drift"; });
+  expect(project.utterances).toHaveLength(500);
+  const ids = [0, 166, 333, 499].map((i) => project.utterances[i].id);
+  const session = await page.context().newCDPSession(page);
+  await session.send("Performance.enable");
+  await page.addInitScript(() => {
+    const w = window as Window & { __diag?: any };
+    const rAF: number[] = [], inputs: Array<{ type: string; timestamp: number }> = [], longTasks: object[] = [];
+    w.__diag = { rAF, inputs, longTasks };
+    addEventListener("pointerdown", (e) => inputs.push({ type: e.type, timestamp: performance.now() }), true);
+    addEventListener("keydown", (e) => inputs.push({ type: e.type, timestamp: performance.now() }), true);
+    new PerformanceObserver((list) => longTasks.push(...list.getEntries().map((e) => ({ name: e.name, startTime: e.startTime, duration: e.duration })))).observe({ type: "longtask", buffered: true });
+    const raf = (t: number) => { rAF.push(t); requestAnimationFrame(raf); }; requestAnimationFrame(raf);
+  });
+  await page.goto("/");
+  await page.locator('input[type="file"]').setInputFiles({ name: "diagnostic-500.json", mimeType: "application/json", buffer: Buffer.from(exportProject(project, "json", undefined, true)) });
+  await expect(page.locator(".flow-container")).toBeVisible();
+  await expect(page.locator('.react-flow__node:not([aria-hidden="true"]) .speech-node')).toHaveCount(500);
+  const searchButton = page.getByRole("button", { name: "発言を検索", exact: true });
+  const searchBox = page.locator(".canvas-search").getByRole("textbox", { name: "発言を検索" });
+  const agendaButton = page.locator(".sidebar-agendas > button").first();
+  const operations: object[] = [];
+  await mkdir(join(OUT, mode), { recursive: true });
+  async function measure(name: string, id: string, action: () => Promise<void>, selected: boolean) {
+    const beforeMetrics = await session.send("Performance.getMetrics");
+    const boundary = await page.evaluate(() => ({ start: performance.now(), actionReturned: 0, settleEnd: 0, nextFrame: 0, end: 0 }));
+    await action(); boundary.actionReturned = await page.evaluate(() => performance.now());
+    await settle(page, id, selected); boundary.settleEnd = await page.evaluate(() => performance.now());
+    boundary.nextFrame = await frame(page); boundary.end = await page.evaluate(() => performance.now());
+    const metrics = await session.send("Performance.getMetrics");
+    const events = await page.evaluate(() => (window as Window & { __diag: { inputs: Array<unknown>; rAF: number[]; longTasks: object[] } }).__diag);
+    operations.push({ protocol: PROTOCOL, name, id, boundary, cdpMetricsBefore: beforeMetrics.metrics, cdpMetrics: metrics.metrics.filter((m: any) => ["TaskDuration", "ScriptDuration", "LayoutDuration", "RecalcStyleDuration", "JSHeapUsedSize"].includes(m.name)), inputEvents: events.inputs.filter((e: any) => e.timestamp >= boundary.start && e.timestamp <= boundary.end), rafTimestamps: events.rAF.filter((t) => t >= boundary.start && t <= boundary.end), longTasks: events.longTasks.filter((e: any) => e.startTime < boundary.end && e.startTime + e.duration > boundary.start) });
+  }
+  for (const [i, id] of ids.entries()) {
+    if (!(await searchBox.isVisible())) await searchButton.click();
+    await searchBox.fill(id); await searchBox.press("Enter"); await settle(page, id, false);
+    await agendaButton.click(); await expect(page.locator(`[data-id="${id}"] .speech-node.is-selected`)).toHaveCount(0); await settle(page, id, false);
+    let profile: unknown = null;
+    if (i === 0) { await session.send("Profiler.enable"); await session.send("Profiler.start"); }
+    await measure(`selection-${i}`, id, async () => { const box = await page.locator(`[data-id="${id}"] .speech-hit`).boundingBox(); expect(box).not.toBeNull(); await page.mouse.click(box!.x + box!.width / 2, box!.y + box!.height / 2); }, true);
+    if (i === 0) { profile = await session.send("Profiler.stop"); await session.send("Profiler.disable"); }
+    if (profile) await writeFile(join(OUT, mode, "selection-0.cpuprofile"), JSON.stringify(profile));
+  }
+  for (const [i, id] of ids.entries()) {
+    if (!(await searchBox.isVisible())) await searchButton.click();
+    let profile: unknown = null;
+    if (i === 0) { await session.send("Profiler.enable"); await session.send("Profiler.start"); }
+    await measure(`search-${i}`, id, async () => { await searchBox.fill(id); await searchBox.press("Enter"); }, true);
+    if (i === 0) { profile = await session.send("Profiler.stop"); await session.send("Profiler.disable"); }
+    if (profile) await writeFile(join(OUT, mode, "search-0.cpuprofile"), JSON.stringify(profile));
+  }
+  await writeFile(join(OUT, mode, "diagnostic.json"), JSON.stringify({ protocol: PROTOCOL, mode, actualURL: page.url(), sha: testedSha, dirty, health: identity, operations }, null, 2) + "\n");
+});

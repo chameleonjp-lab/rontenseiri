@@ -1,0 +1,1125 @@
+{
+  "testedSha": "5b0ac40129ded26a1cff844d7de5937c7f866b12",
+  "servedIdentity": {
+    "sha": "5b0ac40129ded26a1cff844d7de5937c7f866b12",
+    "buildSha": "5b0ac40129ded26a1cff844d7de5937c7f866b12",
+    "dirty": false,
+    "mode": "development"
+  },
+  "actualBaseURL": "http://127.0.0.1:4207",
+  "healthCheck": {
+    "baseURL": "http://127.0.0.1:4207",
+    "endpoint": "http://127.0.0.1:4207/__rontenseiri_build_identity",
+    "status": 200,
+    "response": {
+      "sha": "5b0ac40129ded26a1cff844d7de5937c7f866b12",
+      "buildSha": "5b0ac40129ded26a1cff844d7de5937c7f866b12",
+      "dirty": false,
+      "mode": "development"
+    },
+    "expectedSha": "5b0ac40129ded26a1cff844d7de5937c7f866b12",
+    "expectedMode": "development",
+    "signals": {
+      "htmlDevClient": true,
+      "devClientEndpoint": true,
+      "runtimeDevClient": true,
+      "hmrWebSocket": true
+    },
+    "completed": true,
+    "passed": true,
+    "errors": [],
+    "probes": {
+      "health": {
+        "url": "http://127.0.0.1:4207/__rontenseiri_build_identity",
+        "status": 200,
+        "responseBody": "{\"sha\":\"5b0ac40129ded26a1cff844d7de5937c7f866b12\",\"buildSha\":\"5b0ac40129ded26a1cff844d7de5937c7f866b12\",\"dirty\":false,\"mode\":\"development\"}"
+      },
+      "html": {
+        "url": "http://127.0.0.1:4207/",
+        "status": 200,
+        "devMarkersDetected": true
+      },
+      "devClient": {
+        "url": "http://127.0.0.1:4207/@vite/client",
+        "status": 200,
+        "devClientDetected": true
+      },
+      "runtimeDevUrls": [
+        "http://127.0.0.1:4207/@vite/client",
+        "http://127.0.0.1:4207/@react-refresh"
+      ],
+      "unexpectedSocketUrls": [
+        "ws://127.0.0.1:4207/"
+      ],
+      "runtime": {
+        "pageURL": "http://127.0.0.1:4207/",
+        "scriptUrls": [
+          "http://127.0.0.1:4207/@vite/client",
+          "http://127.0.0.1:4207/src/main.tsx"
+        ],
+        "resourceUrls": [
+          "http://127.0.0.1:4207/@vite/client",
+          "http://127.0.0.1:4207/src/main.tsx",
+          "http://127.0.0.1:4207/@react-refresh",
+          "http://127.0.0.1:4207/node_modules/.vite/deps/react.js?v=7d9078b3",
+          "http://127.0.0.1:4207/src/App.tsx",
+          "http://127.0.0.1:4207/src/styles.css",
+          "http://127.0.0.1:4207/node_modules/.vite/deps/react-dom_client.js?v=7d9078b3",
+          "http://127.0.0.1:4207/node_modules/.vite/deps/react_jsx-dev-runtime.js?v=7d9078b3",
+          "http://127.0.0.1:4207/node_modules/vite/dist/client/env.mjs",
+          "http://127.0.0.1:4207/node_modules/.vite/deps/react-BwMsB7H7.js?v=7d9078b3",
+          "http://127.0.0.1:4207/src/domain/coverage.ts",
+          "http://127.0.0.1:4207/src/export/project.ts",
+          "http://127.0.0.1:4207/src/components/ReasoningPanel.tsx",
+          "http://127.0.0.1:4207/src/components/CoveragePanel.tsx",
+          "http://127.0.0.1:4207/src/components/ReadinessPanel.tsx",
+          "http://127.0.0.1:4207/src/components/ExportDialog.tsx",
+          "http://127.0.0.1:4207/src/components/DiscussionCanvas.tsx",
+          "http://127.0.0.1:4207/node_modules/.vite/deps/lucide-react.js?v=7d9078b3",
+          "http://127.0.0.1:4207/src/components/Inspector.tsx",
+          "http://127.0.0.1:4207/src/components/useModalFocus.ts",
+          "http://127.0.0.1:4207/src/domain/revisions.ts",
+          "http://127.0.0.1:4207/src/domain/types.ts",
+          "http://127.0.0.1:4207/src/input/parse.ts",
+          "http://127.0.0.1:4207/src/domain/project.ts",
+          "http://127.0.0.1:4207/src/storage/projects.ts",
+          "http://127.0.0.1:4207/src/analysis/sample.ts",
+          "http://127.0.0.1:4207/src/analysis/client.ts",
+          "http://127.0.0.1:4207/src/diagnostics/metrics.ts",
+          "http://127.0.0.1:4207/src/export/svg.ts",
+          "http://127.0.0.1:4207/src/domain/capacity.ts",
+          "http://127.0.0.1:4207/src/diagnostics/index.ts",
+          "http://127.0.0.1:4207/src/components/readiness.css",
+          "http://127.0.0.1:4207/src/diagnostics/offline.ts",
+          "http://127.0.0.1:4207/src/domain/reasoning.ts",
+          "http://127.0.0.1:4207/src/components/reasoning.css",
+          "http://127.0.0.1:4207/node_modules/.vite/deps/react-dom-DJUU8sTs.js?v=7d9078b3",
+          "http://127.0.0.1:4207/src/components/return-target-option.tsx",
+          "http://127.0.0.1:4207/src/domain/snapshot.ts",
+          "http://127.0.0.1:4207/src/components/UtteranceBoundaryEditor.tsx",
+          "http://127.0.0.1:4207/src/components/LazyDetails.tsx",
+          "http://127.0.0.1:4207/src/domain/invalidation.ts",
+          "http://127.0.0.1:4207/src/components/branch-edge-visibility.ts",
+          "http://127.0.0.1:4207/src/components/BranchVisibility.tsx",
+          "http://127.0.0.1:4207/src/components/canvas-model.ts",
+          "http://127.0.0.1:4207/node_modules/.vite/deps/@xyflow_react.js?v=7d9078b3",
+          "http://127.0.0.1:4207/src/components/canvas-compact.css",
+          "http://127.0.0.1:4207/node_modules/@xyflow/react/dist/style.css",
+          "http://127.0.0.1:4207/src/domain/reasoning-validation.ts",
+          "http://127.0.0.1:4207/src/domain/lineage-validation.ts",
+          "http://127.0.0.1:4207/node_modules/.vite/deps/idb.js?v=7d9078b3",
+          "http://127.0.0.1:4207/src/diagnostics/log.ts",
+          "http://127.0.0.1:4207/src/analysis/ownership.ts",
+          "http://127.0.0.1:4207/src/domain/relation-label.ts",
+          "http://127.0.0.1:4207/src/domain/layout.ts",
+          "http://127.0.0.1:4207/src/domain/utterance-editing.ts",
+          "http://127.0.0.1:4207/src/domain/dependencies.ts",
+          "http://127.0.0.1:4207/node_modules/.vite/deps/jsx-runtime-Dad5wK8z.js?v=7d9078b3"
+        ],
+        "reactRefreshPreamble": false
+      }
+    }
+  },
+  "environment": {
+    "browser": "151.0.7922.34",
+    "viewport": {
+      "width": 1440,
+      "height": 980
+    },
+    "os": "linux",
+    "kernel": "6.18.38+",
+    "cpu": "Intel(R) Xeon(R) Processor @ 2.50GHz",
+    "memoryBytes": 25383874560,
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+    "logicalCores": 8,
+    "webglRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "webgpuAdapter": "未取得・実GPU機種未検証",
+    "cache": "fresh browser context; no model; Vite development server/module cache may be warm",
+    "build": "Vite development server (not production timing)"
+  },
+  "protocol": {
+    "mode": "legacy-development-v2.1",
+    "observationProtocolVersion": 2,
+    "readinessPolling": "same start/end marks and conditions; all identity/inspector/visibility/3-stable-frame conditions verified in rAF loop; fold expected IDs/count/positions verified on 3 consecutive observations; avoids coarse assertion backoff",
+    "sessions": 1,
+    "warmupOperations": 0,
+    "excludedOperations": 0,
+    "excludedMeasuredOperations": 0,
+    "order": [
+      "selection",
+      "search",
+      "fold"
+    ],
+    "cacheIsolation": "uncontrolled across operation groups; selection preparation includes search; not a controlled G5 protocol",
+    "concurrentHostLoad": "not controlled"
+  },
+  "fixture": {
+    "caseId": "canvas-500-v1",
+    "schema": "Project v1",
+    "nodes": 500,
+    "codePoints": 50000,
+    "textSha256": "cef6cc77146a82beb5f6e4297f8b63ca7039c9b6bcd5d34496868925278a30d3",
+    "sampledNodeIds": [
+      "U01",
+      "U72",
+      "U144",
+      "U215",
+      "U286",
+      "U357",
+      "U429",
+      "U500"
+    ],
+    "includesDerivedAndDriftBranches": true
+  },
+  "startedAt": "2026-10-18T04:02:33.377Z",
+  "finishedAt": "2026-10-18T04:04:15.297Z",
+  "sourceRawJson": "/workspace/rontenseiri-evidence/followup-5b0ac40/legacy-performance.json",
+  "sourceRawSha256": "ae3b29aef3d8578e12f2953e3b509fa44a5da9c59ae67da5aeb30fe34759e6d1",
+  "sourceLog": "/workspace/rontenseiri-evidence/followup-5b0ac40/legacy-performance.log",
+  "sourceLogSha256": "2aa4af4d9e432c3352e8b0c90b80af535f75777d29f29d88b23444a5c26151b4",
+  "rawMeasurementCompleted": true,
+  "rawFailureField": null,
+  "explanation": "raw failure=null and complete=true mean measurements completed; the subsequent unchanged <=200ms assertions failed for selection and search. Performance group flags and Playwright log determine gate failure.",
+  "latencyBudgetPassed": false,
+  "groups": [
+    {
+      "operationGroup": "node-selection",
+      "samples": 100,
+      "thresholdMs": 200,
+      "p95Ms": 249.90000000596046,
+      "maxMs": 384.10000002384186,
+      "groupPassed": false,
+      "failureCondition": "100-operation aggregate p95 > 200ms; not a per-operation timeout",
+      "p95WitnessIterations": [
+        {
+          "operation": "selection",
+          "index": 41,
+          "durationMs": 249.90000000596046,
+          "completedAt": "2026-10-18T04:03:00.089Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 42
+        }
+      ],
+      "samplesAbove200ms": [
+        {
+          "operation": "selection",
+          "index": 0,
+          "durationMs": 233.5,
+          "completedAt": "2026-10-18T04:02:36.256Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 1
+        },
+        {
+          "operation": "selection",
+          "index": 8,
+          "durationMs": 200.30000001192093,
+          "completedAt": "2026-10-18T04:02:40.772Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 9
+        },
+        {
+          "operation": "selection",
+          "index": 16,
+          "durationMs": 200.19999998807907,
+          "completedAt": "2026-10-18T04:02:45.338Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 17
+        },
+        {
+          "operation": "selection",
+          "index": 19,
+          "durationMs": 216.39999997615814,
+          "completedAt": "2026-10-18T04:02:47.039Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 20
+        },
+        {
+          "operation": "selection",
+          "index": 28,
+          "durationMs": 216.59999999403954,
+          "completedAt": "2026-10-18T04:02:52.256Z",
+          "id": "U286",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 29
+        },
+        {
+          "operation": "selection",
+          "index": 32,
+          "durationMs": 243.90000000596046,
+          "completedAt": "2026-10-18T04:02:54.637Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 33
+        },
+        {
+          "operation": "selection",
+          "index": 39,
+          "durationMs": 249.7999999821186,
+          "completedAt": "2026-10-18T04:02:58.771Z",
+          "id": "U500",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 40
+        },
+        {
+          "operation": "selection",
+          "index": 41,
+          "durationMs": 249.90000000596046,
+          "completedAt": "2026-10-18T04:03:00.089Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 42
+        },
+        {
+          "operation": "selection",
+          "index": 42,
+          "durationMs": 211.09999999403954,
+          "completedAt": "2026-10-18T04:03:00.749Z",
+          "id": "U144",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 43
+        },
+        {
+          "operation": "selection",
+          "index": 45,
+          "durationMs": 230.59999999403954,
+          "completedAt": "2026-10-18T04:03:02.655Z",
+          "id": "U357",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 46
+        },
+        {
+          "operation": "selection",
+          "index": 47,
+          "durationMs": 267.80000001192093,
+          "completedAt": "2026-10-18T04:03:04.101Z",
+          "id": "U500",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 48
+        },
+        {
+          "operation": "selection",
+          "index": 48,
+          "durationMs": 252.10000002384186,
+          "completedAt": "2026-10-18T04:03:05.066Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 49
+        },
+        {
+          "operation": "selection",
+          "index": 49,
+          "durationMs": 384.10000002384186,
+          "completedAt": "2026-10-18T04:03:06.148Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 50
+        },
+        {
+          "operation": "selection",
+          "index": 50,
+          "durationMs": 357.30000001192093,
+          "completedAt": "2026-10-18T04:03:07.038Z",
+          "id": "U144",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 51
+        },
+        {
+          "operation": "selection",
+          "index": 51,
+          "durationMs": 211.90000000596046,
+          "completedAt": "2026-10-18T04:03:07.687Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 52
+        },
+        {
+          "operation": "selection",
+          "index": 52,
+          "durationMs": 231.59999999403954,
+          "completedAt": "2026-10-18T04:03:08.308Z",
+          "id": "U286",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 53
+        },
+        {
+          "operation": "selection",
+          "index": 53,
+          "durationMs": 244.7000000178814,
+          "completedAt": "2026-10-18T04:03:08.990Z",
+          "id": "U357",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 54
+        },
+        {
+          "operation": "selection",
+          "index": 54,
+          "durationMs": 317.40000000596046,
+          "completedAt": "2026-10-18T04:03:09.689Z",
+          "id": "U429",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 55
+        },
+        {
+          "operation": "selection",
+          "index": 56,
+          "durationMs": 200.89999997615814,
+          "completedAt": "2026-10-18T04:03:10.838Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 57
+        },
+        {
+          "operation": "selection",
+          "index": 57,
+          "durationMs": 216.69999998807907,
+          "completedAt": "2026-10-18T04:03:11.455Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 58
+        },
+        {
+          "operation": "selection",
+          "index": 59,
+          "durationMs": 214.19999998807907,
+          "completedAt": "2026-10-18T04:03:12.604Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 60
+        },
+        {
+          "operation": "selection",
+          "index": 62,
+          "durationMs": 232.59999999403954,
+          "completedAt": "2026-10-18T04:03:14.370Z",
+          "id": "U429",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 63
+        },
+        {
+          "operation": "selection",
+          "index": 64,
+          "durationMs": 200.7999999821186,
+          "completedAt": "2026-10-18T04:03:15.538Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 65
+        },
+        {
+          "operation": "selection",
+          "index": 70,
+          "durationMs": 214.80000001192093,
+          "completedAt": "2026-10-18T04:03:18.787Z",
+          "id": "U429",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 71
+        },
+        {
+          "operation": "selection",
+          "index": 72,
+          "durationMs": 213.40000000596046,
+          "completedAt": "2026-10-18T04:03:19.987Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 73
+        },
+        {
+          "operation": "selection",
+          "index": 80,
+          "durationMs": 207.5,
+          "completedAt": "2026-10-18T04:03:24.661Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 81
+        },
+        {
+          "operation": "selection",
+          "index": 88,
+          "durationMs": 200.2999999821186,
+          "completedAt": "2026-10-18T04:03:29.138Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 89
+        },
+        {
+          "operation": "selection",
+          "index": 89,
+          "durationMs": 248.80000001192093,
+          "completedAt": "2026-10-18T04:03:29.870Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 90
+        },
+        {
+          "operation": "selection",
+          "index": 90,
+          "durationMs": 215.89999997615814,
+          "completedAt": "2026-10-18T04:03:30.519Z",
+          "id": "U144",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 91
+        },
+        {
+          "operation": "selection",
+          "index": 94,
+          "durationMs": 205.40000000596046,
+          "completedAt": "2026-10-18T04:03:32.825Z",
+          "id": "U429",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 95
+        },
+        {
+          "operation": "selection",
+          "index": 96,
+          "durationMs": 231.30000001192093,
+          "completedAt": "2026-10-18T04:03:34.137Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 97
+        },
+        {
+          "operation": "selection",
+          "index": 97,
+          "durationMs": 217.09999999403954,
+          "completedAt": "2026-10-18T04:03:34.755Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 98
+        }
+      ],
+      "aboveThresholdSampleCount": 32
+    },
+    {
+      "operationGroup": "node-search",
+      "samples": 100,
+      "thresholdMs": 200,
+      "p95Ms": 296.69999998807907,
+      "maxMs": 554.9000000059605,
+      "groupPassed": false,
+      "failureCondition": "100-operation aggregate p95 > 200ms; not a per-operation timeout",
+      "p95WitnessIterations": [
+        {
+          "operation": "search",
+          "index": 42,
+          "durationMs": 296.69999998807907,
+          "completedAt": "2026-10-18T04:03:46.166Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 43
+        }
+      ],
+      "samplesAbove200ms": [
+        {
+          "operation": "search",
+          "index": 1,
+          "durationMs": 222.40000000596046,
+          "completedAt": "2026-10-18T04:03:36.443Z",
+          "id": "U144",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 2
+        },
+        {
+          "operation": "search",
+          "index": 2,
+          "durationMs": 227.90000000596046,
+          "completedAt": "2026-10-18T04:03:36.705Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 3
+        },
+        {
+          "operation": "search",
+          "index": 3,
+          "durationMs": 215.90000000596046,
+          "completedAt": "2026-10-18T04:03:36.937Z",
+          "id": "U286",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 4
+        },
+        {
+          "operation": "search",
+          "index": 4,
+          "durationMs": 262,
+          "completedAt": "2026-10-18T04:03:37.228Z",
+          "id": "U357",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 5
+        },
+        {
+          "operation": "search",
+          "index": 5,
+          "durationMs": 254.40000000596046,
+          "completedAt": "2026-10-18T04:03:37.503Z",
+          "id": "U429",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 6
+        },
+        {
+          "operation": "search",
+          "index": 6,
+          "durationMs": 206.59999999403954,
+          "completedAt": "2026-10-18T04:03:37.721Z",
+          "id": "U500",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 7
+        },
+        {
+          "operation": "search",
+          "index": 7,
+          "durationMs": 217.09999999403954,
+          "completedAt": "2026-10-18T04:03:37.956Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 8
+        },
+        {
+          "operation": "search",
+          "index": 8,
+          "durationMs": 229.5,
+          "completedAt": "2026-10-18T04:03:38.207Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 9
+        },
+        {
+          "operation": "search",
+          "index": 10,
+          "durationMs": 246.19999998807907,
+          "completedAt": "2026-10-18T04:03:38.677Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 11
+        },
+        {
+          "operation": "search",
+          "index": 11,
+          "durationMs": 211.69999998807907,
+          "completedAt": "2026-10-18T04:03:38.904Z",
+          "id": "U286",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 12
+        },
+        {
+          "operation": "search",
+          "index": 12,
+          "durationMs": 234.59999999403954,
+          "completedAt": "2026-10-18T04:03:39.154Z",
+          "id": "U357",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 13
+        },
+        {
+          "operation": "search",
+          "index": 13,
+          "durationMs": 201.90000000596046,
+          "completedAt": "2026-10-18T04:03:39.373Z",
+          "id": "U429",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 14
+        },
+        {
+          "operation": "search",
+          "index": 16,
+          "durationMs": 205.59999999403954,
+          "completedAt": "2026-10-18T04:03:40.002Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 17
+        },
+        {
+          "operation": "search",
+          "index": 18,
+          "durationMs": 222.30000001192093,
+          "completedAt": "2026-10-18T04:03:40.437Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 19
+        },
+        {
+          "operation": "search",
+          "index": 19,
+          "durationMs": 221.7999999821186,
+          "completedAt": "2026-10-18T04:03:40.670Z",
+          "id": "U286",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 20
+        },
+        {
+          "operation": "search",
+          "index": 22,
+          "durationMs": 205.7999999821186,
+          "completedAt": "2026-10-18T04:03:41.270Z",
+          "id": "U500",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 23
+        },
+        {
+          "operation": "search",
+          "index": 23,
+          "durationMs": 204.90000000596046,
+          "completedAt": "2026-10-18T04:03:41.487Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 24
+        },
+        {
+          "operation": "search",
+          "index": 25,
+          "durationMs": 220.90000000596046,
+          "completedAt": "2026-10-18T04:03:41.919Z",
+          "id": "U144",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 26
+        },
+        {
+          "operation": "search",
+          "index": 28,
+          "durationMs": 256.7000000178814,
+          "completedAt": "2026-10-18T04:03:42.587Z",
+          "id": "U357",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 29
+        },
+        {
+          "operation": "search",
+          "index": 30,
+          "durationMs": 201.30000001192093,
+          "completedAt": "2026-10-18T04:03:43.003Z",
+          "id": "U500",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 31
+        },
+        {
+          "operation": "search",
+          "index": 31,
+          "durationMs": 200.39999997615814,
+          "completedAt": "2026-10-18T04:03:43.220Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 32
+        },
+        {
+          "operation": "search",
+          "index": 37,
+          "durationMs": 554.9000000059605,
+          "completedAt": "2026-10-18T04:03:44.802Z",
+          "id": "U429",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 38
+        },
+        {
+          "operation": "search",
+          "index": 38,
+          "durationMs": 238.5,
+          "completedAt": "2026-10-18T04:03:45.055Z",
+          "id": "U500",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 39
+        },
+        {
+          "operation": "search",
+          "index": 39,
+          "durationMs": 222.7999999821186,
+          "completedAt": "2026-10-18T04:03:45.307Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 40
+        },
+        {
+          "operation": "search",
+          "index": 40,
+          "durationMs": 219.59999999403954,
+          "completedAt": "2026-10-18T04:03:45.540Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 41
+        },
+        {
+          "operation": "search",
+          "index": 41,
+          "durationMs": 281.40000000596046,
+          "completedAt": "2026-10-18T04:03:45.841Z",
+          "id": "U144",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 42
+        },
+        {
+          "operation": "search",
+          "index": 42,
+          "durationMs": 296.69999998807907,
+          "completedAt": "2026-10-18T04:03:46.166Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 43
+        },
+        {
+          "operation": "search",
+          "index": 43,
+          "durationMs": 284.90000000596046,
+          "completedAt": "2026-10-18T04:03:46.492Z",
+          "id": "U286",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 44
+        },
+        {
+          "operation": "search",
+          "index": 44,
+          "durationMs": 392.10000002384186,
+          "completedAt": "2026-10-18T04:03:46.936Z",
+          "id": "U357",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 45
+        },
+        {
+          "operation": "search",
+          "index": 45,
+          "durationMs": 296.89999997615814,
+          "completedAt": "2026-10-18T04:03:47.261Z",
+          "id": "U429",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 46
+        },
+        {
+          "operation": "search",
+          "index": 46,
+          "durationMs": 276,
+          "completedAt": "2026-10-18T04:03:47.557Z",
+          "id": "U500",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 47
+        },
+        {
+          "operation": "search",
+          "index": 47,
+          "durationMs": 241.5,
+          "completedAt": "2026-10-18T04:03:47.839Z",
+          "id": "U01",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 48
+        },
+        {
+          "operation": "search",
+          "index": 48,
+          "durationMs": 310.7999999821186,
+          "completedAt": "2026-10-18T04:03:48.174Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 49
+        },
+        {
+          "operation": "search",
+          "index": 49,
+          "durationMs": 216.40000000596046,
+          "completedAt": "2026-10-18T04:03:48.408Z",
+          "id": "U144",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 50
+        },
+        {
+          "operation": "search",
+          "index": 50,
+          "durationMs": 216.5,
+          "completedAt": "2026-10-18T04:03:48.642Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 51
+        },
+        {
+          "operation": "search",
+          "index": 51,
+          "durationMs": 202.59999999403954,
+          "completedAt": "2026-10-18T04:03:48.859Z",
+          "id": "U286",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 52
+        },
+        {
+          "operation": "search",
+          "index": 58,
+          "durationMs": 221.40000000596046,
+          "completedAt": "2026-10-18T04:03:50.291Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 59
+        },
+        {
+          "operation": "search",
+          "index": 66,
+          "durationMs": 200.40000000596046,
+          "completedAt": "2026-10-18T04:03:51.935Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 67
+        },
+        {
+          "operation": "search",
+          "index": 74,
+          "durationMs": 372.5,
+          "completedAt": "2026-10-18T04:03:53.702Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 75
+        },
+        {
+          "operation": "search",
+          "index": 80,
+          "durationMs": 200.59999999403954,
+          "completedAt": "2026-10-18T04:03:54.902Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 81
+        },
+        {
+          "operation": "search",
+          "index": 82,
+          "durationMs": 200.60000002384186,
+          "completedAt": "2026-10-18T04:03:55.319Z",
+          "id": "U215",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 83
+        },
+        {
+          "operation": "search",
+          "index": 83,
+          "durationMs": 205,
+          "completedAt": "2026-10-18T04:03:55.535Z",
+          "id": "U286",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 84
+        },
+        {
+          "operation": "search",
+          "index": 88,
+          "durationMs": 205.30000001192093,
+          "completedAt": "2026-10-18T04:03:56.485Z",
+          "id": "U72",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 89
+        },
+        {
+          "operation": "search",
+          "index": 93,
+          "durationMs": 201,
+          "completedAt": "2026-10-18T04:03:57.486Z",
+          "id": "U429",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 94
+        },
+        {
+          "operation": "search",
+          "index": 97,
+          "durationMs": 223.69999998807907,
+          "completedAt": "2026-10-18T04:03:58.303Z",
+          "id": "U144",
+          "selectedIdConfirmed": true,
+          "canvasVisibleConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 98
+        }
+      ],
+      "aboveThresholdSampleCount": 45
+    },
+    {
+      "operationGroup": "branch-collapse-toggle",
+      "samples": 100,
+      "thresholdMs": 200,
+      "p95Ms": 185,
+      "maxMs": 416.2000000178814,
+      "groupPassed": true,
+      "failureCondition": "100-operation aggregate p95 > 200ms; not a per-operation timeout",
+      "p95WitnessIterations": [
+        {
+          "operation": "fold",
+          "index": 96,
+          "durationMs": 185,
+          "completedAt": "2026-10-18T04:04:14.794Z",
+          "beforeVisibleNodes": 500,
+          "afterVisibleNodes": 389,
+          "expectedVisibleNodes": 389,
+          "exactVisibleIdsAndPositionsConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 97
+        }
+      ],
+      "samplesAbove200ms": [
+        {
+          "operation": "fold",
+          "index": 31,
+          "durationMs": 302.60000002384186,
+          "completedAt": "2026-10-18T04:04:04.146Z",
+          "beforeVisibleNodes": 389,
+          "afterVisibleNodes": 500,
+          "expectedVisibleNodes": 500,
+          "exactVisibleIdsAndPositionsConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 32
+        },
+        {
+          "operation": "fold",
+          "index": 95,
+          "durationMs": 416.2000000178814,
+          "completedAt": "2026-10-18T04:04:14.596Z",
+          "beforeVisibleNodes": 389,
+          "afterVisibleNodes": 500,
+          "expectedVisibleNodes": 500,
+          "exactVisibleIdsAndPositionsConfirmed": true,
+          "warmup": false,
+          "iterationOneBased": 96
+        }
+      ],
+      "aboveThresholdSampleCount": 2
+    }
+  ],
+  "automaticReruns": 0,
+  "thresholdChanged": false,
+  "rootCause": "unconfirmed; environment/implementation contribution not isolated; do not attribute from this single dev run",
+  "productionRunKeptSeparate": "/workspace/rontenseiri-evidence/followup-5b0ac40/controlled-performance",
+  "diagnosticOnly": true,
+  "eligibleForG5": false,
+  "g5Passed": false,
+  "recordedInvocation": {
+    "cwd": "/workspace/rontenseiri-implementation",
+    "command": [
+      "npx",
+      "playwright",
+      "test",
+      "e2e/performance.spec.ts",
+      "--output=/workspace/rontenseiri-evidence/followup-5b0ac40/legacy-test-results"
+    ],
+    "environment": {
+      "PLAYWRIGHT_PORT": "4207",
+      "PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH": "/usr/bin/chromium",
+      "PLAYWRIGHT_REPORT_PATH": "/workspace/rontenseiri-evidence/followup-5b0ac40/legacy-e2e-results.json",
+      "RONTENSEIRI_PERFORMANCE_OUTPUT": "/workspace/rontenseiri-evidence/followup-5b0ac40/legacy-performance.json"
+    },
+    "sourcePrecondition": "clean checkout of 5b0ac40129ded26a1cff844d7de5937c7f866b12; same lockfile; npm ci; generated 500-node fixture; no automatic retries",
+    "reproducesProtocolNotDeterministicHostTiming": true
+  }
+}

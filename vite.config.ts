@@ -5,25 +5,70 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { execFileSync } from "node:child_process";
 
+function productionBuildIdentity(): Plugin {
+  let isProductionBuild = false;
+  return {
+    name: "rontenseiri-production-build-identity",
+    apply: "build",
+    configResolved(config) {
+      isProductionBuild = config.command === "build" && config.isProduction;
+    },
+    generateBundle() {
+      if (!isProductionBuild) return;
+      const sha = execFileSync("git", ["rev-parse", "HEAD"], {
+        encoding: "utf8",
+      }).trim();
+      this.emitFile({
+        type: "asset",
+        fileName: "__rontenseiri_build_identity",
+        source:
+          JSON.stringify({
+            sha,
+            buildSha: sha,
+            dirty: Boolean(
+              execFileSync("git", ["status", "--porcelain"], {
+                encoding: "utf8",
+              }).trim(),
+            ),
+            mode: "production",
+          }) + "\n",
+      });
+    },
+  };
+}
+
 function developmentBuildIdentity(): Plugin {
   return {
     name: "rontenseiri-development-build-identity",
     apply: "serve",
     configureServer(server) {
-      let identity: { sha: string; dirty: boolean };
+      let identity: {
+        sha: string;
+        buildSha: string;
+        dirty: boolean;
+        mode: "development";
+      };
       try {
+        const sha = execFileSync("git", ["rev-parse", "HEAD"], {
+          encoding: "utf8",
+        }).trim();
         identity = {
-          sha: execFileSync("git", ["rev-parse", "HEAD"], {
-            encoding: "utf8",
-          }).trim(),
+          sha,
+          buildSha: sha,
           dirty: Boolean(
             execFileSync("git", ["status", "--porcelain"], {
               encoding: "utf8",
             }).trim(),
           ),
+          mode: "development",
         };
       } catch {
-        identity = { sha: "unknown", dirty: true };
+        identity = {
+          sha: "unknown",
+          buildSha: "unknown",
+          dirty: true,
+          mode: "development",
+        };
       }
       server.middlewares.use("/__rontenseiri_build_identity", (_req, res) => {
         res.setHeader("Content-Type", "application/json");
@@ -73,7 +118,12 @@ export default defineConfig(({ mode }) => {
   const base = env.CUE_APP_BASE || process.env.VITE_APP_BASE || "./";
   process.env.__RONTENSEIRI_BASE = base;
   return {
-    plugins: [react(), developmentBuildIdentity(), offlineServiceWorker()],
+    plugins: [
+      react(),
+      developmentBuildIdentity(),
+      productionBuildIdentity(),
+      offlineServiceWorker(),
+    ],
     base,
     server: {
       watch: {

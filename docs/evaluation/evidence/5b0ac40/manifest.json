@@ -1,0 +1,81 @@
+{
+  "testedApplicationSha": "5b0ac40129ded26a1cff844d7de5937c7f866b12",
+  "historicalExperimentRerun": false,
+  "shortDiagnosticProtocol": "diagnostic-cdp-short-v1",
+  "shortDiagnosticIsNotBudgetAcceptance": true,
+  "historicalCauseResolved": false,
+  "files": [
+    {
+      "file": "legacy-performance.json.raw",
+      "source": "/workspace/rontenseiri-evidence/followup-5b0ac40/legacy-performance.json",
+      "sha256": "ae3b29aef3d8578e12f2953e3b509fa44a5da9c59ae67da5aeb30fe34759e6d1",
+      "byteExactCopy": true
+    },
+    {
+      "file": "legacy-performance.log.raw",
+      "source": "/workspace/rontenseiri-evidence/followup-5b0ac40/legacy-performance.log",
+      "sha256": "2aa4af4d9e432c3352e8b0c90b80af535f75777d29f29d88b23444a5c26151b4",
+      "byteExactCopy": true
+    },
+    {
+      "file": "legacy-failure-details.json.raw",
+      "source": "/workspace/rontenseiri-evidence/followup-5b0ac40/legacy-failure-details.json",
+      "sha256": "efd42ef7e3d65b902aa7e5b4bd1417de9993a483957aad28695e45b0c431fd36",
+      "byteExactCopy": true
+    },
+    {
+      "file": "short-profile/dev/diagnostic.json.raw",
+      "source": "/workspace/rontenseiri-evidence/investigation-5b0ac40/profiles/dev/diagnostic.json",
+      "sha256": "2d4477f05d281eb3c06557a5ea0eca2eac8e5a71bc43645086f09beb85a51155",
+      "byteExactCopy": true
+    },
+    {
+      "file": "short-profile/dev/search-0.cpuprofile.raw",
+      "source": "/workspace/rontenseiri-evidence/investigation-5b0ac40/profiles/dev/search-0.cpuprofile",
+      "sha256": "6c93923d4b7b6920fe35b4a9d7023c6d77a2b08a8a4f82e68639ea326a3c97fc",
+      "byteExactCopy": true
+    },
+    {
+      "file": "short-profile/dev/selection-0.cpuprofile.raw",
+      "source": "/workspace/rontenseiri-evidence/investigation-5b0ac40/profiles/dev/selection-0.cpuprofile",
+      "sha256": "858090a548bb3bf320e04a81a896a70de0c1782d0ce9a195ce435499fa925e5e",
+      "byteExactCopy": true
+    },
+    {
+      "file": "short-profile/production/diagnostic.json.raw",
+      "source": "/workspace/rontenseiri-evidence/investigation-5b0ac40/profiles/production/diagnostic.json",
+      "sha256": "8936c96b55c4209993ba89cbabc221853e1de7fdfdbc29f2141e5daf261da84c",
+      "byteExactCopy": true
+    },
+    {
+      "file": "short-profile/production/search-0.cpuprofile.raw",
+      "source": "/workspace/rontenseiri-evidence/investigation-5b0ac40/profiles/production/search-0.cpuprofile",
+      "sha256": "2c9eed978ee0b9c982559ff7bb0e0a834370e8c4df2bdd6340aa3b5effe2d421",
+      "byteExactCopy": true
+    },
+    {
+      "file": "short-profile/production/selection-0.cpuprofile.raw",
+      "source": "/workspace/rontenseiri-evidence/investigation-5b0ac40/profiles/production/selection-0.cpuprofile",
+      "sha256": "34f8fb4ec043b17ae8e2324b8884a1222632195a97815d9a6c28d0385f5e3fd6",
+      "byteExactCopy": true
+    },
+    {
+      "file": "short-profile/harness/latency-diagnostic.spec.ts.raw",
+      "source": "/workspace/rontenseiri-evidence/investigation-5b0ac40/harness/latency-diagnostic.spec.ts",
+      "sha256": "14c44724b13d5ed1955893cf6abf1052b57c7d633f94dbeb7a0af7c32a8b4c7a",
+      "byteExactCopy": true
+    },
+    {
+      "file": "short-profile/harness/playwright.latency-diagnostic.config.ts.raw",
+      "source": "/workspace/rontenseiri-evidence/investigation-5b0ac40/harness/playwright.latency-diagnostic.config.ts",
+      "sha256": "cb1fab7d66db78869815d8729e23044b33f79e1671a5bd14ce4fc457575aa032",
+      "byteExactCopy": true
+    },
+    {
+      "file": "short-profile/profile-breakdown.json.raw",
+      "source": "/workspace/rontenseiri-evidence/investigation-5b0ac40/profile-breakdown.json",
+      "sha256": "5d8e006f930fbf322e94c5544ee03f711fcbdb13480491b5b3cf4cf39afd8344",
+      "byteExactCopy": true
+    }
+  ]
+}

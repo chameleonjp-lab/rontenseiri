@@ -31,7 +31,7 @@ import {
 import DiscussionCanvas from "./components/DiscussionCanvas";
 import ExportDialog from "./components/ExportDialog";
 import Inspector from "./components/Inspector";
-import { undoLastRevision } from "./domain/revisions";
+import { canUndo, undoLastRevision } from "./domain/revisions";
 import { useModalFocus } from "./components/useModalFocus";
 import type {
   Project,
@@ -105,7 +105,9 @@ export default function App() {
   const lastFocused = useRef<HTMLElement | null>(null);
   const savedProjectRef = useRef<Project | null>(null);
   const activeProjectRef = useRef(project);
+  const selectedIdRef = useRef(selectedId);
   activeProjectRef.current = project;
+  selectedIdRef.current = selectedId;
   useModalFocus(!!modal);
   useEffect(() => {
     if (detailsOpen)
@@ -170,26 +172,52 @@ export default function App() {
     }, 650);
     return () => clearTimeout(timer);
   }, [project]);
-  function closeDetails() {
+  const closeDetails = useCallback(() => {
     setDetailsOpen(false);
     requestAnimationFrame(() => {
+      const focusIfUsable = (element: HTMLElement | null): boolean => {
+        if (
+          !element?.isConnected ||
+          !element.getClientRects().length ||
+          element.closest('[hidden], [inert], [aria-hidden="true"]') ||
+          element.matches(":disabled")
+        )
+          return false;
+        const style = getComputedStyle(element);
+        if (style.visibility !== "visible" || style.display === "none")
+          return false;
+        element.focus({ preventScroll: true });
+        return document.activeElement === element;
+      };
+      if (focusIfUsable(lastFocused.current)) return;
+      const selected = selectedIdRef.current;
       if (
-        lastFocused.current?.isConnected &&
-        lastFocused.current.getClientRects().length
+        selected &&
+        focusIfUsable(
+          document.querySelector<HTMLElement>(
+            `.speech-hit[aria-label^="${CSS.escape(selected)} "]`,
+          ),
+        )
       )
-        lastFocused.current.focus();
-      else {
-        const id = selectedId ? CSS.escape(selectedId) : "";
-        document
-          .querySelector<HTMLElement>(
-            id
-              ? `.speech-hit[aria-label^="${id} "]`
-              : '.sidebar button[aria-current="page"]',
-          )
-          ?.focus({ preventScroll: true });
-      }
+        return;
+      const agenda = activeProjectRef.current?.agendas.find((item) =>
+        item.utteranceIds.includes(selected ?? ""),
+      );
+      if (
+        agenda &&
+        focusIfUsable(
+          document.querySelector<HTMLElement>(
+            `.agenda-frame-title[aria-label^="${CSS.escape(agenda.id)} "]`,
+          ),
+        )
+      )
+        return;
+      for (const candidate of document.querySelectorAll<HTMLElement>(
+        '.sidebar button[aria-current="page"], header button',
+      ))
+        if (focusIfUsable(candidate)) return;
     });
-  }
+  }, []);
   function goGraph(id = selectedId) {
     setView("graph");
     setDetailsOpen(false);
@@ -204,10 +232,18 @@ export default function App() {
   }
   useEffect(() => {
     const esc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (modal) setModal(null);
-        else closeDetails();
-      }
+      if (e.key !== "Escape") return;
+      const target = e.target instanceof HTMLElement ? e.target : null;
+      if (
+        e.defaultPrevented ||
+        e.isComposing ||
+        e.keyCode === 229 ||
+        target?.closest("input, textarea, select") ||
+        target?.isContentEditable
+      )
+        return;
+      if (modal) setModal(null);
+      else closeDetails();
     };
     window.addEventListener("keydown", esc);
     return () => window.removeEventListener("keydown", esc);
@@ -527,7 +563,7 @@ export default function App() {
                 <div className="eyebrow">REVISION HISTORY</div>
                 <h1>訂正の経緯を、残す。</h1>
                 <button
-                  disabled={!project.revisions.some((r) => r.kind !== "undo")}
+                  disabled={!canUndo(project)}
                   onClick={() => {
                     try {
                       update(undoLastRevision(project));

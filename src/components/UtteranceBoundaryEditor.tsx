@@ -25,6 +25,9 @@ export default function UtteranceBoundaryEditor({
   );
   const [reason, setReason] = useState("");
   const [dependent, setDependent] = useState("");
+  const [reasoningDestinations, setReasoningDestinations] = useState<
+    Record<string, "left" | "right" | "both" | "unresolved">
+  >({});
   const lineageRecords = project.lineage?.records ?? [];
   const getNext = () =>
     project.utterances
@@ -80,16 +83,70 @@ export default function UtteranceBoundaryEditor({
                   onChange={(e) => setCut(Number(e.target.value))}
                 />
               </label>
+              {!!project.reasoning &&
+                (() => {
+                  const affected = [
+                    ...project.reasoning.evidence.filter((x) =>
+                      x.utteranceIds.includes(u.id),
+                    ),
+                    ...project.reasoning.responses.filter(
+                      (x) =>
+                        x.utteranceIds.includes(u.id) ||
+                        x.evidenceIds.some((id) =>
+                          project.reasoning!.evidence.some(
+                            (e) => e.id === id && e.utteranceIds.includes(u.id),
+                          ),
+                        ),
+                    ),
+                    ...project.reasoning.items.filter((x) =>
+                      x.utteranceIds.includes(u.id),
+                    ),
+                    ...project.reasoning.questionVersions.filter((x) =>
+                      x.sourceUtteranceIds.includes(u.id),
+                    ),
+                  ];
+                  return affected.length ? (
+                    <fieldset>
+                      <legend>分割後の解釈参照先</legend>
+                      <p className="fineprint">
+                        未選択は
+                        unresolved（両片を原根拠として保持）です。判断確定やfulfilledは自動再認定しません。
+                      </p>
+                      {affected.map((x) => (
+                        <label className="field" key={x.id}>
+                          {x.id}
+                          <select
+                            aria-label={`${x.id} の分割先`}
+                            value={reasoningDestinations[x.id] ?? "unresolved"}
+                            onChange={(e) =>
+                              setReasoningDestinations({
+                                ...reasoningDestinations,
+                                [x.id]: e.target.value as
+                                  "left" | "right" | "both" | "unresolved",
+                              })
+                            }
+                          >
+                            <option value="unresolved">
+                              unresolved（両片・要確認）
+                            </option>
+                            <option value="left">left（左片）</option>
+                            <option value="right">right（右片）</option>
+                            <option value="both">both（両片）</option>
+                          </select>
+                        </label>
+                      ))}
+                    </fieldset>
+                  ) : null;
+                })()}
               <button
                 disabled={Array.from(u.quote).length < 2}
                 onClick={() =>
                   apply(() =>
-                    splitUtterance(
-                      project,
-                      u.id,
-                      Array.from(u.quote).slice(0, cut).join("").length,
+                    splitUtterance(project, u.id, {
+                      offset: Array.from(u.quote).slice(0, cut).join("").length,
                       reason,
-                    ),
+                      reasoningDestinations,
+                    }),
                   )
                 }
               >
@@ -193,15 +250,18 @@ export default function UtteranceBoundaryEditor({
                         key={`${record.id}-${ref.referenceId}`}
                         candidates={lineageTargetIds(project, record.id)}
                         label={ref.referenceId}
-                        onApply={(ids) =>
+                        onApply={(ids, status) =>
                           apply(() =>
                             resolveLineageTransfer(
                               project,
                               record.id,
                               ref.referenceId,
                               ids,
-                              "applied",
-                              reason,
+                              status,
+                              reason ||
+                                (status === "unresolved"
+                                  ? "分割境界未確定のため両片を保持"
+                                  : "移し先を確認"),
                             ),
                           )
                         }
@@ -226,7 +286,7 @@ function TransferChoice({
 }: {
   candidates: string[];
   label: string;
-  onApply: (ids: string[]) => void;
+  onApply: (ids: string[], status: "applied" | "unresolved") => void;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
   return (
@@ -248,8 +308,17 @@ function TransferChoice({
           {id}
         </label>
       ))}
-      <button disabled={!selected.length} onClick={() => onApply(selected)}>
+      <button
+        disabled={!selected.length}
+        onClick={() => onApply(selected, "applied")}
+      >
         選択した移し先に適用
+      </button>
+      <button
+        disabled={!candidates.length}
+        onClick={() => onApply(candidates, "unresolved")}
+      >
+        未確定（全候補を保持）
       </button>
     </fieldset>
   );

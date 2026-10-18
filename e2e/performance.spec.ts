@@ -4,19 +4,76 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { cpus, release, totalmem } from "node:os";
 import { parseInputs } from "../src/input/parse";
+import { dirname } from "node:path";
 import { createProject } from "../src/domain/project";
 import { exportProject } from "../src/export/project";
+import { validatePerformancePreflight } from "../scripts/performance-preflight.mjs";
 
 const COUNT = 100;
 const THRESHOLD_MS = 200;
+const requestedOperation = process.env.RONTENSEIRI_PERFORMANCE_OPERATION;
+if (
+  requestedOperation !== undefined &&
+  !["selection", "search", "fold"].includes(requestedOperation)
+)
+  throw new Error("Unknown controlled performance operation");
+const controlled = requestedOperation !== undefined;
+const warmup = controlled ? 20 : 0;
+if (controlled && process.env.RONTENSEIRI_PERFORMANCE_WARMUP !== String(warmup))
+  throw new Error("Controlled protocol requires exactly 20 warmup operations");
+const operationNames: Record<string, string> = {
+  selection: "node-selection",
+  search: "node-search",
+  fold: "branch-collapse-toggle",
+};
+const outputPath =
+  process.env.RONTENSEIRI_PERFORMANCE_OUTPUT ||
+  "artifacts/canvas-performance.json";
+const provenance = {
+  execution:
+    process.env.GITHUB_ACTIONS === "true" ? "github-actions" : "local-only",
+  publicPrHeadVerified: false,
+  note: "Exact local tested SHA is not proof of a published PR HEAD. Verify publication and exact public/CI SHA separately before using as public PR evidence.",
+};
 // Full DOM trace snapshots themselves dominate large-graph runs. Preserve the
 // explicit action log instead; functional E2Es retain their normal traces.
 test.use({ trace: "off" });
 let evidenceWritten = false;
 let sessionStartedAt = new Date().toISOString();
+type HealthCheck = {
+  baseURL: string;
+  endpoint: string;
+  status: number | null;
+  response: unknown;
+  expectedSha: string;
+  expectedMode: "production" | "development";
+  signals: {
+    htmlDevClient: boolean;
+    devClientEndpoint: boolean;
+    runtimeDevClient: boolean;
+    hmrWebSocket: boolean;
+  };
+  completed: boolean;
+  passed: boolean;
+  errors: string[];
+  probes: Record<string, unknown>;
+};
+let healthCheck: HealthCheck | null = null;
+let actualBaseURL: string | null = null;
+function assertPreflight() {
+  const errors = validatePerformancePreflight(healthCheck);
+  if (healthCheck) {
+    healthCheck.errors = errors;
+    healthCheck.passed = healthCheck.completed && errors.length === 0;
+  }
+  if (errors.length)
+    throw new Error(`Performance preflight failed: ${errors.join("; ")}`);
+}
 test.beforeEach(async () => {
   evidenceWritten = false;
   sessionStartedAt = new Date().toISOString();
+  healthCheck = null;
+  actualBaseURL = null;
 });
 test.afterEach(async ({}, info) => {
   if (evidenceWritten) return;
@@ -28,12 +85,15 @@ test.afterEach(async ({}, info) => {
   } catch {
     /* Preserve preflight/git failure too. */
   }
-  await mkdir("artifacts", { recursive: true });
+  await mkdir(dirname(outputPath), { recursive: true });
   await writeFile(
-    "artifacts/canvas-performance.json",
+    outputPath,
     JSON.stringify(
       {
         testedSha,
+        actualBaseURL: actualBaseURL ?? info.project.use.baseURL ?? null,
+        healthCheck,
+        provenance,
         diagnosticOnly: true,
         eligibleForG5: false,
         g5Passed: false,
@@ -200,10 +260,14 @@ async function measure(
   action: () => Promise<void>,
   settled: () => Promise<void>,
 ) {
+  if (!healthCheck?.completed)
+    throw new Error("Performance preflight has not completed");
+  assertPreflight();
   await page.evaluate((key) => performance.mark(key), `${name}-start`);
   await action();
   await settled();
   await nextFrame(page);
+  assertPreflight();
   return page.evaluate((key) => {
     performance.mark(`${key}-end`);
     return performance.measure(key, `${key}-start`, `${key}-end`).duration;
@@ -212,8 +276,10 @@ async function measure(
 
 test("500ノードの選択・検索・折り畳みを各100操作で観測する", async ({
   page,
+  baseURL,
 }) => {
   test.setTimeout(600_000);
+  actualBaseURL = baseURL ?? null;
   const text =
     Array.from({ length: 500 }, (_, i) =>
       `話者: ${String(i).padStart(3, "0")} `.padEnd(99, "あ"),
@@ -275,11 +341,119 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
   };
   try {
     expect(dirty, "診断対象はclean checkoutであること").toBe(false);
-    const response = await page.request.get("/__rontenseiri_build_identity");
-    expect(response.ok()).toBe(true);
-    servedIdentity = await response.json();
-    expect(servedIdentity).toEqual({ sha: testedSha, dirty: false });
+    healthCheck = {
+      baseURL: actualBaseURL ?? "",
+      endpoint: actualBaseURL
+        ? new URL("/__rontenseiri_build_identity", actualBaseURL).href
+        : "",
+      status: null,
+      response: null,
+      expectedSha: testedSha,
+      expectedMode: controlled ? "production" : "development",
+      signals: {
+        htmlDevClient: false,
+        devClientEndpoint: false,
+        runtimeDevClient: false,
+        hmrWebSocket: false,
+      },
+      completed: false,
+      passed: false,
+      errors: [],
+      probes: {},
+    };
+    if (!actualBaseURL) throw new Error("Actual Playwright baseURL is missing");
+    const healthResponse = await page.request.get(healthCheck.endpoint, {
+      headers: { "Cache-Control": "no-cache" },
+    });
+    healthCheck.status = healthResponse.status();
+    const healthBody = await healthResponse.text();
+    try {
+      healthCheck.response = JSON.parse(healthBody);
+    } catch {
+      healthCheck.response = healthBody;
+    }
+    servedIdentity = healthCheck.response;
+    healthCheck.probes.health = {
+      url: healthResponse.url(),
+      status: healthResponse.status(),
+      responseBody: healthBody,
+    };
+    if (healthResponse.url() !== healthCheck.endpoint)
+      throw new Error(
+        "Health endpoint redirected; refusing a different endpoint identity",
+      );
+    // Reject stale SHA/mode before loading app code, not after warmup/measurement.
+    assertPreflight();
+    const htmlUrl = new URL("/", actualBaseURL).href;
+    const htmlResponse = await page.request.get(htmlUrl);
+    const html = await htmlResponse.text();
+    const devPattern =
+      /\/@vite\/client|\/@react-refresh|__vite_plugin_react_preamble_installed__/;
+    healthCheck.signals.htmlDevClient = devPattern.test(html);
+    healthCheck.probes.html = {
+      url: htmlResponse.url(),
+      status: htmlResponse.status(),
+      devMarkersDetected: healthCheck.signals.htmlDevClient,
+    };
+    if (!htmlResponse.ok())
+      throw new Error(`App HTML probe failed: ${htmlResponse.status()}`);
+    assertPreflight();
+    const clientUrl = new URL("/@vite/client", actualBaseURL).href;
+    const clientResponse = await page.request.get(clientUrl);
+    const clientBody = await clientResponse.text();
+    healthCheck.signals.devClientEndpoint =
+      clientResponse.ok() &&
+      /createHotContext|vite-hmr|__vite__injectQuery/.test(clientBody);
+    healthCheck.probes.devClient = {
+      url: clientResponse.url(),
+      status: clientResponse.status(),
+      devClientDetected: healthCheck.signals.devClientEndpoint,
+    };
+    assertPreflight();
+    const runtimeDevUrls = new Set<string>();
+    const hmrSocketUrls = new Set<string>();
+    page.on("request", (request) => {
+      const url = new URL(request.url());
+      if (devPattern.test(url.pathname) && healthCheck) {
+        healthCheck.signals.runtimeDevClient = true;
+        runtimeDevUrls.add(`${url.origin}${url.pathname}`);
+        healthCheck.probes.runtimeDevUrls = [...runtimeDevUrls];
+      }
+    });
+    page.on("websocket", (socket) => {
+      // This local-only application has no production WebSocket feature.
+      // Reject all unexpected sockets rather than assuming a Vite URL shape.
+      const url = new URL(socket.url());
+      hmrSocketUrls.add(`${url.origin}${url.pathname}`);
+      if (healthCheck) {
+        healthCheck.signals.hmrWebSocket = true;
+        healthCheck.probes.unexpectedSocketUrls = [...hmrSocketUrls];
+      }
+    });
     await page.goto("/");
+    const runtime = await page.evaluate(() => ({
+      scriptUrls: [...document.scripts]
+        .map((script) => script.src)
+        .filter(Boolean),
+      resourceUrls: performance
+        .getEntriesByType("resource")
+        .map((entry) => entry.name),
+      reactRefreshPreamble: Boolean(
+        (
+          window as Window & {
+            __vite_plugin_react_preamble_installed__?: boolean;
+          }
+        ).__vite_plugin_react_preamble_installed__,
+      ),
+    }));
+    healthCheck.probes.runtime = { pageURL: page.url(), ...runtime };
+    healthCheck.signals.runtimeDevClient ||=
+      runtime.reactRefreshPreamble ||
+      [...runtime.scriptUrls, ...runtime.resourceUrls].some((url) =>
+        devPattern.test(new URL(url).pathname),
+      );
+    healthCheck.completed = true;
+    assertPreflight();
     browserDetails = await page.evaluate(() => {
       const gl = document.createElement("canvas").getContext("webgl");
       const ext = gl?.getExtension("WEBGL_debug_renderer_info");
@@ -308,74 +482,81 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
       .locator(".canvas-search")
       .getByRole("textbox", { name: "発言を検索" });
     const agendaButton = page.locator(".sidebar-agendas > button").first();
-    for (let i = 0; i < COUNT; i++) {
-      const id = ids[i % ids.length];
-      activeStep = {
-        operation: "selection-preparation-and-click",
-        index: i,
-        id,
-        startedAt: new Date().toISOString(),
-        wallStart: Date.now(),
-      };
-      if (!(await searchBox.isVisible())) await searchButton.click();
-      await searchBox.fill(id);
-      await searchBox.press("Enter");
-      await settleNode(page, id);
-      await expect(
-        page.locator(`[data-id="${id}"] .speech-node.is-selected`),
-      ).toHaveCount(1);
-      await agendaButton.click();
-      await expect(
-        page.locator(`[data-id="${id}"] .speech-node.is-selected`),
-      ).toHaveCount(0);
-      await settleNode(page, id);
-      const hit = page.locator(`[data-id="${id}"] .speech-hit`);
-      const duration = await measure(
-        page,
-        `selection-${i}`,
-        async () => {
-          const box = await hit.boundingBox();
-          expect(box).not.toBeNull();
-          await page.mouse.click(
-            box!.x + box!.width / 2,
-            box!.y + box!.height / 2,
-          );
-        },
-        async () => {
-          await settleNode(page, id, true);
-        },
-      );
-      values.selection.push(duration);
-      log("selection", i, duration, { id, selectedIdConfirmed: true });
-    }
-    for (let i = 0; i < COUNT; i++) {
-      const id = ids[(i + 1) % ids.length];
-      activeStep = {
-        operation: "search",
-        index: i,
-        id,
-        startedAt: new Date().toISOString(),
-        wallStart: Date.now(),
-      };
-      if (!(await searchBox.isVisible())) await searchButton.click();
-      const duration = await measure(
-        page,
-        `search-${i}`,
-        async () => {
-          await searchBox.fill(id);
-          await searchBox.press("Enter");
-        },
-        async () => {
-          await settleNode(page, id, true);
-        },
-      );
-      values.search.push(duration);
-      log("search", i, duration, {
-        id,
-        selectedIdConfirmed: true,
-        canvasVisibleConfirmed: true,
-      });
-    }
+    if (!controlled || requestedOperation === "selection")
+      for (let i = -warmup; i < COUNT; i++) {
+        const id = ids[(i + warmup) % ids.length];
+        activeStep = {
+          operation: "selection-preparation-and-click",
+          index: i,
+          id,
+          startedAt: new Date().toISOString(),
+          wallStart: Date.now(),
+        };
+        if (!(await searchBox.isVisible())) await searchButton.click();
+        await searchBox.fill(id);
+        await searchBox.press("Enter");
+        await settleNode(page, id);
+        await expect(
+          page.locator(`[data-id="${id}"] .speech-node.is-selected`),
+        ).toHaveCount(1);
+        await agendaButton.click();
+        await expect(
+          page.locator(`[data-id="${id}"] .speech-node.is-selected`),
+        ).toHaveCount(0);
+        await settleNode(page, id);
+        const hit = page.locator(`[data-id="${id}"] .speech-hit`);
+        const duration = await measure(
+          page,
+          `selection-${i}`,
+          async () => {
+            const box = await hit.boundingBox();
+            expect(box).not.toBeNull();
+            await page.mouse.click(
+              box!.x + box!.width / 2,
+              box!.y + box!.height / 2,
+            );
+          },
+          async () => {
+            await settleNode(page, id, true);
+          },
+        );
+        if (i >= 0) values.selection.push(duration);
+        log("selection", i, duration, {
+          id,
+          selectedIdConfirmed: true,
+          warmup: i < 0,
+        });
+      }
+    if (!controlled || requestedOperation === "search")
+      for (let i = -warmup; i < COUNT; i++) {
+        const id = ids[(i + warmup + 1) % ids.length];
+        activeStep = {
+          operation: "search",
+          index: i,
+          id,
+          startedAt: new Date().toISOString(),
+          wallStart: Date.now(),
+        };
+        if (!(await searchBox.isVisible())) await searchButton.click();
+        const duration = await measure(
+          page,
+          `search-${i}`,
+          async () => {
+            await searchBox.fill(id);
+            await searchBox.press("Enter");
+          },
+          async () => {
+            await settleNode(page, id, true);
+          },
+        );
+        if (i >= 0) values.search.push(duration);
+        log("search", i, duration, {
+          id,
+          selectedIdConfirmed: true,
+          canvasVisibleConfirmed: true,
+          warmup: i < 0,
+        });
+      }
     const foldButton = page.locator(".canvas-tools").getByRole("button", {
       name: /枝を(折りたたむ|開く)/,
     });
@@ -392,48 +573,51 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
     let previousVisible = await page
       .locator('.react-flow__node:not([aria-hidden="true"]) .speech-node')
       .count();
-    for (let i = 0; i < COUNT; i++) {
-      const before = previousVisible;
-      activeStep = {
-        operation: "fold",
-        index: i,
-        id: i % 2 === 0 ? "collapse" : "expand",
-        startedAt: new Date().toISOString(),
-        wallStart: Date.now(),
-      };
-      const expectedIds = new Set(
-        project.utterances
-          .filter(
-            (u) =>
-              i % 2 !== 0 ||
-              (u.classification !== "derived" && u.classification !== "drift"),
-          )
-          .map((u) => u.id),
-      );
-      const expectedPositions = baselinePositions.filter((n) =>
-        expectedIds.has(n.id),
-      );
-      const duration = await measure(
-        page,
-        `fold-${i}`,
-        async () => {
-          await foldButton.click();
-        },
-        async () => {
-          await settleFold(page, expectedPositions, baselinePositions);
-        },
-      );
-      previousVisible = await page
-        .locator('.react-flow__node:not([aria-hidden="true"]) .speech-node')
-        .count();
-      values.fold.push(duration);
-      log("fold", i, duration, {
-        beforeVisibleNodes: before,
-        afterVisibleNodes: previousVisible,
-        expectedVisibleNodes: expectedIds.size,
-        exactVisibleIdsAndPositionsConfirmed: true,
-      });
-    }
+    if (!controlled || requestedOperation === "fold")
+      for (let i = -warmup; i < COUNT; i++) {
+        const before = previousVisible;
+        activeStep = {
+          operation: "fold",
+          index: i,
+          id: i % 2 === 0 ? "collapse" : "expand",
+          startedAt: new Date().toISOString(),
+          wallStart: Date.now(),
+        };
+        const expectedIds = new Set(
+          project.utterances
+            .filter(
+              (u) =>
+                i % 2 !== 0 ||
+                (u.classification !== "derived" &&
+                  u.classification !== "drift"),
+            )
+            .map((u) => u.id),
+        );
+        const expectedPositions = baselinePositions.filter((n) =>
+          expectedIds.has(n.id),
+        );
+        const duration = await measure(
+          page,
+          `fold-${i}`,
+          async () => {
+            await foldButton.click();
+          },
+          async () => {
+            await settleFold(page, expectedPositions, baselinePositions);
+          },
+        );
+        previousVisible = await page
+          .locator('.react-flow__node:not([aria-hidden="true"]) .speech-node')
+          .count();
+        if (i >= 0) values.fold.push(duration);
+        log("fold", i, duration, {
+          beforeVisibleNodes: before,
+          afterVisibleNodes: previousVisible,
+          expectedVisibleNodes: expectedIds.size,
+          exactVisibleIdsAndPositionsConfirmed: true,
+          warmup: i < 0,
+        });
+      }
   } catch (error) {
     failure = String(error);
     operationLog.push({
@@ -449,27 +633,39 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
       metric("node-selection", values.selection),
       metric("node-search", values.search),
       metric("branch-collapse-toggle", values.fold),
-    ];
-    await mkdir("artifacts", { recursive: true });
+    ].filter(
+      (m) => !controlled || m.name === operationNames[requestedOperation!],
+    );
+    await mkdir(dirname(outputPath), { recursive: true });
     await writeFile(
-      "artifacts/canvas-performance.json",
+      outputPath,
       JSON.stringify(
         {
           testedSha,
           dirtyWorkingTree: dirty,
+          actualBaseURL,
+          healthCheck,
+          provenance,
           servedIdentity,
           diagnosticOnly: true,
           eligibleForG5: false,
           protocol: {
+            mode: controlled
+              ? "controlled-production-v1"
+              : "legacy-development-v2.1",
             observationProtocolVersion: 2,
             readinessPolling:
               "same start/end marks and conditions; all identity/inspector/visibility/3-stable-frame conditions verified in rAF loop; fold expected IDs/count/positions verified on 3 consecutive observations; avoids coarse assertion backoff",
             sessions: 1,
-            warmupOperations: 0,
-            excludedOperations: 0,
-            order: ["selection", "search", "fold"],
-            cacheIsolation:
-              "uncontrolled across operation groups; selection preparation includes search; not a controlled G5 protocol",
+            warmupOperations: warmup,
+            excludedOperations: warmup,
+            excludedMeasuredOperations: 0,
+            order: controlled
+              ? [requestedOperation]
+              : ["selection", "search", "fold"],
+            cacheIsolation: controlled
+              ? "new browser process/context/server per operation group; fresh storage and HTTP cache; production assets; 20 fixed operation-specific warmups; no inter-group app state; selection preparation still includes search and is outside timing"
+              : "uncontrolled across operation groups; selection preparation includes search; not a controlled G5 protocol",
             concurrentHostLoad: "not controlled",
           },
           startedAt,
@@ -483,9 +679,12 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
             cpu: cpus()[0]?.model,
             memoryBytes: totalmem(),
             ...browserDetails,
-            cache:
-              "fresh browser context; no model; Vite development server/module cache may be warm",
-            build: "Vite development server (not production timing)",
+            cache: controlled
+              ? "fresh process/context/storage/HTTP cache, then 20 fixed warmups; OS file cache not flushed; no model"
+              : "fresh browser context; no model; Vite development server/module cache may be warm",
+            build: controlled
+              ? "Vite production build / preview server"
+              : "Vite development server (not production timing)",
           },
           fixture: {
             caseId: "canvas-500-v1",
@@ -519,7 +718,7 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
             failure === null && operations.every((m) => m.count === COUNT),
           g5Passed: false,
           g5Status:
-            "製品レイテンシ予算はlatencyBudgetGateを参照。正式warmup/cache/独立session、主要キーボード導線・アクセシビリティ・全復旧、iPhone/Mac/Windows実機は別途必要。G5全体は未完了。",
+            "製品レイテンシ予算はlatencyBudgetGateを参照。controlled-production-v1でも共有ホスト負荷・OS cache・実機・実GPU・支援技術・heap・全復旧・AIは未検証。独立sessionの全結果はrunnerのsummaryを参照。G5全体は未完了。",
         },
         null,
         2,
@@ -528,11 +727,15 @@ test("500ノードの選択・検索・折り畳みを各100操作で観測す�
     evidenceWritten = true;
   }
   expect(
-    Object.values(values).every(
-      (v) => v.length === COUNT && v.every((n) => Number.isFinite(n) && n >= 0),
-    ),
+    Object.entries(values)
+      .filter(([name]) => !controlled || name === requestedOperation)
+      .every(
+        ([, v]) =>
+          v.length === COUNT && v.every((n) => Number.isFinite(n) && n >= 0),
+      ),
   ).toBe(true);
   for (const [name, points] of Object.entries(values)) {
+    if (controlled && name !== requestedOperation) continue;
     const result = metric(name, points);
     expect
       .soft(
