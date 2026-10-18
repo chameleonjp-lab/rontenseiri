@@ -70,6 +70,19 @@ for (const mode of ["caller cancel", "timeout"] as const) {
         ).__r24AcquisitionDeadline;
         const lockName = `r24-controlled-${mode}-${crypto.randomUUID()}`;
         const caller = new AbortController();
+        const callerListeners = new Set<EventListenerOrEventListenerObject>();
+        const originalAdd = caller.signal.addEventListener.bind(caller.signal);
+        const originalRemove = caller.signal.removeEventListener.bind(
+          caller.signal,
+        );
+        caller.signal.addEventListener = ((type, listener, options) => {
+          if (type === "abort" && listener) callerListeners.add(listener);
+          return originalAdd(type, listener, options);
+        }) as typeof caller.signal.addEventListener;
+        caller.signal.removeEventListener = ((type, listener, options) => {
+          if (type === "abort" && listener) callerListeners.delete(listener);
+          return originalRemove(type, listener, options);
+        }) as typeof caller.signal.removeEventListener;
         let openGate!: () => void;
         const deliveryGate = new Promise<void>((resolve) => {
           openGate = resolve;
@@ -96,6 +109,7 @@ for (const mode of ["caller cancel", "timeout"] as const) {
           while (!state.nativeCallbackEntered)
             await new Promise(requestAnimationFrame);
           const capturedTimersBefore = deadline.count();
+          const callerListenerPairsBefore = callerListeners.size;
           if (mode === "timeout") deadline.deliver();
           else caller.abort();
           const rejection = await pending.then(
@@ -103,6 +117,7 @@ for (const mode of ["caller cancel", "timeout"] as const) {
             (error: unknown) => (error as Error).name,
           );
           const capturedTimersAfter = deadline.count();
+          const callerListenerPairsAfter = callerListeners.size;
           openGate();
           await new Promise(requestAnimationFrame);
           const native = await navigator.locks.query();
@@ -114,6 +129,8 @@ for (const mode of ["caller cancel", "timeout"] as const) {
             nativeCallbackEntered: state.nativeCallbackEntered,
             capturedTimersBefore,
             capturedTimersAfter,
+            callerListenerPairsBefore,
+            callerListenerPairsAfter,
             rejection,
             held:
               native.held?.filter((lock) => lock.name === lockName).length ?? 0,
@@ -136,6 +153,8 @@ for (const mode of ["caller cancel", "timeout"] as const) {
       nativeCallbackEntered: true,
       capturedTimersBefore: 1,
       capturedTimersAfter: 0,
+      callerListenerPairsBefore: 1,
+      callerListenerPairsAfter: 0,
       rejection: mode === "timeout" ? "OwnershipTimeoutError" : "AbortError",
       held: 0,
       pending: 0,

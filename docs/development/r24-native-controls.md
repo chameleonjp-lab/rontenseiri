@@ -39,3 +39,5 @@ G5（実機・本番SW・クラッシュ・複数タブ負荷を含む完全なn
 - `caller-listener-timer-cleanup.json`
 
 既存のownership 9ケースと本ファイルを同一Chromium実行で確認する。先行失敗を後続成功に読み替えず、raw log・report・attachmentの実パスを親へ報告する。timeoutやassertionを緩和せず、CI設定も変更しない。
+
+両grant競合それぞれで、caller signalへ製品が登録/削除したJS listener identity対応集合も1→0を直接assertする。timeoutケースをreleaseケースから推論しない。この集合は実ブラウザlistener総数やnative内部の登録数ではない。
