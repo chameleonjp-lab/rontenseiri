@@ -29,6 +29,7 @@ export class OwnershipTimeoutError extends Error {
 
 type LockRequest = (
   name: string,
+  options: LockOptions,
   callback: (lock: Lock | null) => Promise<void> | void,
 ) => Promise<void>;
 const active = new Map<
@@ -56,76 +57,108 @@ export async function acquireAnalysisOwnership(
   }
   let released = false;
   const leaseController = new AbortController();
-  let timer: ReturnType<typeof setTimeout> | undefined;
+  const acquisitionController = new AbortController();
+  let acquisitionTimer: ReturnType<typeof setTimeout> | undefined;
+  let leaseTimer: ReturnType<typeof setTimeout> | undefined;
   const request = locks.request.bind(locks) as unknown as LockRequest;
   const started = now();
   const acquisition = new Promise<OwnershipLease>((resolve, reject) => {
     let settled = false;
+    let resolveHold: (() => void) | undefined;
+    const cleanupAcquisition = (detachCaller = true) => {
+      if (acquisitionTimer) {
+        clearTimeout(acquisitionTimer);
+        acquisitionTimer = undefined;
+      }
+      if (detachCaller) options.signal?.removeEventListener("abort", abort);
+    };
+    const rejectAcquisition = (error: unknown) => {
+      if (settled) return;
+      settled = true;
+      cleanupAcquisition();
+      reject(error);
+    };
     const abort = () => {
       if (!settled) {
-        settled = true;
-        reject(new DOMException("ownership acquisition aborted", "AbortError"));
-      } else
+        acquisitionController.abort();
+        rejectAcquisition(
+          new DOMException("ownership acquisition aborted", "AbortError"),
+        );
+      } else {
         leaseController.abort(
           new DOMException("ownership lease aborted", "AbortError"),
         );
+      }
     };
     if (options.signal?.aborted) return abort();
     options.signal?.addEventListener("abort", abort, { once: true });
     if (timeout > 0)
-      timer = setTimeout(() => {
-        if (!settled) {
-          settled = true;
-          reject(new OwnershipTimeoutError());
-        }
+      acquisitionTimer = setTimeout(() => {
+        acquisitionController.abort();
+        rejectAcquisition(new OwnershipTimeoutError());
       }, timeout);
-    void request(lockName, async (lock) => {
-      if (!lock) {
-        if (!settled) {
+    try {
+      void request(
+        lockName,
+        { signal: acquisitionController.signal },
+        async (lock) => {
+          if (!lock) {
+            rejectAcquisition(new OwnershipTimeoutError());
+            return;
+          }
+          if (settled) return;
+          const entry = active.get(lockName);
+          if (entry && entry.ownerId !== ownerId) {
+            rejectAcquisition(new OwnershipTimeoutError());
+            return;
+          }
+          const hold = new Promise<void>((r) => {
+            resolveHold = r;
+          });
+          const releaseHold = resolveHold!;
+          active.set(lockName, {
+            ownerId,
+            expires: now() + leaseMs,
+            release: releaseHold,
+          });
+          const release = async () => {
+            if (released) return;
+            released = true;
+            if (leaseTimer) {
+              clearTimeout(leaseTimer);
+              leaseTimer = undefined;
+            }
+            options.signal?.removeEventListener("abort", abort);
+            if (active.get(lockName)?.ownerId === ownerId)
+              active.delete(lockName);
+            releaseHold();
+          };
+          // The acquisition timer is finished, but the caller must still be able
+          // to abort the held lease until actual work cleanup calls release().
+          cleanupAcquisition(false);
+          leaseTimer = setTimeout(() => {
+            if (!released)
+              leaseController.abort(
+                new DOMException("ownership lease expired", "AbortError"),
+              );
+          }, leaseMs);
           settled = true;
-          reject(new OwnershipTimeoutError());
+          resolve({
+            ownerId,
+            lockName,
+            signal: leaseController.signal,
+            release,
+          });
+          await hold;
+        },
+      ).catch((error) => {
+        if (!settled) {
+          rejectAcquisition(error);
         }
-        return;
-      }
-      if (settled) return;
-      const entry = active.get(lockName);
-      if (entry && entry.ownerId !== ownerId && entry.expires > now()) {
-        settled = true;
-        reject(new OwnershipTimeoutError());
-        return;
-      }
-      let resolveHold!: () => void;
-      const hold = new Promise<void>((r) => {
-        resolveHold = r;
       });
-      active.set(lockName, {
-        ownerId,
-        expires: now() + leaseMs,
-        release: resolveHold,
-      });
-      const release = async () => {
-        if (released) return;
-        released = true;
-        if (timer) clearTimeout(timer);
-        if (active.get(lockName)?.ownerId === ownerId) active.delete(lockName);
-        resolveHold();
-      };
-      timer = setTimeout(() => {
-        if (!released)
-          leaseController.abort(
-            new DOMException("ownership lease expired", "AbortError"),
-          );
-      }, leaseMs);
-      settled = true;
-      resolve({ ownerId, lockName, signal: leaseController.signal, release });
-      await hold;
-      options.signal?.removeEventListener("abort", abort);
-    }).catch((error) => {
-      if (!settled) {
-        settled = true;
-        reject(error);
-      }
-    });
+    } catch (error) {
+      rejectAcquisition(error);
+    }
   });
   // Avoid a synchronous unused variable warning while retaining the time captured for diagnostics/debuggers.
   void started;

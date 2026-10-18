@@ -120,7 +120,7 @@ describe("local analysis adapter safety boundaries", () => {
           lockName: "model-lease-expiry",
           leaseMs: 10,
           locks: {
-            request: async (name, callback) => {
+            request: async (name, _options, callback) => {
               await callback({ name } as Lock);
             },
           },
