@@ -339,6 +339,7 @@ test("release removes the exact product caller listener and clears ownership tim
     }
   });
   expect(result.afterGrant.listeners).toBe(1);
+  expect(result.afterGrant.timers).toBe(1);
   expect(result.beforeRelease).toEqual({ leaseAborted: true, nativeHeld: 1 });
   expect(result.afterRelease).toEqual({ listeners: 0, timers: 0 });
   await info.attach("caller-listener-timer-cleanup.json", {
