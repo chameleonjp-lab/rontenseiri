@@ -1,5 +1,6 @@
 import { useState } from "react";
 import LazyDetails from "./LazyDetails";
+import { useFormDraftGuard } from "./draft-guard";
 import type { Project } from "../domain/types";
 import {
   lineageTargetIds,
@@ -28,6 +29,10 @@ export default function UtteranceBoundaryEditor({
   const [reasoningDestinations, setReasoningDestinations] = useState<
     Record<string, "left" | "right" | "both" | "unresolved">
   >({});
+  const markApplied = useFormDraftGuard(
+    { cut, reason, dependent, reasoningDestinations },
+    "inspector",
+  );
   const lineageRecords = project.lineage?.records ?? [];
   const getNext = () =>
     project.utterances
@@ -38,8 +43,11 @@ export default function UtteranceBoundaryEditor({
       if (!reason.trim())
         throw Error("区切り・関係の変更理由を入力してください");
       onUpdate(fn());
+      markApplied();
+      return true;
     } catch (e) {
       onError(String(e));
+      return false;
     }
   };
   return (
@@ -286,9 +294,10 @@ function TransferChoice({
 }: {
   candidates: string[];
   label: string;
-  onApply: (ids: string[], status: "applied" | "unresolved") => void;
+  onApply: (ids: string[], status: "applied" | "unresolved") => boolean;
 }) {
   const [selected, setSelected] = useState<string[]>([]);
+  const markApplied = useFormDraftGuard(selected, "inspector");
   return (
     <fieldset>
       <legend>{label} の移し先</legend>
@@ -310,13 +319,17 @@ function TransferChoice({
       ))}
       <button
         disabled={!selected.length}
-        onClick={() => onApply(selected, "applied")}
+        onClick={() => {
+          if (onApply(selected, "applied")) markApplied();
+        }}
       >
         選択した移し先に適用
       </button>
       <button
         disabled={!candidates.length}
-        onClick={() => onApply(candidates, "unresolved")}
+        onClick={() => {
+          if (onApply(candidates, "unresolved")) markApplied();
+        }}
       >
         未確定（全候補を保持）
       </button>

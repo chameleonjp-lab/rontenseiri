@@ -1,5 +1,6 @@
 import { useMemo, useState, type FormEvent } from "react";
 import type { Project } from "../domain/types";
+import { useDraftGuard } from "./draft-guard";
 import {
   addEvidence,
   addQuestion,
@@ -113,6 +114,23 @@ export default function ReasoningPanel({
     ids: [] as string[],
     evidenceIds: [] as string[],
   });
+  useDraftGuard(
+    questionText !== "" ||
+      questionReason !== "" ||
+      questionSources.length > 0 ||
+      revision !== null ||
+      response.versionId !== "" ||
+      response.reason !== "" ||
+      response.ids.length > 0 ||
+      evidence.note !== "" ||
+      evidence.reason !== "" ||
+      evidence.ids.length > 0 ||
+      item.text !== "" ||
+      item.reason !== "" ||
+      item.ids.length > 0 ||
+      item.evidenceIds.length > 0,
+    "view",
+  );
   const questions = graph?.questions ?? [],
     versions = graph?.questionVersions ?? [],
     responses = graph?.responses ?? [],

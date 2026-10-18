@@ -238,7 +238,38 @@ a {
 }
 .save-state {
   font-size: 10px;
-  color: #8a969d;
+  color: #465962;
+  display: flex;
+  flex-direction: column;
+}
+.save-recovery {
+  padding: 10px 24px;
+  border-bottom: 1px solid var(--border);
+  background: #fff6e5;
+}
+.save-recovery p {
+  margin: 4px 0;
+  font-size: 12px;
+}
+.save-recovery button {
+  margin: 4px 8px 4px 0;
+}
+.app-shell:has(.save-recovery) {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.app-shell:has(.save-recovery) > .app-header {
+  flex-shrink: 0;
+}
+.app-shell:has(.save-recovery) > .workspace {
+  flex: 1;
+  min-height: 320px;
+}
+.save-recovery {
+  flex-shrink: 0;
+  max-height: 30dvh;
+  overflow: auto;
 }
 .mobile-menu {
   display: none;

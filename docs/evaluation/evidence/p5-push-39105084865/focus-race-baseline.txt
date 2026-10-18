@@ -1,0 +1,47 @@
+
+Running 1 test using 1 worker
+
+  ✘  1 e2e/focus-recovery-race.spec.ts:3:1 › delayed detail-close focus recovery must not steal a newer keyboard navigation target (6.3s)
+
+
+  1) e2e/focus-recovery-race.spec.ts:3:1 › delayed detail-close focus recovery must not steal a newer keyboard navigation target 
+
+    Error: expect(locator).toBeFocused() failed
+
+    Locator:  getByRole('button', { name: '訂正履歴', exact: true })
+    Expected: focused
+    Received: inactive
+    Timeout:  5000ms
+
+    Call log:
+      - Expect "toBeFocused" getByRole('button', { name: '訂正履歴', exact: true }) with timeout 5000ms
+      - waiting for getByRole('button', { name: '訂正履歴', exact: true })
+        14 × locator resolved to <button class="" aria-label="訂正履歴">…</button>
+           - unexpected value "inactive"
+
+
+      43 |     callback(performance.now());
+      44 |   });
+    > 45 |   await expect(history).toBeFocused();
+         |                         ^
+      46 |   await page.keyboard.press("Enter");
+      47 |   await expect(
+      48 |     page.getByRole("button", { name: "直前の訂正を元に戻す", exact: true }),
+        at /workspace/rontenseiri-p5-main/e2e/focus-recovery-race.spec.ts:45:25
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../p5-evidence/focus-race-baseline-artifact/focus-recovery-race-delaye-45a3f--keyboard-navigation-target/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../p5-evidence/focus-race-baseline-artifact/focus-recovery-race-delaye-45a3f--keyboard-navigation-target/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../p5-evidence/focus-race-baseline-artifact/focus-recovery-race-delaye-45a3f--keyboard-navigation-target/trace.zip
+    Usage:
+
+        npx playwright show-trace ../p5-evidence/focus-race-baseline-artifact/focus-recovery-race-delaye-45a3f--keyboard-navigation-target/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    e2e/focus-recovery-race.spec.ts:3:1 › delayed detail-close focus recovery must not steal a newer keyboard navigation target 

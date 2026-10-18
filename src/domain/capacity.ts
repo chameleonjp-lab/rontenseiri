@@ -44,8 +44,22 @@ export function projectCapacity(project: Project) {
     .filter((s) => !activeIds.has(s.versionId))
     .reduce((n, s) => n + encodeBytes(s.text), 0);
   const revisionBytes = encodeBytes(JSON.stringify(project.revisions));
-  const projectBytes = encodeBytes(JSON.stringify(project));
-  const backupBytes = encodeBytes(JSON.stringify(fullBackupEnvelope(project)));
+  // The revision log can occupy almost the entire 50MiB budget. Serialize it
+  // once, then replace the two-byte [] placeholder arithmetically. Likewise
+  // replace the four-byte null in the envelope, without serializing it again.
+  const projectBytes =
+    encodeBytes(JSON.stringify({ ...project, revisions: [] })) -
+    2 +
+    revisionBytes;
+  const backupBytes =
+    projectBytes +
+    encodeBytes(
+      JSON.stringify({
+        ...fullBackupEnvelope(project),
+        project: null,
+      }),
+    ) -
+    4;
   return {
     activeCodePoints,
     activeFiles: current.length,
