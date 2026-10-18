@@ -26,7 +26,6 @@ export function validateLineage(project: Project): Project {
     throw new Error("invalid lineage ledger");
   const active = new Map((p.utterances ?? []).map((u) => [u.id, u]));
   const recordIds = new Set<string>();
-  const historical = new Set<string>();
   const states: Utterance[] = [...p.utterances];
   const collect = (raw: unknown) => {
     if (!raw || typeof raw !== "object") return;
@@ -79,8 +78,6 @@ export function validateLineage(project: Project): Project {
     )
       throw new Error("invalid lineage record");
     recordIds.add(r.id);
-    r.oldIds.forEach((id) => historical.add(id));
-    r.newIds.forEach((id) => historical.add(id));
     const originalSource = p.sources.find(
       (source) => source.versionId === r.sourceVersionId,
     );
@@ -157,10 +154,36 @@ export function validateLineage(project: Project): Project {
     if (r.undoRevisionId !== undefined && !string(r.undoRevisionId))
       throw new Error("invalid undo revision link");
   }
-  // Every historical target is either active or explained by a lineage chain.
+  // Historical IDs need an independently persisted utterance state, not an ID
+  // set populated by the lineage record itself. Legitimate active IDs remain valid.
   for (const r of ledger.records)
     for (const id of r.oldIds)
-      if (!active.has(id) && !historical.has(id))
+      if (
+        !active.has(id) &&
+        !states.some(
+          (u) =>
+            u.id === id &&
+            u.sourceVersionId === r.sourceVersionId &&
+            Number.isInteger(u.start) &&
+            Number.isInteger(u.end) &&
+            u.start >= r.start &&
+            u.end <= r.end &&
+            u.end > u.start &&
+            typeof u.quote === "string" &&
+            (() => {
+              try {
+                const source = p.sources.find(
+                  (candidate) => candidate.versionId === r.sourceVersionId,
+                );
+                if (!source) return false;
+                validateUtteranceQuote(source, u);
+                return true;
+              } catch {
+                return false;
+              }
+            })(),
+        )
+      )
         throw new Error("lineage history gap");
   const orders = new Set<number>();
   for (const u of p.utterances ?? []) {

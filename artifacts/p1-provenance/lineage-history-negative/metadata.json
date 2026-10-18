@@ -1,0 +1,20 @@
+{
+  "testedSourceSha": "e472154e1d16624ab3b6d1ba30bed4e55b802393",
+  "sourceValidatorSha256": "a042c0ebf5f1dd12730c0218531f78a13ada857742ff0f8a863584581f5a92b6",
+  "workingTreeNote": "Added diagnostic test only before running; validator tracked source was unchanged. Not a clean final acceptance run.",
+  "expectedRejectionTestsIncorrectlyAccepted": 5,
+  "validCompatibilityTestsPassed": 3,
+  "exitCode": 1,
+  "introducedByPr5Claimed": false,
+  "normalSplitMergeOrSpanLossClaimed": false,
+  "files": {
+    "before-e472.log": {
+      "bytes": 5113,
+      "sha256": "3df331bece35cb46567145f41a8c38d83d4684702e1a862d590f0814118a5acf"
+    },
+    "lineage-history-gap.test.ts.txt": {
+      "bytes": 4930,
+      "sha256": "c4d480953e30fe085aba22d54bb2d2f575b882cad1c76a8ab8a9fc681c645584"
+    }
+  }
+}

@@ -53,3 +53,13 @@ schemaVersion 1の旧単一`time`・cue台帳なしJSONはそのまま読み込�
 このcacheは新しい作業を開くと区切られ、端末保存・完全JSONの対象ではない。保存可能なProject適用済みの訂正と、フォーム内の未適用draftを混同しない。発言／cue往復、別cue適用後の保持、適用後Undo、明示破棄、端末保存に未適用draftが混入しないことをUI回帰で確認する。初回の追補検証ではAppの外部cache prop接続が未適用だったため発言間の1件が失敗し、既存の`key={selected.id}`を維持した正しい接続へ訂正した。assertionや待機時間は緩めていない。
 
 `a36385c`のlocal unit218・機能E2E60 pass/1 skip・offline・監査/format/build/benchmarkと、同SHAの両CI・artifact digest一致は中間証拠として保持する。local本番9群はこの追補のため途中中断したので完了とは呼ばず、新しい最終SHAですべて再実行する。
+
+## 未説明lineage old IDの拒否
+
+独立静的レビューが見つけた既存の自己充足検査を、P1の来歴保持・完全JSON再読込の整合性に関わるためこの束へ含めた。`historical`を全recordのold/new IDで満たしてから同じsetを根拠にold IDを検査しており、参照先の実在を証明できなかった。基点にも同構造があり、通常split/mergeの破壊・span消失・PR #5新規導入とは呼ばない。
+
+別環境と本worktreeで、VTTの正規split→複数cue merge→resplit→Undoから作った有効Projectの最初のold IDだけを`ghost-old-id`へ変えると、`e472154`のvalidateProjectと完全JSON importが受け入れることを再現した。他のSource・発言・snapshot・根拠・IDは変えていない。拒否すべきfixtureの元版結果は**5失敗／3成功（計8）、終了コード1**で、元ログと試験ソースを[負例メタデータ](../../artifacts/p1-provenance/lineage-history-negative/metadata.json)にhash固定して保存する。
+
+修正は、非activeのold IDについて、既に収集しているactive/revision before・after/full snapshot/compact retired payloadの発言stateが、同sourceVersion・record包絡範囲内の正のUTF-16区間・正しいsource quoteを持つことを要求するだけ。正当なactive IDの扱いは維持し、退役IDをactive必須にしない。自己申告のID setは廃止した。chronologyやcycle等の別契約へ広げていない。
+
+新規8単体は、正規VTT split/merge/resplit/Undo・完全JSON、未定義ID、誤quote・誤sourceVersion・範囲外stateによる見せかけの証明、schemaVersion 1の単一time/cue台帳なしJSONとfull/compact snapshotを検証する。既存lineage・発言編集・字幕来歴を合わせたfocused **23件は通過**。さらに不正完全JSONの実UI読込を拒否して現在作業・既存保存版を保持する回帰を追加する。`e472154`のlocal unit221・機能67/1 skip・offline・本番9群と両CI成功/内部SHA・GitHub digest一致は中間証拠として不変に保持し、この修正後の新SHAへ転用しない。
