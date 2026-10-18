@@ -1,0 +1,32 @@
+{
+  "baselineSourceSha": "0c4b58f25fa1f0d7d66b66007a5070bea312f731",
+  "currentSourceSha": "a36385cd24aae52e8c85ac9ef9d15dc07a37ab5a",
+  "currentTreeNote": "Pre-import form changes were in progress; targeted Inspector implementation was unchanged from a36385c until after negative run. Not a clean-final-SHA acceptance run.",
+  "baselineTreeNote": "Detached baseline tracked source unchanged; added diagnostic test only.",
+  "introducedByPr5Claimed": false,
+  "stats": {
+    "draft-before-a363": {
+      "startTime": "2026-10-18T05:35:18.922Z",
+      "duration": 18028.55,
+      "expected": 0,
+      "skipped": 0,
+      "unexpected": 2,
+      "flaky": 0
+    },
+    "draft-baseline-0c4": {
+      "startTime": "2026-10-18T05:35:36.809Z",
+      "duration": 9788.592,
+      "expected": 0,
+      "skipped": 0,
+      "unexpected": 1,
+      "flaky": 0
+    }
+  },
+  "sha256": {
+    "draft-before-a363.log": "69322dd1825aa8769d840300c1400998d550ced1317b679a79bdf5e452b3e173",
+    "draft-before-a363.json": "08f65d05d3bbced745da84b61c9f5a82d6592f16545ebd5b308b4a8c353d48ad",
+    "draft-baseline-0c4.log": "052ebf669292ea35514d0d451cc8f4580c27ea657c32f375628654f3f9d45efe",
+    "draft-baseline-0c4.json": "3c35401765daf7c651c8636add9d0c07c8e071c0744dfde248dedbb44c4b9377",
+    "source-draft-navigation.spec.ts.txt": "0e1a58b7129205bcee4325e6da5bcac2f725c3c464a9d5556f4a443f58032d57"
+  }
+}

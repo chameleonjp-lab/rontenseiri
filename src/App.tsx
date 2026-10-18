@@ -31,6 +31,8 @@ import {
 import DiscussionCanvas from "./components/DiscussionCanvas";
 import ExportDialog from "./components/ExportDialog";
 import Inspector from "./components/Inspector";
+import type { SourceEditDraft } from "./components/source-drafts";
+import OmissionFields from "./components/OmissionFields";
 import { canUndo, undoLastRevision } from "./domain/revisions";
 import { useModalFocus } from "./components/useModalFocus";
 import type {
@@ -39,6 +41,7 @@ import type {
   Extent,
   SourceRole,
   Agenda,
+  Omission,
 } from "./domain/types";
 import { labels } from "./domain/types";
 import {
@@ -46,6 +49,7 @@ import {
   reviseProject,
   validateProject,
 } from "./domain/project";
+import { reviseCompleteness, validateOmissions } from "./domain/completeness";
 import { parseInputs, readInputFile } from "./input/parse";
 import {
   listProjects,
@@ -80,6 +84,7 @@ function Status({
 }
 export default function App() {
   const [project, setProject] = useState<Project | null>(null);
+  const sourceDrafts = useRef(new Map<string, SourceEditDraft>());
   const [view, setView] = useState<View>("graph");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -268,6 +273,7 @@ export default function App() {
     setDetailsOpen(false);
   }, []);
   function openProject(next: Project) {
+    sourceDrafts.current.clear();
     setProject(next);
     setSelectedId(null);
     setDetailsOpen(false);
@@ -617,6 +623,7 @@ export default function App() {
             <Inspector
               key={selected.id}
               project={project}
+              sourceDrafts={sourceDrafts.current}
               utteranceId={selected.id}
               onUpdate={update}
               onClose={closeDetails}
@@ -920,6 +927,7 @@ function InputForm({
   const [extent, setExtent] = useState<Extent>("unknown");
   const [role, setRole] = useState<SourceRole>("conversation");
   const [files, setFiles] = useState<InputItem[]>([]);
+  const [omissions, setOmissions] = useState<Omission[] | undefined>(undefined);
   const [preview, setPreview] = useState<Project | null>(null);
   const [busy, setBusy] = useState(false);
   const [warnings, setWarnings] = useState<string[]>([]);
@@ -938,9 +946,18 @@ function InputForm({
         throw Error(
           "文字起こし済みテキストを貼り付けるか、ファイルを選択してください。",
         );
+      validateOmissions(omissions);
       const result = await parseInputs(items);
       setWarnings(result.warnings);
-      setPreview(createProject(result, title || "新しい会話", extent));
+      let project = createProject(result, title || "新しい会話", extent);
+      if (omissions !== undefined)
+        project = reviseCompleteness(
+          project,
+          extent,
+          omissions,
+          "読込時の欠落申告",
+        );
+      setPreview(project);
     } catch (e) {
       onError(String(e));
     } finally {
@@ -1001,6 +1018,14 @@ function InputForm({
           </select>
         </label>
       </div>
+      <OmissionFields
+        legend="読み込み前の欠落申告"
+        value={omissions}
+        onChange={(next) => {
+          setOmissions(next);
+          setPreview(null);
+        }}
+      />
       <label className="field">
         文字起こし済みのテキスト
         <textarea

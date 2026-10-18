@@ -5,7 +5,31 @@ export type SourceRole = "conversation" | "reference" | "later-explanation";
 export type Extent = "full" | "excerpt" | "unknown";
 export type Classification = "main" | "derived" | "drift" | "unknown";
 export type Decision = "undecided" | "conditional" | "decided";
+/** Input cue IDs are optional/non-unique; id is unique within this source version. */
+export interface SubtitleCue {
+  id: string;
+  rawId?: string;
+  order: number;
+  start: number;
+  end: number;
+  line: number;
+  time: string;
+  startTime: number;
+  endTime: number;
+}
+export interface CueSpan {
+  cueId: string;
+  start: number;
+  end: number;
+}
+export interface Omission {
+  id: string;
+  description: string;
+  reason: string;
+  location?: string;
+}
 export interface Source {
+  cueLedger?: SubtitleCue[];
   coverage?: CoverageSpan[];
   id: string;
   versionId: string;
@@ -18,6 +42,8 @@ export interface Source {
   hash: string;
 }
 export interface Utterance {
+  /** With multiple spans, quote is body slices joined by a display-only newline; start/end are bounds, not a continuous quote. */
+  cueSpans?: CueSpan[];
   id: string;
   sourceId: string;
   sourceVersionId: string;
@@ -76,6 +102,8 @@ export interface AnalysisRun {
   note: string;
 }
 export interface Project {
+  /** Absent means not reported. Never infer missing-input offsets from observed source coverage. */
+  omissions?: Omission[];
   storageRevision?: number;
   schemaVersion: 1;
   reasoning?: ReasoningGraph;

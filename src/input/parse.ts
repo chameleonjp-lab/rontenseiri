@@ -6,6 +6,8 @@ import type {
   Source,
   SourceRole,
   Utterance,
+  CueSpan,
+  SubtitleCue,
 } from "../domain/types";
 
 export const LIMITS = {
@@ -46,19 +48,12 @@ function timestamp(value: string): number | undefined {
     Number(m[4]);
   return Number.isFinite(result) ? result : undefined;
 }
-type Cue = {
-  start: number;
-  end: number;
-  quote: string;
-  line: number;
-  time?: string;
-};
 function lineRecords(text: string) {
   const out: Array<{ text: string; start: number; end: number; line: number }> =
     [];
   const re = /([^\r\n]*)(\r\n|\n|\r|$)/g;
-  let m: RegExpExecArray | null;
-  let line = 1;
+  let m: RegExpExecArray | null,
+    line = 1;
   while ((m = re.exec(text))) {
     if (m[0] === "") break;
     out.push({
@@ -71,9 +66,19 @@ function lineRecords(text: string) {
   }
   return out;
 }
+type Cue = {
+  start: number;
+  end: number;
+  quote: string;
+  line: number;
+  time?: string;
+  rawId?: string;
+  startTime?: number;
+  endTime?: number;
+  spans?: CueSpan[];
+};
 function cues(text: string, format: string): Cue[] {
   const lines = lineRecords(text);
-  const out: Cue[] = [];
   if (format !== "srt" && format !== "vtt")
     return lines
       .filter((x) => x.text.trim())
@@ -89,17 +94,26 @@ function cues(text: string, format: string): Cue[] {
     format === "vtt" && /^\uFEFF?WEBVTT(?:\s|$)/.test(lines[0]?.text || "")
       ? 1
       : 0;
+  const out: Cue[] = [];
   while (i < lines.length) {
-    const line = lines[i];
-    const match = line.text.match(re);
+    const cueLine = lines[i],
+      match = cueLine.text.match(re);
+    const rawId =
+      format === "vtt" &&
+      i > 0 &&
+      lines[i - 1].text.trim() &&
+      !lines[i - 1].text.includes("-->") &&
+      !/^\uFEFF?WEBVTT/.test(lines[i - 1].text)
+        ? lines[i - 1].text.trim()
+        : undefined;
     if (!match) {
-      if (line.text.includes("-->"))
+      if (cueLine.text.includes("-->"))
         throw Error(`${format.toUpperCase()}の時刻形式が不正です`);
       i++;
       continue;
     }
-    const begin = timestamp(match[1]);
-    const finish = timestamp(match[2]);
+    const begin = timestamp(match[1]),
+      finish = timestamp(match[2]);
     if (begin === undefined || finish === undefined || finish < begin)
       throw Error(`${format.toUpperCase()}の時刻範囲が不正です`);
     const time = `${match[1]} --> ${match[2]}`;
@@ -110,14 +124,17 @@ function cues(text: string, format: string): Cue[] {
       throw Error(`${format.toUpperCase()}に空字幕があります`);
     if (body.some((x) => x.text.includes("-->")))
       throw Error(`${format.toUpperCase()}の字幕区切りに空行が必要です`);
-    const start = body[0].start;
-    const end = body[body.length - 1].end;
+    const spans = [{ cueId: "", start: body[0].start, end: body.at(-1)!.end }];
     out.push({
-      start,
-      end,
-      quote: text.slice(start, end),
+      start: body[0].start,
+      end: body.at(-1)!.end,
+      quote: text.slice(body[0].start, body.at(-1)!.end),
       line: body[0].line,
       time,
+      startTime: begin,
+      endTime: finish,
+      rawId,
+      spans,
     });
     i += endIndex < 0 ? lines.length : endIndex + 1;
   }
@@ -125,6 +142,27 @@ function cues(text: string, format: string): Cue[] {
     throw Error(`${format.toUpperCase()}の字幕キューが見つかりません`);
   return out;
 }
+
+/** Recover optional cue provenance from legacy raw subtitle text, without rewriting the source. */
+export function readSubtitleCueLedger(
+  text: string,
+  format: string,
+): SubtitleCue[] {
+  if (!["vtt", "srt"].includes(format))
+    throw new Error("subtitle format required");
+  return cues(text, format).map((cue, order) => ({
+    id: `cue-${order + 1}`,
+    ...(cue.rawId === undefined ? {} : { rawId: cue.rawId }),
+    order,
+    start: cue.start,
+    end: cue.end,
+    line: cue.line,
+    time: cue.time!,
+    startTime: cue.startTime!,
+    endTime: cue.endTime!,
+  }));
+}
+
 export async function parseInputs(items: InputItem[]): Promise<ParseResult> {
   const started = performance.now();
   if (!Array.isArray(items) || !items.length) throw Error("入力がありません");
@@ -178,7 +216,22 @@ export async function parseInputs(items: InputItem[]): Promise<ParseResult> {
       item.text,
       format === "text" || format === "markdown" ? "txt" : format,
     );
-    for (const cue of parsed) {
+    const isSubtitle = format === "vtt" || format === "srt";
+    const ledger: SubtitleCue[] = isSubtitle
+      ? parsed.map((cue, n) => ({
+          id: `cue-${n + 1}`,
+          ...(cue.rawId !== undefined ? { rawId: cue.rawId } : {}),
+          order: n,
+          start: cue.start,
+          end: cue.end,
+          line: cue.line,
+          time: cue.time ?? "",
+          startTime: cue.startTime ?? 0,
+          endTime: cue.endTime ?? 0,
+        }))
+      : [];
+    if (isSubtitle) sources.at(-1)!.cueLedger = ledger;
+    for (const [cueIndex, cue] of parsed.entries()) {
       const order = utterances.length;
       utterances.push({
         id: `U${String(order + 1).padStart(2, "0")}`,
@@ -190,6 +243,14 @@ export async function parseInputs(items: InputItem[]): Promise<ParseResult> {
         speaker: `資料${index + 1}：話者不明`,
         order,
         line: cue.line,
+        ...(isSubtitle
+          ? {
+              cueSpans: (cue.spans ?? []).map((span) => ({
+                ...span,
+                cueId: ledger[cueIndex].id,
+              })),
+            }
+          : {}),
         time: cue.time,
         classification: "unknown",
         coverage: "unorganized",

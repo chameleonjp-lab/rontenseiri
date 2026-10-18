@@ -1,3 +1,4 @@
+import CompletenessEditor from "./CompletenessEditor";
 import { useState } from "react";
 import type { Project } from "../domain/types";
 import { labels } from "../domain/types";
@@ -30,6 +31,11 @@ export default function CoveragePanel({
       <p>
         発言になる前の文字も、発言・非発言・対象外・未確定へ対応させます。処理が完了しても、記録範囲が全文であることや意味の反映は保証しません。
       </p>
+      <CompletenessEditor
+        project={project}
+        onUpdate={onUpdate}
+        onError={onError}
+      />
       <div className="coverage-stats">
         <span>記録範囲：{labels.extent[project.extent]}</span>
         <span>

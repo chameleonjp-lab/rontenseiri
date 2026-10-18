@@ -1,3 +1,4 @@
+import { readSubtitleCueLedger } from "../input/parse";
 import type { Project, Relation, Utterance } from "./types";
 import type { ReasoningGraph } from "./reasoning-types";
 import type {
@@ -10,6 +11,11 @@ import { validateProject } from "./project";
 import { buildSourceCoverage } from "./coverage";
 import { semanticSnapshot } from "./snapshot";
 import { invalidateDependents } from "./invalidation";
+import {
+  validateUtteranceQuote,
+  withCueSpans,
+  splitCueSpans,
+} from "./cue-provenance";
 
 type ProjectWithLineage = Project & { lineage?: LineageLedger };
 const clone = <T>(v: T): T => structuredClone(v);
@@ -334,21 +340,25 @@ export function splitUtterance(
     throw new Error("surrogate pair cannot be split");
   const before = snapshot(p),
     source = p.sources.find((s) => s.versionId === u.sourceVersionId);
-  if (!source || source.text.slice(u.start, u.end) !== u.quote)
-    throw new Error("quote mismatch");
-  const left: Utterance = {
+  if (!source) throw new Error("source missing");
+  validateUtteranceQuote(source, u);
+  const leftBase: Utterance = { ...clone(u), id: id("utterance") };
+  const rightBase: Utterance = {
     ...clone(u),
     id: id("utterance"),
-    end: u.start + n,
-    quote: u.quote.slice(0, n),
-  };
-  const right: Utterance = {
-    ...clone(u),
-    id: id("utterance"),
-    start: u.start + n,
-    quote: u.quote.slice(n),
     order: u.order + 1,
   };
+  let left: Utterance, right: Utterance;
+  if (u.cueSpans) {
+    const [leftSpans, rightSpans] = splitCueSpans(source, u.cueSpans, n);
+    if (!leftSpans.length || !rightSpans.length)
+      throw new Error("split cannot create empty cue span");
+    left = withCueSpans(leftBase, source, leftSpans);
+    right = withCueSpans(rightBase, source, rightSpans);
+  } else {
+    left = { ...leftBase, end: u.start + n, quote: u.quote.slice(0, n) };
+    right = { ...rightBase, start: u.start + n, quote: u.quote.slice(n) };
+  }
   const index = p.utterances.findIndex((x) => x.id === u.id);
   shiftOrders(p, u.order + 1);
   p.utterances.splice(index, 1, left, right);
@@ -449,19 +459,54 @@ export function mergeUtterances(
     )
   )
     throw new Error("merge range contains an unselected utterance");
-  const before = snapshot(p),
-    merged: Utterance = {
-      ...clone(first),
-      id: id("utterance"),
-      start: first.start,
-      end: last.end,
-      quote: source.text.slice(first.start, last.end),
-      order: Math.min(...us.map((u) => u.order)),
-      important: us.some((u) => u.important),
-      coverage: us.some((u) => u.coverage === "failed")
-        ? "failed"
-        : first.coverage,
-    };
+  const before = snapshot(p);
+  // Legacy schemaVersion 1 retains its scalar quote/time on import. Recover body
+  // spans only for this explicit merge, from the unchanged raw subtitle source.
+  if (["vtt", "srt"].includes(source.format) && us.some((u) => !u.cueSpans)) {
+    source.cueLedger ??= readSubtitleCueLedger(source.text, source.format);
+    for (const u of us)
+      if (!u.cueSpans) {
+        const spans = source.cueLedger
+          .filter((cue) => cue.start < u.end && cue.end > u.start)
+          .map((cue) => ({
+            cueId: cue.id,
+            start: Math.max(cue.start, u.start),
+            end: Math.min(cue.end, u.end),
+          }));
+        if (!spans.length)
+          throw new Error(
+            "旧字幕の本文をcueへ対応できません。字幕入力を再確認してください",
+          );
+        // Selection is explicit; any former metadata gap is not a body span.
+        const recovered = withCueSpans(u, source, spans);
+        if (recovered.time === undefined) delete u.time;
+        Object.assign(u, recovered);
+      }
+  }
+  if (us.some((u) => u.cueSpans) && !us.every((u) => u.cueSpans))
+    throw new Error("cue対応のある本文とない本文は混在して統合できません");
+  us.forEach((u) => validateUtteranceQuote(source, u));
+  const mergedBase: Utterance = {
+    ...clone(first),
+    id: id("utterance"),
+    order: Math.min(...us.map((u) => u.order)),
+    important: us.some((u) => u.important),
+    coverage: us.some((u) => u.coverage === "failed")
+      ? "failed"
+      : first.coverage,
+  };
+  const merged: Utterance = first.cueSpans
+    ? withCueSpans(
+        mergedBase,
+        source,
+        us.flatMap((u) => u.cueSpans ?? []),
+      )
+    : {
+        ...mergedBase,
+        start: first.start,
+        end: last.end,
+        quote: source.text.slice(first.start, last.end),
+      };
   p.utterances = p.utterances.filter((u) => !selectedSet.has(u.id));
   const insertAt = p.utterances.findIndex((u) => u.order > merged.order);
   if (insertAt < 0) p.utterances.push(merged);

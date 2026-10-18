@@ -1,5 +1,6 @@
 import type { Project, Utterance } from "./types";
 import type { LineageLedger } from "./lineage-types";
+import { validateUtteranceQuote, validateSourceCues } from "./cue-provenance";
 
 type ProjectWithLineage = Project & { lineage?: LineageLedger };
 const statuses = new Set(["applied", "conflict", "pending", "unresolved"]);
@@ -85,6 +86,7 @@ export function validateLineage(project: Project): Project {
     );
     if (!originalSource || r.end > originalSource.text.length)
       throw new Error("lineage original source missing");
+    validateSourceCues(originalSource);
     for (const id of r.newIds) {
       if (
         !states.some(
@@ -97,7 +99,14 @@ export function validateLineage(project: Project): Project {
             u.end <= r.end &&
             u.end > u.start &&
             typeof u.quote === "string" &&
-            originalSource.text.slice(u.start, u.end) === u.quote,
+            (() => {
+              try {
+                validateUtteranceQuote(originalSource, u);
+                return true;
+              } catch {
+                return false;
+              }
+            })(),
         )
       )
         throw new Error("lineage target range mismatch");

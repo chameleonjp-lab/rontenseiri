@@ -27,6 +27,8 @@ function sourceDto(source: Source, includeCoverage = false): Source {
   };
   if (includeCoverage && source.coverage !== undefined)
     result.coverage = structuredClone(source.coverage);
+  if (includeCoverage && source.cueLedger !== undefined)
+    result.cueLedger = structuredClone(source.cueLedger);
   return result;
 }
 function utteranceDto(u: Utterance): Utterance {
@@ -44,6 +46,7 @@ function utteranceDto(u: Utterance): Utterance {
     coverage: u.coverage,
     important: u.important,
   };
+  if (u.cueSpans !== undefined) result.cueSpans = structuredClone(u.cueSpans);
   if (u.time !== undefined) result.time = u.time;
   if (u.returnStatus !== undefined) result.returnStatus = u.returnStatus;
   return result;
@@ -114,6 +117,8 @@ function projectDto(p: Project, includeAdvanced = false): Project {
   if (p.storageRevision !== undefined)
     result.storageRevision = p.storageRevision;
   if (includeAdvanced) {
+    if (p.omissions !== undefined)
+      result.omissions = structuredClone(p.omissions);
     if (p.reasoning !== undefined)
       result.reasoning = structuredClone(p.reasoning);
     if (p.lineage !== undefined) result.lineage = structuredClone(p.lineage);

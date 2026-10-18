@@ -24,6 +24,12 @@ export function buildSourceCoverage(
 ): CoverageSpan[] {
   const current = utterances
     .filter((u) => u.sourceVersionId === source.versionId)
+    .flatMap((u) =>
+      (u.cueSpans ?? [{ start: u.start, end: u.end }]).map((span) => ({
+        ...span,
+        id: u.id,
+      })),
+    )
     .sort((a, b) => a.start - b.start);
   const spans: CoverageSpan[] = [];
   const addGap = (start: number, end: number) => {
@@ -108,8 +114,9 @@ export function auditSourceCoverage(source: Source, utterances: Utterance[]) {
       !active.some(
         (u) =>
           u.id === span.utteranceId &&
-          u.start === span.start &&
-          u.end === span.end,
+          (u.cueSpans ?? [{ start: u.start, end: u.end }]).some(
+            (part) => part.start === span.start && part.end === span.end,
+          ),
       )
     )
       issues.push("発言と原文対応が一致しません");
