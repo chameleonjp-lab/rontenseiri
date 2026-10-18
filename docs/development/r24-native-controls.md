@@ -9,20 +9,20 @@
 - ネイティブ側のgrant後、ラッパーへのcallback配送を制御して呼出側取消または取得タイムアウトを先に確定する競合。
 - grant後の呼出側abortがleaseのsignalだけをabortし、`release()`／`finally` までネイティブロックを保持すること。
 - `ifAvailable: true` で意図的に `null` lock を得る非通常経路のcleanup。通常のblocking requestがnullを返すとは扱わない。
-- プロダクト所有のcaller `abort` listenerが、同一listener identityでrelease後に0件になること。
+- プロダクト所有caller `abort` listenerのJS add/remove対応集合が、同一identityでrelease後に0件になること（実ブラウザlistener総数ではない）。
 - 取得timerとlease timerがrelease後に残らないこと（ブラウザtimer APIをテスト中だけ計測）。
 
 ## controlled delivery の範囲
 
 競合を決定的にするため、テスト内の薄い `controlledLocks` manager は、実 `navigator.locks.request` を呼び出した後、callbackを一時的なPromise gateの後に配送する。このmanagerはテスト専用の配送制御であり、native Web Locksのgrant・held・pending状態を置き換えない。JSON evidenceには `controlledDelivery: true` を明記する。
 
-従って、grant-vs-caller-cancelおよびgrant-vs-timeoutのテストは「native callbackへ到達した後、プロダクトcallbackへ届く前に競合を確定した」ことを示す。これは全てのOS／ブラウザ内部スケジューリング順序を証明するものではない。timeout競合は20msという設定値を変えず、取得timer callbackだけを捕捉してnative grant到達後に明示配送する。wall-clockで20ms経過した順序の証明ではなく、controlled acquisition-timeout deliveryとしてattachmentにも明記する。
+従って、grant-vs-caller-cancelおよびgrant-vs-timeoutのテストは「native callbackへ到達した後、プロダクトcallbackへ届く前に競合を確定した」ことを示す。これは全てのOS／ブラウザ内部スケジューリング順序を証明するものではない。両競合で取得timerだけを捕捉し、実時計deadlineは直ちにclearして、rAF遅延で取得timeoutが先勝ちしないようにする。caller cancel側は2,000ms callbackを配送せず取消を先に確定し、timeout側は20ms callbackをnative grant到達後だけ明示配送する。設定値や性能閾値は変えず、wall-clockの競合順序を証明するものではない。両ケース自身で捕捉timer登録1→製品cleanup後0をassertし、controlledAcquisitionDeadlineをattachmentへ記録する。
 
 ## 観測と限界
 
 `navigator.locks.query()` の `held`／`pending`、公開lease signal、取得結果、listener identity集合、timer集合だけをassertする。fixture lockのabort rejectや単独のcounterからnative queue除去を推論しない。
 
-Web Locks実装内部のC++ signal algorithmや、JSから見えないnative内部listenerの物理的な登録・解除はspyできない。このテストのlistener assertionは、post-grant caller abort→lease abort→native held維持→releaseという同一ケースで、プロダクトがcaller signalへ追加・削除したJS listenerのidentityだけであり、native内部listenerの証明ではない。
+Web Locks実装内部のC++ signal algorithmや、JSから見えないnative内部listenerの物理的な登録・解除はspyできない。このテストのlistener assertionは、post-grant caller abort→lease abort→native held維持→releaseという同一ケースで、プロダクトがcaller signalへ追加・削除したJS listenerのidentityだけであり、実ブラウザlistener総数やnative内部listenerの証明ではない。timer集合もテスト捕捉/clear対応を測り、全ブラウザ内部timerの物理数ではない。
 
 `ifAvailable: true` のnull-lockテストはnull callbackのcleanupを確認するための明示的な補助経路であり、通常のblocking ownership callの挙動を代表しない。
 

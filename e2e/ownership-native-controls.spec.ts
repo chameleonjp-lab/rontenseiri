@@ -1,156 +1,151 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
-test("native grant then caller cancel rejects delivery and cleans the native queue", async ({
-  page,
-}, info) => {
-  await page.goto("/");
-  const result = await page.evaluate(async () => {
-    const { acquireAnalysisOwnership } =
-      await import("/src/analysis/ownership.ts");
-    const lockName = `r24-controlled-caller-cancel-${crypto.randomUUID()}`;
-    const caller = new AbortController();
-    let openGate!: () => void;
-    const deliveryGate = new Promise<void>((resolve) => {
-      openGate = resolve;
-    });
-    const state = { nativeCallbackEntered: false };
-    const nativeRequest = navigator.locks.request.bind(navigator.locks);
-    const controlledLocks: LockManager = {
-      request: (name, options, callback) =>
-        nativeRequest(name, options, async (lock) => {
-          state.nativeCallbackEntered = true;
-          await deliveryGate;
-          return callback(lock);
-        }),
-    } as LockManager;
-    const pending = acquireAnalysisOwnership({
-      locks: controlledLocks,
-      lockName,
-      signal: caller.signal,
-      timeoutMs: 2_000,
-      leaseMs: 2_000,
-    });
-    while (!state.nativeCallbackEntered)
-      await new Promise(requestAnimationFrame);
-    caller.abort();
-    const rejection = await pending.then(
-      () => "fulfilled",
-      (error: unknown) => (error as Error).name,
-    );
-    openGate();
-    await new Promise(requestAnimationFrame);
-    const native = await navigator.locks.query();
-    return {
-      lockName,
-      controlledDelivery: true,
-      nativeCallbackEntered: state.nativeCallbackEntered,
-      rejection,
-      held: native.held?.filter((lock) => lock.name === lockName).length ?? 0,
-      pending:
-        native.pending?.filter((lock) => lock.name === lockName).length ?? 0,
-    };
-  });
-  expect(result).toEqual({
-    lockName: result.lockName,
-    controlledDelivery: true,
-    nativeCallbackEntered: true,
-    rejection: "AbortError",
-    held: 0,
-    pending: 0,
-  });
-  await info.attach("grant-vs-caller-cancel.json", {
-    body: JSON.stringify(result),
-    contentType: "application/json",
-  });
-});
+type DeadlineControl = {
+  stopCapturing(): void;
+  count(): number;
+  deliver(): void;
+  restore(): void;
+};
 
-test("native grant then timeout rejects controlled delivery and cleans timers", async ({
-  page,
-}, info) => {
-  await page.goto("/");
-  const result = await page.evaluate(async () => {
-    const { acquireAnalysisOwnership } =
-      await import("/src/analysis/ownership.ts");
-    const lockName = `r24-controlled-timeout-${crypto.randomUUID()}`;
-    let openGate!: () => void;
-    const deliveryGate = new Promise<void>((resolve) => {
-      openGate = resolve;
-    });
-    const state = { nativeCallbackEntered: false };
-    const nativeRequest = navigator.locks.request.bind(navigator.locks);
-    const controlledLocks: LockManager = {
-      request: (name, options, callback) =>
-        nativeRequest(name, options, async (lock) => {
-          state.nativeCallbackEntered = true;
-          await deliveryGate;
-          return callback(lock);
-        }),
-    } as LockManager;
-    const originalSetTimeout = window.setTimeout.bind(window);
-    let deliverAcquisitionTimeout: (() => void) | undefined;
+async function controlAcquisitionDeadline(page: Page, delay: number) {
+  await page.evaluate((targetDelay) => {
+    const originalSetTimeout = window.setTimeout;
+    const originalClearTimeout = window.clearTimeout;
+    const captured = new Map<number, () => void>();
+    let armed = true;
     window.setTimeout = ((
       handler: TimerHandler,
-      delay?: number,
+      timeout?: number,
       ...args: unknown[]
     ) => {
-      if (
-        delay === 20 &&
-        typeof handler === "function" &&
-        !deliverAcquisitionTimeout
-      ) {
-        deliverAcquisitionTimeout = () => handler(...args);
-        return originalSetTimeout(() => {}, delay);
+      if (armed && timeout === targetDelay && typeof handler === "function") {
+        const id = originalSetTimeout.call(window, () => {}, timeout);
+        // Disable the real deadline immediately. Only explicit delivery below
+        // can invoke this acquisition callback, regardless of rAF scheduling.
+        originalClearTimeout.call(window, id);
+        captured.set(id, () => handler(...args));
+        return id;
       }
-      return originalSetTimeout(handler, delay, ...args);
+      return originalSetTimeout.call(window, handler, timeout, ...args);
     }) as typeof window.setTimeout;
-    let pending: ReturnType<typeof acquireAnalysisOwnership>;
-    try {
-      pending = acquireAnalysisOwnership({
-        locks: controlledLocks,
-        lockName,
-        timeoutMs: 20,
-        leaseMs: 2_000,
-      });
-    } finally {
-      window.setTimeout = originalSetTimeout;
-    }
-    while (!state.nativeCallbackEntered)
-      await new Promise(requestAnimationFrame);
-    if (!deliverAcquisitionTimeout)
-      throw new Error("acquisition timeout was not captured");
-    deliverAcquisitionTimeout();
-    const rejection = await pending.then(
-      () => "fulfilled",
-      (error: unknown) => (error as Error).name,
-    );
-    openGate();
-    await new Promise(requestAnimationFrame);
-    const native = await navigator.locks.query();
-    return {
-      lockName,
-      controlledDelivery: true,
-      controlledAcquisitionTimeout: true,
-      nativeCallbackEntered: state.nativeCallbackEntered,
-      rejection,
-      held: native.held?.filter((lock) => lock.name === lockName).length ?? 0,
-      pending:
-        native.pending?.filter((lock) => lock.name === lockName).length ?? 0,
+    window.clearTimeout = ((id?: number) => {
+      if (id !== undefined) captured.delete(id);
+      return originalClearTimeout.call(window, id);
+    }) as typeof window.clearTimeout;
+    (
+      window as Window & { __r24AcquisitionDeadline?: DeadlineControl }
+    ).__r24AcquisitionDeadline = {
+      stopCapturing() {
+        armed = false;
+      },
+      count() {
+        return captured.size;
+      },
+      deliver() {
+        if (captured.size !== 1)
+          throw new Error("exactly one acquisition deadline required");
+        captured.values().next().value!();
+      },
+      restore() {
+        window.setTimeout = originalSetTimeout;
+        window.clearTimeout = originalClearTimeout;
+      },
     };
+  }, delay);
+}
+
+for (const mode of ["caller cancel", "timeout"] as const) {
+  test(`native grant then ${mode} rejects controlled delivery and clears the captured deadline`, async ({
+    page,
+  }, info) => {
+    await page.goto("/");
+    const timeoutMs = mode === "timeout" ? 20 : 2_000;
+    await controlAcquisitionDeadline(page, timeoutMs);
+    const result = await page.evaluate(
+      async ({ mode, timeoutMs }) => {
+        const { acquireAnalysisOwnership } =
+          await import("/src/analysis/ownership.ts");
+        const deadline = (
+          window as Window & { __r24AcquisitionDeadline: DeadlineControl }
+        ).__r24AcquisitionDeadline;
+        const lockName = `r24-controlled-${mode}-${crypto.randomUUID()}`;
+        const caller = new AbortController();
+        let openGate!: () => void;
+        const deliveryGate = new Promise<void>((resolve) => {
+          openGate = resolve;
+        });
+        const state = { nativeCallbackEntered: false };
+        const nativeRequest = navigator.locks.request.bind(navigator.locks);
+        const controlledLocks: LockManager = {
+          request: (name, options, callback) =>
+            nativeRequest(name, options, async (lock) => {
+              state.nativeCallbackEntered = true;
+              await deliveryGate;
+              return callback(lock);
+            }),
+        } as LockManager;
+        try {
+          const pending = acquireAnalysisOwnership({
+            locks: controlledLocks,
+            lockName,
+            signal: caller.signal,
+            timeoutMs,
+            leaseMs: 2_000,
+          });
+          deadline.stopCapturing();
+          while (!state.nativeCallbackEntered)
+            await new Promise(requestAnimationFrame);
+          const capturedTimersBefore = deadline.count();
+          if (mode === "timeout") deadline.deliver();
+          else caller.abort();
+          const rejection = await pending.then(
+            () => "fulfilled",
+            (error: unknown) => (error as Error).name,
+          );
+          const capturedTimersAfter = deadline.count();
+          openGate();
+          await new Promise(requestAnimationFrame);
+          const native = await navigator.locks.query();
+          return {
+            lockName,
+            controlledDelivery: true,
+            controlledAcquisitionDeadline: true,
+            timeoutDelivery: mode === "timeout" ? "explicit" : "not delivered",
+            nativeCallbackEntered: state.nativeCallbackEntered,
+            capturedTimersBefore,
+            capturedTimersAfter,
+            rejection,
+            held:
+              native.held?.filter((lock) => lock.name === lockName).length ?? 0,
+            pending:
+              native.pending?.filter((lock) => lock.name === lockName).length ??
+              0,
+          };
+        } finally {
+          openGate();
+          deadline.restore();
+        }
+      },
+      { mode, timeoutMs },
+    );
+    expect(result).toEqual({
+      lockName: result.lockName,
+      controlledDelivery: true,
+      controlledAcquisitionDeadline: true,
+      timeoutDelivery: mode === "timeout" ? "explicit" : "not delivered",
+      nativeCallbackEntered: true,
+      capturedTimersBefore: 1,
+      capturedTimersAfter: 0,
+      rejection: mode === "timeout" ? "OwnershipTimeoutError" : "AbortError",
+      held: 0,
+      pending: 0,
+    });
+    await info.attach(
+      `grant-vs-${mode === "timeout" ? "timeout" : "caller-cancel"}.json`,
+      { body: JSON.stringify(result), contentType: "application/json" },
+    );
   });
-  expect(result).toEqual({
-    lockName: result.lockName,
-    controlledDelivery: true,
-    controlledAcquisitionTimeout: true,
-    nativeCallbackEntered: true,
-    rejection: "OwnershipTimeoutError",
-    held: 0,
-    pending: 0,
-  });
-  await info.attach("grant-vs-timeout.json", {
-    body: JSON.stringify(result),
-    contentType: "application/json",
-  });
-});
+}
 
 test("post-grant caller abort aborts the lease but release remains the native handoff boundary", async ({
   page,
