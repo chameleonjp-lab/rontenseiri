@@ -118,6 +118,27 @@ describe("controlled performance protocol", () => {
     expect(validateResult(result("selection"), "selection", "abc")).toEqual([]);
   });
 
+  it("measured operationLogとraw値の不一致を受理しない", () => {
+    const invalid = result();
+    invalid.operationLog[WARMUP + 7].durationMs = 999;
+    expect(validateResult(invalid, "selection", "abc")).toEqual(
+      expect.arrayContaining([
+        "measured operation log does not match raw values",
+      ]),
+    );
+  });
+
+  it("warmup durationの非有限値と負値を受理しない", () => {
+    const invalid = result();
+    invalid.operationLog[0].durationMs = Number.NaN;
+    invalid.operationLog[1].durationMs = -1;
+    expect(validateResult(invalid, "selection", "abc")).toEqual(
+      expect.arrayContaining([
+        "warmup operation log has non-finite or negative duration",
+      ]),
+    );
+  });
+
   it("stale SHA、dev mode、HMR、missing checks、URL不一致を拒否する", () => {
     const valid = result();
     const invalid = {

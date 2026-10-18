@@ -1,0 +1,224 @@
+[controlled-performance] npm run build (once)
+
+> rontenseiri@0.1.0-prototype build
+> tsc -b && vite build
+
+vite v8.3.4 building client environment for production...
+transforming...
+✓ 1937 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/__rontenseiri_build_identity            0.13 kB
+dist/index.html                              0.62 kB │ gzip:   0.46 kB
+dist/assets/analysis.worker-BJ88akSH.js      4.30 kB
+dist/assets/lib-HCEcL2SI.js              6,118.45 kB
+dist/assets/index-CWP-gHrj.css              57.00 kB │ gzip:  12.03 kB
+dist/assets/index-CXIwA_2g.js              624.22 kB │ gzip: 194.85 kB
+
+✓ built in 1.76s
+[controlled-performance] round-1-selection start (1/9)
+
+Running 1 test using 1 worker
+
+[diagnostic] selection -10/100
+[diagnostic] selection 0/100
+[diagnostic] selection 10/100
+[diagnostic] selection 20/100
+[diagnostic] selection 30/100
+[diagnostic] selection 40/100
+[diagnostic] selection 50/100
+[diagnostic] selection 60/100
+[diagnostic] selection 70/100
+[diagnostic] selection 80/100
+[diagnostic] selection 90/100
+[diagnostic] selection 100/100
+  ✓  1 e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する (57.7s)
+
+  1 passed (1.0m)
+[controlled-performance] round-1-selection passed
+[controlled-performance] round-1-search start (2/9)
+
+Running 1 test using 1 worker
+
+[diagnostic] search -10/100
+[diagnostic] search 0/100
+[diagnostic] search 10/100
+[diagnostic] search 20/100
+[diagnostic] search 30/100
+[diagnostic] search 40/100
+[diagnostic] search 50/100
+[diagnostic] search 60/100
+[diagnostic] search 70/100
+[diagnostic] search 80/100
+[diagnostic] search 90/100
+[diagnostic] search 100/100
+  ✓  1 e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する (18.0s)
+
+  1 passed (20.1s)
+[controlled-performance] round-1-search passed
+[controlled-performance] round-1-fold start (3/9)
+
+Running 1 test using 1 worker
+
+[diagnostic] fold -10/100
+[diagnostic] fold 0/100
+[diagnostic] fold 10/100
+[diagnostic] fold 20/100
+[diagnostic] fold 30/100
+[diagnostic] fold 40/100
+[diagnostic] fold 50/100
+[diagnostic] fold 60/100
+[diagnostic] fold 70/100
+[diagnostic] fold 80/100
+[diagnostic] fold 90/100
+[diagnostic] fold 100/100
+  ✓  1 e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する (18.6s)
+
+  1 passed (20.8s)
+[controlled-performance] round-1-fold passed
+[controlled-performance] round-2-search start (4/9)
+
+Running 1 test using 1 worker
+
+[diagnostic] search -10/100
+[diagnostic] search 0/100
+[diagnostic] search 10/100
+[diagnostic] search 20/100
+[diagnostic] search 30/100
+[diagnostic] search 40/100
+[diagnostic] search 50/100
+[diagnostic] search 60/100
+[diagnostic] search 70/100
+[diagnostic] search 80/100
+[diagnostic] search 90/100
+[diagnostic] search 100/100
+  ✓  1 e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する (21.1s)
+
+  1 passed (23.2s)
+[controlled-performance] round-2-search passed
+[controlled-performance] round-2-fold start (5/9)
+
+Running 1 test using 1 worker
+
+[diagnostic] fold -10/100
+[diagnostic] fold 0/100
+[diagnostic] fold 10/100
+[diagnostic] fold 20/100
+[diagnostic] fold 30/100
+[diagnostic] fold 40/100
+[diagnostic] fold 50/100
+[diagnostic] fold 60/100
+[diagnostic] fold 70/100
+[diagnostic] fold 80/100
+[diagnostic] fold 90/100
+[diagnostic] fold 100/100
+  ✘  1 e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する (23.5s)
+
+
+  1) e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する ─────────────────────────────────
+
+    Error: fold: 100-operation p95 must be <= 200ms
+
+    expect(received).toBeLessThanOrEqual(expected)
+
+    Expected: <= 200
+    Received:    200.5
+
+      743 |         `${name}: 100-operation p95 must be <= ${THRESHOLD_MS}ms`,
+      744 |       )
+    > 745 |       .toBeLessThanOrEqual(THRESHOLD_MS);
+          |        ^
+      746 |   }
+      747 | });
+      748 |
+        at /workspace/rontenseiri-bounded-reconcile/e2e/performance.spec.ts:745:8
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../r22-evidence/7da450fd60dd8eb91ca686867c7dbcdaef944e53/controlled-performance/round-2-fold/test-results/performance-500ノードの選択・検索・折り畳みを各100操作で観測する/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../r22-evidence/7da450fd60dd8eb91ca686867c7dbcdaef944e53/controlled-performance/round-2-fold/test-results/performance-500ノードの選択・検索・折り畳みを各100操作で観測する/error-context.md
+
+  1 failed
+    e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する ──────────────────────────────────
+[controlled-performance] round-2-fold failed
+[controlled-performance] round-2-selection start (6/9)
+
+Running 1 test using 1 worker
+
+[diagnostic] selection -10/100
+[diagnostic] selection 0/100
+[diagnostic] selection 10/100
+[diagnostic] selection 20/100
+[diagnostic] selection 30/100
+[diagnostic] selection 40/100
+[diagnostic] selection 50/100
+[diagnostic] selection 60/100
+[diagnostic] selection 70/100
+[diagnostic] selection 80/100
+[diagnostic] selection 90/100
+[diagnostic] selection 100/100
+  ✓  1 e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する (58.2s)
+
+  1 passed (1.0m)
+[controlled-performance] round-2-selection passed
+[controlled-performance] round-3-fold start (7/9)
+
+Running 1 test using 1 worker
+
+[diagnostic] fold -10/100
+[diagnostic] fold 0/100
+[diagnostic] fold 10/100
+[diagnostic] fold 20/100
+[diagnostic] fold 30/100
+[diagnostic] fold 40/100
+[diagnostic] fold 50/100
+[diagnostic] fold 60/100
+[diagnostic] fold 70/100
+[diagnostic] fold 80/100
+[diagnostic] fold 90/100
+[diagnostic] fold 100/100
+  ✓  1 e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する (20.4s)
+
+  1 passed (22.6s)
+[controlled-performance] round-3-fold passed
+[controlled-performance] round-3-selection start (8/9)
+
+Running 1 test using 1 worker
+
+[diagnostic] selection -10/100
+[diagnostic] selection 0/100
+[diagnostic] selection 10/100
+[diagnostic] selection 20/100
+[diagnostic] selection 30/100
+[diagnostic] selection 40/100
+[diagnostic] selection 50/100
+[diagnostic] selection 60/100
+[diagnostic] selection 70/100
+[diagnostic] selection 80/100
+[diagnostic] selection 90/100
+[diagnostic] selection 100/100
+  ✓  1 e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する (59.2s)
+
+  1 passed (1.0m)
+[controlled-performance] round-3-selection passed
+[controlled-performance] round-3-search start (9/9)
+
+Running 1 test using 1 worker
+
+[diagnostic] search -10/100
+[diagnostic] search 0/100
+[diagnostic] search 10/100
+[diagnostic] search 20/100
+[diagnostic] search 30/100
+[diagnostic] search 40/100
+[diagnostic] search 50/100
+[diagnostic] search 60/100
+[diagnostic] search 70/100
+[diagnostic] search 80/100
+[diagnostic] search 90/100
+[diagnostic] search 100/100
+  ✓  1 e2e/performance.spec.ts:277:1 › 500ノードの選択・検索・折り畳みを各100操作で観測する (20.5s)
+
+  1 passed (22.8s)
+[controlled-performance] round-3-search passed

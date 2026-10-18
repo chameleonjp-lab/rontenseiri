@@ -1,0 +1,1448 @@
+{
+  "testedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+  "dirtyWorkingTree": false,
+  "actualBaseURL": "http://127.0.0.1:4193",
+  "healthCheck": {
+    "baseURL": "http://127.0.0.1:4193",
+    "endpoint": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+    "status": 200,
+    "response": {
+      "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+      "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+      "dirty": false,
+      "mode": "production"
+    },
+    "expectedSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+    "expectedMode": "production",
+    "signals": {
+      "htmlDevClient": false,
+      "devClientEndpoint": false,
+      "runtimeDevClient": false,
+      "hmrWebSocket": false
+    },
+    "completed": true,
+    "passed": true,
+    "errors": [],
+    "probes": {
+      "health": {
+        "url": "http://127.0.0.1:4193/__rontenseiri_build_identity",
+        "status": 200,
+        "responseBody": "{\"sha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"buildSha\":\"7da450fd60dd8eb91ca686867c7dbcdaef944e53\",\"dirty\":false,\"mode\":\"production\"}\n"
+      },
+      "html": {
+        "url": "http://127.0.0.1:4193/",
+        "status": 200,
+        "devMarkersDetected": false
+      },
+      "devClient": {
+        "url": "http://127.0.0.1:4193/@vite/client",
+        "status": 200,
+        "devClientDetected": false
+      },
+      "runtime": {
+        "pageURL": "http://127.0.0.1:4193/",
+        "scriptUrls": [
+          "http://127.0.0.1:4193/assets/index-CXIwA_2g.js"
+        ],
+        "resourceUrls": [
+          "http://127.0.0.1:4193/assets/index-CXIwA_2g.js",
+          "http://127.0.0.1:4193/assets/index-CWP-gHrj.css"
+        ],
+        "reactRefreshPreamble": false
+      }
+    }
+  },
+  "provenance": {
+    "execution": "github-actions",
+    "publicPrHeadVerified": false,
+    "note": "Exact local tested SHA is not proof of a published PR HEAD. Verify publication and exact public/CI SHA separately before using as public PR evidence."
+  },
+  "servedIdentity": {
+    "sha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+    "buildSha": "7da450fd60dd8eb91ca686867c7dbcdaef944e53",
+    "dirty": false,
+    "mode": "production"
+  },
+  "diagnosticOnly": true,
+  "eligibleForG5": false,
+  "protocol": {
+    "mode": "controlled-production-v1",
+    "observationProtocolVersion": 2,
+    "readinessPolling": "same start/end marks and conditions; all identity/inspector/visibility/3-stable-frame conditions verified in rAF loop; fold expected IDs/count/positions verified on 3 consecutive observations; avoids coarse assertion backoff",
+    "sessions": 1,
+    "warmupOperations": 20,
+    "excludedOperations": 20,
+    "excludedMeasuredOperations": 0,
+    "order": [
+      "search"
+    ],
+    "cacheIsolation": "new browser process/context/server per operation group; fresh storage and HTTP cache; production assets; 20 fixed operation-specific warmups; no inter-group app state; selection preparation still includes search and is outside timing",
+    "concurrentHostLoad": "not controlled"
+  },
+  "startedAt": "2026-10-18T12:09:37.804Z",
+  "timestamp": "2026-10-18T12:09:50.552Z",
+  "evaluator": "automated Playwright observation",
+  "environment": {
+    "browser": "156.0.8078.4",
+    "viewport": {
+      "width": 1440,
+      "height": 980
+    },
+    "os": "linux",
+    "kernel": "6.17.0-1022-azure",
+    "cpu": "INTEL(R) XEON(R) PLATINUM 8573C",
+    "memoryBytes": 16765378560,
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/156.0.8078.4 Safari/537.36",
+    "logicalCores": 4,
+    "webglRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "webgpuAdapter": "未取得・実GPU機種未検証",
+    "cache": "fresh process/context/storage/HTTP cache, then 20 fixed warmups; OS file cache not flushed; no model",
+    "build": "Vite production build / preview server"
+  },
+  "fixture": {
+    "caseId": "canvas-500-v1",
+    "schema": "Project v1",
+    "nodes": 500,
+    "codePoints": 50000,
+    "textSha256": "cef6cc77146a82beb5f6e4297f8b63ca7039c9b6bcd5d34496868925278a30d3",
+    "sampledNodeIds": [
+      "U01",
+      "U72",
+      "U144",
+      "U215",
+      "U286",
+      "U357",
+      "U429",
+      "U500"
+    ],
+    "includesDerivedAndDriftBranches": true
+  },
+  "procedure": "UI JSON import; selection: search/focus preparation outside timing, agenda click clears selectedId, real pointer click on unselected node; search: textbox fill+Enter; fold: alternating toolbar toggles, exact expected ID set/count/relative positions confirmed. 8 IDs distributed across the full chronology.",
+  "durationDefinition": "performance.mark before action through DOM assertions and next frame; selection/search additionally require 3 stable animation frames. Includes Playwright RPC/action and in-page readiness overhead, not paint or real-device input latency. v2 replaces coarse assertion backoff with frame polling; start/end marks and success conditions are unchanged. Full-DOM tracing disabled; operationLog retained.",
+  "observational": true,
+  "latencyBudgetGate": {
+    "thresholdMs": 200,
+    "passed": true,
+    "failedOperations": []
+  },
+  "ciMeaning": "CI fails if any of the three 100-operation p95 values exceeds 200ms. This product latency gate is separate from overall G5 acceptance; protocol/device/accessibility/recovery gates remain incomplete.",
+  "operations": [
+    {
+      "name": "node-search",
+      "count": 100,
+      "p50": 96.69999999995343,
+      "p95": 97.10000000003492,
+      "max": 112.90000000002328,
+      "thresholdMs": 200,
+      "withinLatencyBudget": true,
+      "values": [
+        96.20000000001164,
+        96.40000000002328,
+        96.39999999996508,
+        95.79999999998836,
+        96.60000000003492,
+        96.29999999998836,
+        97.09999999997672,
+        96.40000000002328,
+        96.20000000001164,
+        96.20000000001164,
+        95.90000000002328,
+        95.59999999997672,
+        96.90000000002328,
+        96.10000000003492,
+        105.40000000002328,
+        96.20000000001164,
+        96.89999999996508,
+        95.60000000003492,
+        96.70000000001164,
+        96.89999999996508,
+        96.40000000002328,
+        96.5,
+        96.59999999997672,
+        96.80000000004657,
+        96.70000000001164,
+        112.79999999998836,
+        96.90000000002328,
+        96.69999999995343,
+        96.79999999998836,
+        96.5,
+        96.60000000003492,
+        96.70000000001164,
+        96.70000000001164,
+        97,
+        96.20000000001164,
+        96.79999999998836,
+        96.79999999998836,
+        96.59999999997672,
+        96.5,
+        97.09999999997672,
+        96.39999999996508,
+        96.69999999995343,
+        96.60000000003492,
+        96.29999999998836,
+        96.5,
+        96.70000000001164,
+        112.90000000002328,
+        96.69999999995343,
+        97,
+        96.70000000001164,
+        96.29999999998836,
+        96.5,
+        96.79999999998836,
+        96.70000000001164,
+        96.70000000001164,
+        96.5,
+        97,
+        96.59999999997672,
+        96.79999999998836,
+        96.79999999998836,
+        96.39999999996508,
+        96.89999999996508,
+        96.29999999998836,
+        96.19999999995343,
+        96.60000000003492,
+        96.59999999997672,
+        96.70000000001164,
+        96.60000000003492,
+        96.40000000002328,
+        96.29999999998836,
+        111.20000000001164,
+        95.09999999997672,
+        96.60000000003492,
+        97,
+        96.79999999998836,
+        97,
+        96.79999999998836,
+        95.10000000003492,
+        97.20000000001164,
+        96.5,
+        96.70000000001164,
+        97,
+        96.59999999997672,
+        96.59999999997672,
+        96.79999999998836,
+        96.79999999998836,
+        96.70000000001164,
+        97,
+        96.60000000003492,
+        96.70000000001164,
+        96.5,
+        96.5,
+        96.10000000003492,
+        96.70000000001164,
+        96.69999999995343,
+        97.10000000003492,
+        96.59999999997672,
+        97,
+        96.79999999998836,
+        97
+      ]
+    }
+  ],
+  "operationLog": [
+    {
+      "operation": "search",
+      "index": -20,
+      "durationMs": 121.79999999998836,
+      "completedAt": "2026-10-18T12:09:38.444Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -19,
+      "durationMs": 111.10000000003492,
+      "completedAt": "2026-10-18T12:09:38.561Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -18,
+      "durationMs": 112.30000000004657,
+      "completedAt": "2026-10-18T12:09:38.677Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -17,
+      "durationMs": 112.09999999997672,
+      "completedAt": "2026-10-18T12:09:38.794Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -16,
+      "durationMs": 95.70000000001164,
+      "completedAt": "2026-10-18T12:09:38.894Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -15,
+      "durationMs": 96.40000000002328,
+      "completedAt": "2026-10-18T12:09:38.994Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -14,
+      "durationMs": 113.10000000003492,
+      "completedAt": "2026-10-18T12:09:39.110Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -13,
+      "durationMs": 96.09999999997672,
+      "completedAt": "2026-10-18T12:09:39.210Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -12,
+      "durationMs": 113.20000000001164,
+      "completedAt": "2026-10-18T12:09:39.327Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -11,
+      "durationMs": 96.39999999996508,
+      "completedAt": "2026-10-18T12:09:39.427Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -10,
+      "durationMs": 96.20000000001164,
+      "completedAt": "2026-10-18T12:09:39.527Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -9,
+      "durationMs": 113.10000000003492,
+      "completedAt": "2026-10-18T12:09:39.644Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -8,
+      "durationMs": 96,
+      "completedAt": "2026-10-18T12:09:39.743Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -7,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:39.844Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -6,
+      "durationMs": 96.59999999997672,
+      "completedAt": "2026-10-18T12:09:39.944Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -5,
+      "durationMs": 96.5,
+      "completedAt": "2026-10-18T12:09:40.043Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -4,
+      "durationMs": 96.5,
+      "completedAt": "2026-10-18T12:09:40.143Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -3,
+      "durationMs": 96.40000000002328,
+      "completedAt": "2026-10-18T12:09:40.244Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -2,
+      "durationMs": 96,
+      "completedAt": "2026-10-18T12:09:40.344Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": -1,
+      "durationMs": 96.30000000004657,
+      "completedAt": "2026-10-18T12:09:40.444Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": true
+    },
+    {
+      "operation": "search",
+      "index": 0,
+      "durationMs": 96.20000000001164,
+      "completedAt": "2026-10-18T12:09:40.544Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 1,
+      "durationMs": 96.40000000002328,
+      "completedAt": "2026-10-18T12:09:40.644Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 2,
+      "durationMs": 96.39999999996508,
+      "completedAt": "2026-10-18T12:09:40.744Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 3,
+      "durationMs": 95.79999999998836,
+      "completedAt": "2026-10-18T12:09:40.843Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 4,
+      "durationMs": 96.60000000003492,
+      "completedAt": "2026-10-18T12:09:40.944Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 5,
+      "durationMs": 96.29999999998836,
+      "completedAt": "2026-10-18T12:09:41.043Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 6,
+      "durationMs": 97.09999999997672,
+      "completedAt": "2026-10-18T12:09:41.144Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 7,
+      "durationMs": 96.40000000002328,
+      "completedAt": "2026-10-18T12:09:41.244Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 8,
+      "durationMs": 96.20000000001164,
+      "completedAt": "2026-10-18T12:09:41.343Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 9,
+      "durationMs": 96.20000000001164,
+      "completedAt": "2026-10-18T12:09:41.444Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 10,
+      "durationMs": 95.90000000002328,
+      "completedAt": "2026-10-18T12:09:41.544Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 11,
+      "durationMs": 95.59999999997672,
+      "completedAt": "2026-10-18T12:09:41.643Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 12,
+      "durationMs": 96.90000000002328,
+      "completedAt": "2026-10-18T12:09:41.744Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 13,
+      "durationMs": 96.10000000003492,
+      "completedAt": "2026-10-18T12:09:41.844Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 14,
+      "durationMs": 105.40000000002328,
+      "completedAt": "2026-10-18T12:09:41.960Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 15,
+      "durationMs": 96.20000000001164,
+      "completedAt": "2026-10-18T12:09:42.060Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 16,
+      "durationMs": 96.89999999996508,
+      "completedAt": "2026-10-18T12:09:42.160Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 17,
+      "durationMs": 95.60000000003492,
+      "completedAt": "2026-10-18T12:09:42.260Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 18,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:42.360Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 19,
+      "durationMs": 96.89999999996508,
+      "completedAt": "2026-10-18T12:09:42.460Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 20,
+      "durationMs": 96.40000000002328,
+      "completedAt": "2026-10-18T12:09:42.560Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 21,
+      "durationMs": 96.5,
+      "completedAt": "2026-10-18T12:09:42.660Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 22,
+      "durationMs": 96.59999999997672,
+      "completedAt": "2026-10-18T12:09:42.760Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 23,
+      "durationMs": 96.80000000004657,
+      "completedAt": "2026-10-18T12:09:42.860Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 24,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:42.960Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 25,
+      "durationMs": 112.79999999998836,
+      "completedAt": "2026-10-18T12:09:43.077Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 26,
+      "durationMs": 96.90000000002328,
+      "completedAt": "2026-10-18T12:09:43.177Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 27,
+      "durationMs": 96.69999999995343,
+      "completedAt": "2026-10-18T12:09:43.277Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 28,
+      "durationMs": 96.79999999998836,
+      "completedAt": "2026-10-18T12:09:43.377Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 29,
+      "durationMs": 96.5,
+      "completedAt": "2026-10-18T12:09:43.477Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 30,
+      "durationMs": 96.60000000003492,
+      "completedAt": "2026-10-18T12:09:43.577Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 31,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:43.677Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 32,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:43.777Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 33,
+      "durationMs": 97,
+      "completedAt": "2026-10-18T12:09:43.877Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 34,
+      "durationMs": 96.20000000001164,
+      "completedAt": "2026-10-18T12:09:43.976Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 35,
+      "durationMs": 96.79999999998836,
+      "completedAt": "2026-10-18T12:09:44.077Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 36,
+      "durationMs": 96.79999999998836,
+      "completedAt": "2026-10-18T12:09:44.177Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 37,
+      "durationMs": 96.59999999997672,
+      "completedAt": "2026-10-18T12:09:44.277Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 38,
+      "durationMs": 96.5,
+      "completedAt": "2026-10-18T12:09:44.377Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 39,
+      "durationMs": 97.09999999997672,
+      "completedAt": "2026-10-18T12:09:44.477Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 40,
+      "durationMs": 96.39999999996508,
+      "completedAt": "2026-10-18T12:09:44.577Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 41,
+      "durationMs": 96.69999999995343,
+      "completedAt": "2026-10-18T12:09:44.677Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 42,
+      "durationMs": 96.60000000003492,
+      "completedAt": "2026-10-18T12:09:44.777Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 43,
+      "durationMs": 96.29999999998836,
+      "completedAt": "2026-10-18T12:09:44.877Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 44,
+      "durationMs": 96.5,
+      "completedAt": "2026-10-18T12:09:44.976Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 45,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:45.076Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 46,
+      "durationMs": 112.90000000002328,
+      "completedAt": "2026-10-18T12:09:45.193Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 47,
+      "durationMs": 96.69999999995343,
+      "completedAt": "2026-10-18T12:09:45.293Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 48,
+      "durationMs": 97,
+      "completedAt": "2026-10-18T12:09:45.393Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 49,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:45.493Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 50,
+      "durationMs": 96.29999999998836,
+      "completedAt": "2026-10-18T12:09:45.593Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 51,
+      "durationMs": 96.5,
+      "completedAt": "2026-10-18T12:09:45.693Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 52,
+      "durationMs": 96.79999999998836,
+      "completedAt": "2026-10-18T12:09:45.793Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 53,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:45.893Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 54,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:45.993Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 55,
+      "durationMs": 96.5,
+      "completedAt": "2026-10-18T12:09:46.093Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 56,
+      "durationMs": 97,
+      "completedAt": "2026-10-18T12:09:46.193Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 57,
+      "durationMs": 96.59999999997672,
+      "completedAt": "2026-10-18T12:09:46.293Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 58,
+      "durationMs": 96.79999999998836,
+      "completedAt": "2026-10-18T12:09:46.393Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 59,
+      "durationMs": 96.79999999998836,
+      "completedAt": "2026-10-18T12:09:46.493Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 60,
+      "durationMs": 96.39999999996508,
+      "completedAt": "2026-10-18T12:09:46.593Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 61,
+      "durationMs": 96.89999999996508,
+      "completedAt": "2026-10-18T12:09:46.693Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 62,
+      "durationMs": 96.29999999998836,
+      "completedAt": "2026-10-18T12:09:46.793Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 63,
+      "durationMs": 96.19999999995343,
+      "completedAt": "2026-10-18T12:09:46.893Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 64,
+      "durationMs": 96.60000000003492,
+      "completedAt": "2026-10-18T12:09:46.993Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 65,
+      "durationMs": 96.59999999997672,
+      "completedAt": "2026-10-18T12:09:47.093Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 66,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:47.193Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 67,
+      "durationMs": 96.60000000003492,
+      "completedAt": "2026-10-18T12:09:47.293Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 68,
+      "durationMs": 96.40000000002328,
+      "completedAt": "2026-10-18T12:09:47.393Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 69,
+      "durationMs": 96.29999999998836,
+      "completedAt": "2026-10-18T12:09:47.494Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 70,
+      "durationMs": 111.20000000001164,
+      "completedAt": "2026-10-18T12:09:47.610Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 71,
+      "durationMs": 95.09999999997672,
+      "completedAt": "2026-10-18T12:09:47.710Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 72,
+      "durationMs": 96.60000000003492,
+      "completedAt": "2026-10-18T12:09:47.810Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 73,
+      "durationMs": 97,
+      "completedAt": "2026-10-18T12:09:47.910Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 74,
+      "durationMs": 96.79999999998836,
+      "completedAt": "2026-10-18T12:09:48.010Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 75,
+      "durationMs": 97,
+      "completedAt": "2026-10-18T12:09:48.110Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 76,
+      "durationMs": 96.79999999998836,
+      "completedAt": "2026-10-18T12:09:48.210Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 77,
+      "durationMs": 95.10000000003492,
+      "completedAt": "2026-10-18T12:09:48.309Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 78,
+      "durationMs": 97.20000000001164,
+      "completedAt": "2026-10-18T12:09:48.410Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 79,
+      "durationMs": 96.5,
+      "completedAt": "2026-10-18T12:09:48.510Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 80,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:48.610Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 81,
+      "durationMs": 97,
+      "completedAt": "2026-10-18T12:09:48.710Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 82,
+      "durationMs": 96.59999999997672,
+      "completedAt": "2026-10-18T12:09:48.810Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 83,
+      "durationMs": 96.59999999997672,
+      "completedAt": "2026-10-18T12:09:48.910Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 84,
+      "durationMs": 96.79999999998836,
+      "completedAt": "2026-10-18T12:09:49.010Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 85,
+      "durationMs": 96.79999999998836,
+      "completedAt": "2026-10-18T12:09:49.110Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 86,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:49.210Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 87,
+      "durationMs": 97,
+      "completedAt": "2026-10-18T12:09:49.310Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 88,
+      "durationMs": 96.60000000003492,
+      "completedAt": "2026-10-18T12:09:49.410Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 89,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:49.510Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 90,
+      "durationMs": 96.5,
+      "completedAt": "2026-10-18T12:09:49.610Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 91,
+      "durationMs": 96.5,
+      "completedAt": "2026-10-18T12:09:49.710Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 92,
+      "durationMs": 96.10000000003492,
+      "completedAt": "2026-10-18T12:09:49.810Z",
+      "id": "U72",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 93,
+      "durationMs": 96.70000000001164,
+      "completedAt": "2026-10-18T12:09:49.910Z",
+      "id": "U144",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 94,
+      "durationMs": 96.69999999995343,
+      "completedAt": "2026-10-18T12:09:50.010Z",
+      "id": "U215",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 95,
+      "durationMs": 97.10000000003492,
+      "completedAt": "2026-10-18T12:09:50.110Z",
+      "id": "U286",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 96,
+      "durationMs": 96.59999999997672,
+      "completedAt": "2026-10-18T12:09:50.210Z",
+      "id": "U357",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 97,
+      "durationMs": 97,
+      "completedAt": "2026-10-18T12:09:50.310Z",
+      "id": "U429",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 98,
+      "durationMs": 96.79999999998836,
+      "completedAt": "2026-10-18T12:09:50.410Z",
+      "id": "U500",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    },
+    {
+      "operation": "search",
+      "index": 99,
+      "durationMs": 97,
+      "completedAt": "2026-10-18T12:09:50.510Z",
+      "id": "U01",
+      "selectedIdConfirmed": true,
+      "canvasVisibleConfirmed": true,
+      "warmup": false
+    }
+  ],
+  "failure": null,
+  "complete": true,
+  "g5Passed": false,
+  "g5Status": "製品レイテンシ予算はlatencyBudgetGateを参照。controlled-production-v1でも共有ホスト負荷・OS cache・実機・実GPU・支援技術・heap・全復旧・AIは未検証。独立sessionの全結果はrunnerのsummaryを参照。G5全体は未完了。"
+}

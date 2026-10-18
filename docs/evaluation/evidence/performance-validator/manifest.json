@@ -1,0 +1,19 @@
+{
+  "baselineSha": "7716c44b6c40bc47319c8d0d06b267ad20866d06",
+  "defect": "operationLog durations not compared to raw values",
+  "isHistoricalLatencyRootCause": false,
+  "files": [
+    {
+      "file": "validator-before.log.raw",
+      "sha256": "282cd39dec54103b2c6a3a774e360457e836d7458b43560542ac45c15c05f692"
+    },
+    {
+      "file": "validator-focused-after.log.raw",
+      "sha256": "404942f6318f71c42954eb4dc3568765249d9a454d13433404541bdd9df24592"
+    },
+    {
+      "file": "validator-before.mjs.raw",
+      "sha256": "90733968454501ea359728c3efe5257ab0011ba2675fd396a150bc907de1a7ae"
+    }
+  ]
+}
