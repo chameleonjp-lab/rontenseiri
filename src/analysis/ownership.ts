@@ -1,6 +1,8 @@
 export interface OwnershipLease {
   ownerId: string;
   lockName: string;
+  /** Aborted on expiry or caller cancellation; the lock remains held until release(). */
+  signal: AbortSignal;
   release(): Promise<void>;
 }
 export interface OwnershipOptions {
@@ -53,7 +55,7 @@ export async function acquireAnalysisOwnership(
     throw new OwnershipUnavailableError();
   }
   let released = false;
-  let releaseHold: (() => void) | undefined;
+  const leaseController = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   const request = locks.request.bind(locks) as unknown as LockRequest;
   const started = now();
@@ -63,7 +65,10 @@ export async function acquireAnalysisOwnership(
       if (!settled) {
         settled = true;
         reject(new DOMException("ownership acquisition aborted", "AbortError"));
-      } else releaseHold?.();
+      } else
+        leaseController.abort(
+          new DOMException("ownership lease aborted", "AbortError"),
+        );
     };
     if (options.signal?.aborted) return abort();
     options.signal?.addEventListener("abort", abort, { once: true });
@@ -93,7 +98,6 @@ export async function acquireAnalysisOwnership(
       const hold = new Promise<void>((r) => {
         resolveHold = r;
       });
-      releaseHold = resolveHold;
       active.set(lockName, {
         ownerId,
         expires: now() + leaseMs,
@@ -107,16 +111,13 @@ export async function acquireAnalysisOwnership(
         resolveHold();
       };
       timer = setTimeout(() => {
-        if (!released) void release();
+        if (!released)
+          leaseController.abort(
+            new DOMException("ownership lease expired", "AbortError"),
+          );
       }, leaseMs);
       settled = true;
-      if (timer) {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-          void release();
-        }, leaseMs);
-      }
-      resolve({ ownerId, lockName, release });
+      resolve({ ownerId, lockName, signal: leaseController.signal, release });
       await hold;
       options.signal?.removeEventListener("abort", abort);
     }).catch((error) => {
@@ -137,7 +138,11 @@ export async function withAnalysisOwnership<T>(
 ): Promise<T> {
   const lease = await acquireAnalysisOwnership(options);
   try {
-    return await work(lease);
+    const result = await work(lease);
+    // A callback may finish cleanup after expiry without throwing. Never
+    // expose that late value as a successful owned run.
+    if (lease.signal.aborted) throw lease.signal.reason;
+    return result;
   } finally {
     await lease.release();
   }
