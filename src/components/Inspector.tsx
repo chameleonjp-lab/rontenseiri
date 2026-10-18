@@ -13,7 +13,11 @@ import {
   reviseSource,
   splitAgenda,
 } from "../domain/project";
-import { correctReturn, moveUtterance } from "../domain/revisions";
+import {
+  clearIncomingReturns,
+  correctReturn,
+  moveUtterance,
+} from "../domain/revisions";
 interface Props {
   project: Project;
   utteranceId: string;
@@ -44,9 +48,10 @@ export default function Inspector({
     : u.returnStatus === "none"
       ? ""
       : "__unknown";
-  const incomingReturn = project.relations.find(
+  const incomingReturns = project.relations.filter(
     (r) => r.to === u.id && r.kind === "return",
   );
+  const incomingReturnSignature = JSON.stringify(incomingReturns);
   const [classification, setClassification] = useState(u.classification);
   const [speaker, setSpeaker] = useState(u.speaker);
   const [important, setImportant] = useState(u.important);
@@ -81,7 +86,7 @@ export default function Inspector({
   }, [utteranceId, agenda?.id]);
   useEffect(() => {
     setIncomingReturnAction("");
-  }, [utteranceId, u.classification, incomingReturn?.from]);
+  }, [utteranceId, u.classification, incomingReturnSignature]);
   const source = project.sources.find((s) => s.versionId === u.sourceVersionId);
   const userCorrection = project.revisions.some(
     (r) =>
@@ -111,18 +116,15 @@ export default function Inspector({
         if (Object.keys(patch).length)
           next = reviseProject(project, u.id, patch, reason);
         if (
-          incomingReturn &&
+          incomingReturns.length > 0 &&
           classification !== u.classification &&
           classification !== "main" &&
           incomingReturnAction === "remove"
         ) {
-          for (const relation of project.relations.filter(
-            (r) => r.kind === "return" && r.to === u.id,
-          ))
-            next = correctReturn(next, relation.from, "__unknown", reason);
+          next = clearIncomingReturns(next, u.id, reason);
         }
         if (
-          incomingReturn &&
+          incomingReturns.length > 0 &&
           classification !== u.classification &&
           classification !== "main" &&
           incomingReturnAction === ""
@@ -301,14 +303,45 @@ export default function Inspector({
                     .map(returnTargetOption)}
                 </select>
               </label>
-              {incomingReturn &&
+              {incomingReturns.length > 0 && (
+                <section aria-label="この発言への復帰線">
+                  <h4>この発言への復帰線：{incomingReturns.length}件</h4>
+                  <ul>
+                    {incomingReturns.map((relation) => (
+                      <li key={relation.id}>
+                        <strong>
+                          {relation.from} → {relation.to}
+                        </strong>
+                        <span> · 関係ID：{relation.id}</span>
+                        <ul>
+                          {relation.evidenceIds.map((id) => (
+                            <li key={id}>
+                              根拠 {id}：「
+                              {
+                                project.utterances.find(
+                                  (item) => item.id === id,
+                                )?.quote
+                              }
+                              」
+                            </li>
+                          ))}
+                        </ul>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="fineprint">
+                    分類変更で外す場合は、ここに示した復帰線をすべて解除します。別の復帰先への線や他の種類の関係は残します。
+                  </p>
+                </section>
+              )}
+              {incomingReturns.length > 0 &&
                 classification !== u.classification &&
                 classification !== "main" && (
                   <fieldset className="field">
                     <legend>この発言を復帰先から分類変更します</legend>
                     <p className="fineprint">
-                      {incomingReturn.from}{" "}
-                      からの線をどう扱うか明示してください。未選択のままでは保存できません。
+                      上記{incomingReturns.length}
+                      件すべての線をどう扱うか明示してください。未選択のままでは保存できません。
                     </p>
                     <label className="checkbox">
                       <input
