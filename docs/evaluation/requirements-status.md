@@ -1,48 +1,50 @@
 # R01–R33 実装・検証ステータス
 
-更新: 2026-10-19 03:55 JST。main基点 `8d6faa09951c47594df7c671baf3e972487d4d69`。PR状態は03:48:46、CI APIは03:49:13、artifact取得は03:49:58、生値再検証は03:50:29、#17ローカル追記は03:52:14のsnapshot。後続変更へ自動追従する表ではない。
+更新: 2026-10-19 04:04 JST。main基点 `8d6faa09951c47594df7c671baf3e972487d4d69`。PR状態は03:48:46、CI APIは03:49:13、artifact取得は03:49:58、生値再検証は03:50:29、#17ローカル追記は03:52:14のsnapshot。後続変更へ自動追従する表ではない。
 
 ## 判定の読み方
+
+**R別証拠の登録は未完了。** テスト分類のcore/browserやコードパスはファイルの存在を示すだけで、R単位のtested SHA・環境・test ID・実行証拠を同期した意味ではない。各行の4欄を確認し、未登録は個別に「未取得」とした。既知4行も限定sliceの対応付けであり要件全体の受入ではない。実装headをtested SHAと推定せず、R12の#13もR単位実行証拠未取得のままとする。
 
 本表は `docs/requirements-and-development-plan.md` 第20章の追跡表を、現行の実コードと `tests/`・`e2e/`・`artifacts/`に照合したもの。**statusは実装の存在であり、品質ゲートの合格を意味しない。** テスト通過数も、対応するG0–G8の品質・実機・利用者評価を通過したことを意味しない。R01–R33とゲート表は削除せず、基盤追加後の状態へ更新している。
 
 旧基盤時点の単体・回帰100件（文書実験10件含む）は履歴値であり、現在headの総数ではない。現在のSHA別結果は下の証拠表を参照し、件数を加算して完成率にしない。ブラウザの固有結果は同一SHAのCI artifact（`verified-sha.txt`、`e2e-results.json`）を正本とする。500ノードの表示・パンは確認済みだが、選択・検索・折り畳み各100操作のp95と実機確認は別項目であり、機能試験でG5を代替しない。Node/Linuxの入出力ベンチマークもG4/G5合格証拠ではない。
 
-| ID  | status   | 関連コード（現状）                                                                      | テスト有無              | 残ゲート／不足                                                           |
-| --- | -------- | --------------------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------ |
-| R01 | 部分実装 | `src/App.tsx`, `src/input/parse.ts`, `src/storage/projects.ts`, `src/export/project.ts` | core/ブラウザ           | G0・G8。実Mac/Windows/iPhone、端末×機能、AI開始は未確認（disabled）      |
-| R02 | 部分実装 | `src/domain/types.ts`, `src/domain/coverage.ts`, `src/components/CoveragePanel.tsx`     | core                    | 全原文spanの確定率・欠落0件の固定品質評価は未実施                        |
-| R03 | 部分実装 | `SourceRole`, `src/input/parse.ts`, coverage UI                                         | core/文書実験           | 本文・参考資料・後日説明の分析分離品質は未測定                           |
-| R04 | 部分実装 | `parse.ts`, `Utterance.coverage`, `coverage.ts`（未確定spanを可視化）                   | core/文書実験           | 全形式の無断欠落0件、PDF/DOCX通常UIは未対応（fail closed）               |
-| R05 | 部分実装 | `parse.ts`のSRT/VTT区間・時刻保持                                                       | core/文書実験           | 字幕重複と境界独立性の品質固定評価は未完了                               |
-| R06 | 部分実装 | `reasoning.ts`, `reasoning-types.ts`の問いと問い版                                      | core/問いUI             | 問い0/複数、原文問いと指定問いの通常UI・品質評価が不足                   |
-| R07 | 部分実装 | reasoningのquestion version/revision API                                                | core/問いUI             | 撤回・変更の全画面履歴と品質評価は未完了                                 |
-| R08 | 部分実装 | reasoningの問い／応答関係、関連型                                                       | core/問いUI             | 多対多の通常UI統合・品質未測定                                           |
-| R09 | 部分実装 | 応答種別、充足、複数根拠の型/API                                                        | core/問いUI             | UIと日本語意味品質が不足。R12/13/14/28と同様、型/APIだけを合格扱いしない |
-| R10 | 部分実装 | `project.ts`, layout/canvas、復帰なし・未確定                                           | core/ブラウザ           | 意味上の関係・合流の品質評価未実施                                       |
-| R11 | 部分実装 | `Relation.evidenceIds`、reasoning evidence                                              | core/問いUI             | 複合条件・反論対象・根拠付き応答の意味評価未実施                         |
-| R12 | 部分実装 | reasoning型/APIと[PR #13の手動A/B解釈UI](https://github.com/chameleonjp-lab/rontenseiri/pull/13) | unit/通常UI回帰（該当PRの範囲） | 同時成立を強制しない手動sliceのみ。結論までの伝播・意味品質・G3未受入 |
-| R13 | 部分実装 | `SourceRole`、`Revision`、問い／応答時点API                                             | core                    | 発言時点／登録時点／後日説明の独立評価未完了                             |
-| R14 | 部分実装 | agreement/verification/unresolved、条件・例外型                                         | core/問いUI             | 条件・例外・異論・時点のUIと日本語品質未測定                             |
-| R15 | 部分実装 | revisions、snapshot Undo、invalidation                                                  | core/ブラウザ           | 再解析・複雑な依存伝播は未完了                                           |
-| R16 | 部分実装 | `lineage-types.ts`, `lineage-validation.ts`, 分割／統合                                 | core/ブラウザ           | 適用済み・衝突・未確定移送の全UIと長期互換性未確認                       |
-| R17 | 部分実装 | `utterance-editing.ts`, Inspector、lineageの明示関係移送                                | core/ブラウザ           | 任意の関係編集・本文分割・精密意味モデル未実装                           |
-| R18 | 部分実装 | 許可DTO限定export、選択発言allowlist、manifest                                          | core/ブラウザ           | 全形式の長期互換性・外部運用未検証                                       |
-| R19 | 部分実装 | `capacity.ts`（現行／履歴／revision／backupを別計数）                                   | core                    | 往復・全上限境界・実機容量未測定                                         |
-| R20 | 部分実装 | layout/canvas、折り畳み、反対根拠表示の基盤                                             | core/ブラウザ           | 500node表示・パン確認済み。各100操作p95・実機・利用者理解は別評価        |
-| R21 | 部分実装 | `App.tsx`, ReasoningPanel, ReadinessPanel、タッチ/キーボード                            | ブラウザCI              | iPhone Safari、日本語入力、読み上げ、回転・復帰未確認                    |
-| R22 | 部分実装 | `analysis/session.ts`、`analysis/inventory-run.ts`、`SpanInventoryPanel`（main #14/#15） | deterministic inventoryの通常UI/実Worker/実IDB | meaning unadjudicated。AI解析・訂正依存再利用・意味上の全照合・P2/R22全体は未完 |
-| R23 | 部分実装 | `artifacts/software-benchmark.json`, diagnostics metrics                                | Node/Linux20回          | モデル・合法最大入力・メモリ・実機p95は未測定                            |
-| R24 | 部分実装 | mainの`analysis/ownership.ts`、Web Locks必須/fail-closed基盤 | core。追加停止/待機取消は未マージ#17/#20の別証拠 | main実装とDraftを分離。実機GPU/同時推論/全クラッシュ組合せ未測定 |
-| R25 | 部分実装 | `storage/projects.ts`の保存namespace/scope                                              | core                    | 公開オリジンの完全隔離・別作品境界は未確認                               |
-| R26 | 部分実装 | Worker構造化出力、原文保持、offline静的shellのhash/scope                                | core/production offline | 全通信、悪意入力、モデル取得の実行時検証未完了                           |
-| R27 | 部分実装 | `Source.text`/`Utterance.quote`、evidence/coverage                                      | core/文書実験           | 原文保持率と意味反映率を別採点するが実モデル値なし                       |
-| R28 | 部分実装 | reasoningの立場・解釈・まとめ・確認提案API                                              | core/問いUI             | UI／機能別採点未完了                                                     |
-| R29 | 未着手（評価実行）   | 公平性比較の評価基盤のみ                                                                | 文書実験はnot-run       | 話者ラベル・丁寧さ・言いよどみの実予測比較未実施                         |
-| R30 | 未着手（評価実行）   | 利用者比較機能なし                                                                      | 無                      | G8被験者の正答・時間・重大誤理解・訂正負担未測定                         |
-| R31 | 部分実装 | 本表・計画§20・SHA別証拠台帳 | snapshot整合検査。担当/実機/全証拠登録は未完 | 追跡ずれ修正はG0合格や実装完成ではない |
-| R32 | 部分実装 | `analysis/client.ts`, session/checkpoint, ReadinessPanel                                | core/分析               | モデル単体・実アプリ・配信、取得量・中止条件の境界未完了                 |
-| R33 | 未着手（評価実行）   | `evals/cases.json`と評価APIの固定基盤                                                   | 21ケースはnot-run       | 担当・実機・許諾・変更時再実行・G8計画未確保                             |
+| ID  | status   | 関連コード（現状）                                                                      | テスト有無              | 残ゲート／不足                                                           | テスト済みSHA（部分証拠） | 環境 | テストID（部分証拠） | 証拠リンク |
+| --- | -------- | --------------------------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------ | --- | --- | --- | --- |
+| R01 | 部分実装 | `src/App.tsx`, `src/input/parse.ts`, `src/storage/projects.ts`, `src/export/project.ts` | core/ブラウザ | G0・G8。実Mac/Windows/iPhone、端末×機能、AI開始は未確認（disabled） | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R02 | 部分実装 | `src/domain/types.ts`, `src/domain/coverage.ts`, `src/components/CoveragePanel.tsx` | core | 全原文spanの確定率・欠落0件の固定品質評価は未実施 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R03 | 部分実装 | `SourceRole`, `src/input/parse.ts`, coverage UI | core/文書実験 | 本文・参考資料・後日説明の分析分離品質は未測定 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R04 | 部分実装 | `parse.ts`, `Utterance.coverage`, `coverage.ts`（未確定spanを可視化） | core/文書実験 | 全形式の無断欠落0件、PDF/DOCX通常UIは未対応（fail closed） | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R05 | 部分実装 | `parse.ts`のSRT/VTT区間・時刻保持 | core/文書実験 | 字幕重複と境界独立性の品質固定評価は未完了 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R06 | 部分実装 | `reasoning.ts`, `reasoning-types.ts`の問いと問い版 | core/問いUI | 問い0/複数、原文問いと指定問いの通常UI・品質評価が不足 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R07 | 部分実装 | reasoningのquestion version/revision API | core/問いUI | 撤回・変更の全画面履歴と品質評価は未完了 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R08 | 部分実装 | reasoningの問い／応答関係、関連型 | core/問いUI | 多対多の通常UI統合・品質未測定 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R09 | 部分実装 | 応答種別、充足、複数根拠の型/API | core/問いUI | UIと日本語意味品質が不足。R12/13/14/28と同様、型/APIだけを合格扱いしない | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R10 | 部分実装 | `project.ts`, layout/canvas、復帰なし・未確定 | core/ブラウザ | 意味上の関係・合流の品質評価未実施 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R11 | 部分実装 | `Relation.evidenceIds`、reasoning evidence | core/問いUI | 複合条件・反論対象・根拠付き応答の意味評価未実施 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R12 | 部分実装 | reasoning型/APIと[PR #13の手動A/B解釈UI](https://github.com/chameleonjp-lab/rontenseiri/pull/13) | unit/通常UI回帰（該当PRの範囲） | 同時成立を強制しない手動sliceのみ。結論までの伝播・意味品質・G3未受入 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R13 | 部分実装 | `SourceRole`、`Revision`、問い／応答時点API | core | 発言時点／登録時点／後日説明の独立評価未完了 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R14 | 部分実装 | agreement/verification/unresolved、条件・例外型 | core/問いUI | 条件・例外・異論・時点のUIと日本語品質未測定 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R15 | 部分実装 | revisions、snapshot Undo、invalidation | core/ブラウザ | 再解析・複雑な依存伝播は未完了 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R16 | 部分実装 | `lineage-types.ts`, `lineage-validation.ts`, 分割／統合 | core/ブラウザ | 適用済み・衝突・未確定移送の全UIと長期互換性未確認 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R17 | 部分実装 | `utterance-editing.ts`, Inspector、lineageの明示関係移送 | core/ブラウザ | 任意の関係編集・本文分割・精密意味モデル未実装 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R18 | 部分実装 | 許可DTO限定export、選択発言allowlist、manifest | core/ブラウザ | 全形式の長期互換性・外部運用未検証 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R19 | 部分実装 | `capacity.ts`（現行／履歴／revision／backupを別計数） | core | 往復・全上限境界・実機容量未測定 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R20 | 部分実装 | layout/canvas、折り畳み、反対根拠表示の基盤 | core/ブラウザ | 500node表示・パン確認済み。各100操作p95・実機・利用者理解は別評価 | `b78c7f2cc759ceab3bc35f446284c6ecd2776051`（限定UI診断） | Linux/headless Chromium151.0.7922.34/Vite dev | `e2e/performance.spec.ts:277`（各100操作） | [R20/G5来歴](#r20g517固有の500-node-ui速度失敗の来歴)（原raw未公開、保持先/hash記載） |
+| R21 | 部分実装 | `App.tsx`, ReasoningPanel, ReadinessPanel、タッチ/キーボード | ブラウザCI | iPhone Safari、日本語入力、読み上げ、回転・復帰未確認 | `2552a9efadcafe75f227f09a4095b99500616889`（限定viewport slice） | 開発Chromium、650/651/900/901px（版のR別来歴未取得） | `e2e/span-inventory-responsive.spec.ts:119`「実Worker台帳の保存・再開は{650/651/900/901}pxで厳密なprefixを維持する」 | [Draft #18 push 39155079297](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155079297) / [PR 39155082556](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155082556)（要件全体でない） |
+| R22 | 部分実装 | `analysis/session.ts`、`analysis/inventory-run.ts`、`SpanInventoryPanel`（main #14/#15） | deterministic inventoryの通常UI/実Worker/実IDB | meaning unadjudicated。AI解析・訂正依存再利用・意味上の全照合・P2/R22全体は未完 | `563715de2df26a910643af04490aec7bf8d4216d`（Draft #16限定） | GitHub Actions/Playwright Chromium（OS/版のR別来歴未取得） | `e2e/span-inventory.spec.ts:112`「実Workerの原文範囲台帳…」/ `e2e/save-generation.spec.ts:211`「同一内容・同一版の手動保存と自動保存…」 | [Draft #16 push 39153514686](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39153514686) / [PR 39153562013](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39153562013)（mainと別、full R22でない） |
+| R23 | 部分実装 | 訂正差分・保存・限定/完全出力・再読込/復元の基盤。Node/Linux benchmarkは参考値のみ | R23工程ごとの固定証拠は未取得 | 履歴増大に伴う各工程時間とピークメモリ、合法最大入力・履歴上限近傍の実機条件は未測定 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R24 | 部分実装 | mainの`analysis/ownership.ts`、Web Locks必須/fail-closed基盤 | core。追加停止/待機取消は未マージ#17/#20の別証拠 | main実装とDraftを分離。実機GPU/同時推論/全クラッシュ組合せ未測定 | `3acf2f1958359852b33ae7b34bc0ec259d14dd4d`（Draft #20限定） | 開発headless Chromium（OS/版のR別来歴未取得、model/GPUなし） | `e2e/ownership-pending.spec.ts:14`「待機中の{cancel/timeout}はnative queueを除去…」/ `ownership-lease.spec.ts:4`「所有権{expiry/cancel}は旧Workerを停止…」/ `ownership-fencing.spec.ts:314`「tab close…」 | [Draft #20 push 39155416740](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155416740) / [PR 39155470947](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155470947)（model-free限定、full R24でない） |
+| R25 | 部分実装 | `storage/projects.ts`の保存namespace/scope | core | 公開オリジンの完全隔離・別作品境界は未確認 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R26 | 部分実装 | Worker構造化出力、原文保持、offline静的shellのhash/scope | core/production offline | 全通信、悪意入力、モデル取得の実行時検証未完了 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R27 | 部分実装 | `Source.text`/`Utterance.quote`、evidence/coverage | core/文書実験 | 原文保持率と意味反映率を別採点するが実モデル値なし | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R28 | 部分実装 | reasoningの立場・解釈・まとめ・確認提案API | core/問いUI | UI／機能別採点未完了 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R29 | 未着手（評価実行） | 公平性比較の評価基盤のみ | 文書実験はnot-run | 話者ラベル・丁寧さ・言いよどみの実予測比較未実施 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R30 | 未着手（評価実行） | 利用者比較機能なし | 無 | G8被験者の正答・時間・重大誤理解・訂正負担未測定 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R31 | 部分実装 | 本表・計画§20・SHA別証拠台帳 | snapshot整合検査。担当/実機/全証拠登録は未完 | 追跡ずれ修正はG0合格や実装完成ではない | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R32 | 部分実装 | `analysis/client.ts`, session/checkpoint, ReadinessPanel | core/分析 | モデル単体・実アプリ・配信、取得量・中止条件の境界未完了 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R33 | 未着手（評価実行） | `evals/cases.json`と評価APIの固定基盤 | 21ケースはnot-run | 担当・実機・許諾・変更時再実行・G8計画未確保 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
 
 ## 実装の追加と受入は別の状態
 
@@ -61,6 +63,8 @@ mainには手動A/B解釈と、モデルを使わない候補台帳が増えた�
 上記は外部でマージされた履歴であり、この文書作業によるマージとは扱わない。特に#15は2026-10-18 18:07:40 UTCに外部マージされた時点で最終ローカル検証・本文・artifact内部照合が未完了だった。head `64d8830abe1b1efa628dbea10456638bbac4fae9` の[push 39151777368](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39151777368) / [PR 39151808684](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39151808684) のAPI successを内部照合・全受入に読み替えない。旧収集器はartifact階層不一致で内部検証未完。archive ID 12146115520 / 12145473811とdigestは[#16本文の履歴記録](https://github.com/chameleonjp-lab/rontenseiri/pull/16)に保持される。
 
 #15の最終ローカル結果は作業者報告で総合不合格：500-node各100操作p95 selection233.30ms/search232.40ms/fold215.90ms（上限200ms）、controlled round-3 selection200.10msも不合格。raw logは作業環境に保持された報告であり、この文書作業が第三者の実機再測定を行ったものではない。失敗を後続headのCI成功で取り消さない。
+
+レビュー者による独立確認は保存済み#16–#20 ZIPのdigest/内部SHA照合で、新しいarchive downloadではない。タスク側のdownload/内部検査/生値再計算と、外部の新規fetchは区別し、後者を行ったとは記載しない。
 
 ## 未マージの独立Draft：実装・検証・受入を分離
 

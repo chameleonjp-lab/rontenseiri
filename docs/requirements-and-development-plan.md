@@ -939,47 +939,49 @@ F1は抽出候補と正解の対応規則（同じ対象、意味、根拠範囲
 
 ## 20. 個別要件の実装・検証追跡表
 
-下表の段階・ゲートは予定のまま変更しない。実装の存在と、検証・ゲート受入れは別列で判定する。現行スナップショットは **2026-10-19 03:55 JST（2026-10-18 18:55 UTC）／public main `8d6faa09951c47594df7c671baf3e972487d4d69`**。詳細な担当、失敗テスト識別子、評価データ版、実機手順、run・artifact・digest・exact SHA は [評価ステータス表](evaluation/requirements-status.md) の中央証拠表を正本とし、下表では重複を避ける。fixture の基盤追加は実モデル品質・実機評価・ゲート合格を意味しない。
+下表の段階・ゲートは予定のまま変更しない。実装の存在と、検証・ゲート受入れは別列で判定する。現行スナップショットは **2026-10-19 04:04 JST（2026-10-18 19:04 UTC）／public main `8d6faa09951c47594df7c671baf3e972487d4d69`**。詳細な担当、失敗テスト識別子、評価データ版、実機手順、run・artifact・digest・exact SHA は [評価ステータス表](evaluation/requirements-status.md) の中央証拠表を正本とし、下表では重複を避ける。fixture の基盤追加は実モデル品質・実機評価・ゲート合格を意味しない。
 
-| 要件 | 対応予定段階 | 評価ゲート | 実装（main時点） | 検証／ゲート受入れ | 主な証拠・実装パス |
-| --- | --- | --- | --- | --- | --- |
-| R01 | P0 | G0・G8 | 部分実装 | 未確認（実機・端末×機能・AI開始） | [status](evaluation/requirements-status.md)、`src/App.tsx`、`src/input/parse.ts`、`src/storage/projects.ts` |
-| R02 | P1–P3・P5 | G1・G3 | 部分実装 | 未測定（全原文span品質） | [status](evaluation/requirements-status.md)、`src/domain/types.ts`、`src/domain/coverage.ts` |
-| R03 | P1・P3・P5 | G1・G3 | 部分実装 | 未測定（資料区分品質） | [status](evaluation/requirements-status.md)、`src/input/parse.ts`、`src/domain/types.ts` |
-| R04 | P1・P4 | G1 | 部分実装 | 未達（PDF/DOCX通常UI・全形式固定評価） | [status](evaluation/requirements-status.md)、`src/input/parse.ts`、`src/domain/coverage.ts` |
-| R05 | P1 | G1 | 部分実装 | 未完了（字幕境界・重複品質） | [status](evaluation/requirements-status.md)、`src/input/parse.ts` |
-| R06 | P1–P3 | G2・G3 | 部分実装 | 未完了（問いUI・品質） | [status](evaluation/requirements-status.md)、`src/domain/reasoning.ts` |
-| R07 | P1–P3 | G2・G3 | 部分実装 | 未完了（全画面履歴） | [status](evaluation/requirements-status.md)、`src/domain/reasoning.ts` |
-| R08 | P1–P3 | G2・G3 | 部分実装 | 未測定（多対多通常UI） | [status](evaluation/requirements-status.md)、reasoning関連型/API |
-| R09 | P2・P3 | G2・G3 | 部分実装 | 未測定（日本語意味品質） | [status](evaluation/requirements-status.md)、応答種別・根拠API |
-| R10 | P1–P3 | G1・G2 | 部分実装 | 未測定（関係・合流の意味品質） | [status](evaluation/requirements-status.md)、`src/domain/project.ts`、layout/canvas |
-| R11 | P1–P3 | G2・G3 | 部分実装 | 未測定（複合条件・反論意味） | [status](evaluation/requirements-status.md)、`Relation.evidenceIds`、reasoning evidence |
-| R12 | P1–P3・P5 | G3 | 部分実装（main merged #13 の手動A/B UI、AIなし） | 未測定（結論までの伝播・品質） | [status](evaluation/requirements-status.md)、reasoning型/API、PR #13 |
-| R13 | P3・P5 | G3 | 部分実装 | 未完了（時点の独立評価） | [status](evaluation/requirements-status.md)、`SourceRole`、`Revision` |
-| R14 | P2・P3・P5 | G3・G8 | 部分実装 | 未測定（条件・例外・異論UI/日本語品質） | [status](evaluation/requirements-status.md)、agreement/verification/unresolved API |
-| R15 | P1–P3・P5 | G1・G5 | 部分実装 | 未完了（再解析・依存伝播） | [status](evaluation/requirements-status.md)、revisions、snapshot Undo |
-| R16 | P1–P3・P5 | G1・G5 | 部分実装 | 未確認（全UI・長期互換性） | [status](evaluation/requirements-status.md)、`src/domain/lineage-types.ts`、`src/domain/lineage-validation.ts` |
-| R17 | P3・P5 | G5 | 部分実装 | 未完了（任意関係編集・精密意味モデル） | [status](evaluation/requirements-status.md)、`src/domain/utterance-editing.ts`、Inspector |
-| R18 | P5 | G1・G5・G6 | 部分実装 | 未検証（長期互換性・外部運用） | [status](evaluation/requirements-status.md)、許可DTO export/manifest |
-| R19 | P1・P5 | G1・G5 | 部分実装 | 未測定（往復・全上限・実機容量） | [status](evaluation/requirements-status.md)、`src/domain/capacity.ts` |
-| R20 | P3・P6 | G5・G8 | 部分実装 | 未達（500node各100操作p95・実機・利用者理解） | [status](evaluation/requirements-status.md)、layout/canvas |
-| R21 | P0・P3・P5・P6 | G4・G5・G8 | 部分実装 | 未確認（iPhone、日本語入力、読み上げ、回転・復帰） | [status](evaluation/requirements-status.md)、`src/App.tsx`、ReasoningPanel、ReadinessPanel |
-| R22 | P0・P2 | G2・G4 | 部分実装（main #14/#15 の決定的原文範囲台帳（意味未判定）：通常UI・real Worker・IndexedDBの部分経路） | 未完了（full P2、実モデル、訂正依存再利用、意味候補の全体照合） | [status](evaluation/requirements-status.md)、`analysis/session.ts`、#14/#15 |
-| R23 | P1・P4・P5・P6 | G4・G5 | 部分実装 | 未測定（モデル・合法最大入力・メモリ・実機p95） | [status](evaluation/requirements-status.md)、`artifacts/software-benchmark.json` |
-| R24 | P2・P5・P6 | G4・G5 | 部分実装（main は ownership 基盤のみ。#17/#20 は OPEN / Draft で未マージ） | 未確認（複数タブ実機・同時推論・取消後再開） | [status](evaluation/requirements-status.md)、`analysis/ownership.ts`、#17/#20 |
-| R25 | P0・P6 | G6 | 部分実装 | 未確認（公開origin・別作品隔離） | [status](evaluation/requirements-status.md)、`src/storage/projects.ts` |
-| R26 | P0・P2・P6 | G3・G6 | 部分実装 | 未完了（全通信・悪意入力・モデル取得実行時検証） | [status](evaluation/requirements-status.md)、`analysis/client.ts`、Worker出力、offline shell |
-| R27 | P0・P2・P6 | G1・G2 | 部分実装 | 未測定（実モデルの原文保持・意味反映率） | [status](evaluation/requirements-status.md)、`Source.text`、`Utterance.quote`、coverage |
-| R28 | P0・P2・P3・P6 | G2・G3 | 部分実装 | 未完了（UI・機能別採点） | [status](evaluation/requirements-status.md)、reasoningの立場・解釈・まとめAPI |
-| R29 | P0・P2・P6 | G3・G8 | 未着手 | 未実施（公平性比較、実予測） | [status](evaluation/requirements-status.md)、`evals/cases.json`（fixture基盤のみ） |
-| R30 | P0・P3・P6 | G8 | 未着手 | 未実施（被験者比較・正答・時間・訂正負担） | [status](evaluation/requirements-status.md) |
-| R31 | P0以降の全段階 | G0 | 部分実装（追跡・評価ハーネス・artifacts） | 未達（担当・証拠・承認の継続登録） | [status](evaluation/requirements-status.md)、本表、評価ハーネス、`artifacts/` |
-| R32 | P0・P2・P6 | G0・G4 | 部分実装 | 未完了（モデル単体/実アプリ/配信の境界） | [status](evaluation/requirements-status.md)、`analysis/client.ts`、session/checkpoint、ReadinessPanel |
-| R33 | P0以降の全段階 | G0・G7 | 未着手 | 未実施（担当・実機・許諾・変更時再実行・承認） | [status](evaluation/requirements-status.md)、`evals/cases.json`（固定基盤のみ） |
+| 要件 | 対応予定段階 | 評価ゲート | 実装（main時点） | 検証／ゲート受入れ | 主な証拠・実装パス | テスト済みSHA | 環境 | テストID | 証拠リンク |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| R01 | P0 | G0・G8 | 部分実装 | 未確認（実機・端末×機能・AI開始） | [status](evaluation/requirements-status.md)、`src/App.tsx`、`src/input/parse.ts`、`src/storage/projects.ts` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R02 | P1–P3・P5 | G1・G3 | 部分実装 | 未測定（全原文span品質） | [status](evaluation/requirements-status.md)、`src/domain/types.ts`、`src/domain/coverage.ts` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R03 | P1・P3・P5 | G1・G3 | 部分実装 | 未測定（資料区分品質） | [status](evaluation/requirements-status.md)、`src/input/parse.ts`、`src/domain/types.ts` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R04 | P1・P4 | G1 | 部分実装 | 未達（PDF/DOCX通常UI・全形式固定評価） | [status](evaluation/requirements-status.md)、`src/input/parse.ts`、`src/domain/coverage.ts` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R05 | P1 | G1 | 部分実装 | 未完了（字幕境界・重複品質） | [status](evaluation/requirements-status.md)、`src/input/parse.ts` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R06 | P1–P3 | G2・G3 | 部分実装 | 未完了（問いUI・品質） | [status](evaluation/requirements-status.md)、`src/domain/reasoning.ts` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R07 | P1–P3 | G2・G3 | 部分実装 | 未完了（全画面履歴） | [status](evaluation/requirements-status.md)、`src/domain/reasoning.ts` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R08 | P1–P3 | G2・G3 | 部分実装 | 未測定（多対多通常UI） | [status](evaluation/requirements-status.md)、reasoning関連型/API | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R09 | P2・P3 | G2・G3 | 部分実装 | 未測定（日本語意味品質） | [status](evaluation/requirements-status.md)、応答種別・根拠API | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R10 | P1–P3 | G1・G2 | 部分実装 | 未測定（関係・合流の意味品質） | [status](evaluation/requirements-status.md)、`src/domain/project.ts`、layout/canvas | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R11 | P1–P3 | G2・G3 | 部分実装 | 未測定（複合条件・反論意味） | [status](evaluation/requirements-status.md)、`Relation.evidenceIds`、reasoning evidence | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R12 | P1–P3・P5 | G3 | 部分実装（main merged #13 の手動A/B UI、AIなし） | 未測定（結論までの伝播・品質） | [status](evaluation/requirements-status.md)、reasoning型/API、PR #13 | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R13 | P3・P5 | G3 | 部分実装 | 未完了（時点の独立評価） | [status](evaluation/requirements-status.md)、`SourceRole`、`Revision` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R14 | P2・P3・P5 | G3・G8 | 部分実装 | 未測定（条件・例外・異論UI/日本語品質） | [status](evaluation/requirements-status.md)、agreement/verification/unresolved API | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R15 | P1–P3・P5 | G1・G5 | 部分実装 | 未完了（再解析・依存伝播） | [status](evaluation/requirements-status.md)、revisions、snapshot Undo | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R16 | P1–P3・P5 | G1・G5 | 部分実装 | 未確認（全UI・長期互換性） | [status](evaluation/requirements-status.md)、`src/domain/lineage-types.ts`、`src/domain/lineage-validation.ts` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R17 | P3・P5 | G5 | 部分実装 | 未完了（任意関係編集・精密意味モデル） | [status](evaluation/requirements-status.md)、`src/domain/utterance-editing.ts`、Inspector | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R18 | P5 | G1・G5・G6 | 部分実装 | 未検証（長期互換性・外部運用） | [status](evaluation/requirements-status.md)、許可DTO export/manifest | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R19 | P1・P5 | G1・G5 | 部分実装 | 未測定（往復・全上限・実機容量） | [status](evaluation/requirements-status.md)、`src/domain/capacity.ts` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R20 | P3・P6 | G5・G8 | 部分実装 | 未達（500node各100操作p95・実機・利用者理解） | [status](evaluation/requirements-status.md)、layout/canvas | `b78c7f2cc759ceab3bc35f446284c6ecd2776051`（限定UI診断） | Linux/headless Chromium151.0.7922.34/Vite dev | `e2e/performance.spec.ts:277`（各100操作） | [中央台帳のR20/G5来歴](evaluation/requirements-status.md#r20g517固有の500-node-ui速度失敗の来歴)（原raw未公開） |
+| R21 | P0・P3・P5・P6 | G4・G5・G8 | 部分実装 | 未確認（iPhone、日本語入力、読み上げ、回転・復帰） | [status](evaluation/requirements-status.md)、`src/App.tsx`、ReasoningPanel、ReadinessPanel | `2552a9efadcafe75f227f09a4095b99500616889`（限定viewport slice） | 開発Chromium、650/651/900/901px（版のR別来歴未取得） | `e2e/span-inventory-responsive.spec.ts:119`「実Worker台帳の保存・再開は{650/651/900/901}pxで厳密なprefixを維持する」 | [Draft #18 push 39155079297](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155079297) / [PR 39155082556](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155082556)（要件全体でない） |
+| R22 | P0・P2 | G2・G4 | 部分実装（main #14/#15 の決定的原文範囲台帳（意味未判定）：通常UI・real Worker・IndexedDBの部分経路） | 未完了（full P2、実モデル、訂正依存再利用、意味候補の全体照合） | [status](evaluation/requirements-status.md)、`analysis/session.ts`、#14/#15 | `563715de2df26a910643af04490aec7bf8d4216d`（Draft #16限定） | GitHub Actions/Playwright Chromium（OS/版のR別来歴未取得） | `e2e/span-inventory.spec.ts:112`「実Workerの原文範囲台帳…」/ `e2e/save-generation.spec.ts:211`「同一内容・同一版の手動保存と自動保存…」 | [Draft #16 push 39153514686](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39153514686) / [PR 39153562013](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39153562013)（mainと別、full R22でない） |
+| R23 | P1・P4・P5・P6 | G4・G5 | 部分実装 | 未測定（履歴増大時の訂正差分/保存/限定・完全出力/再読込・復元の工程時間・ピークメモリ） | [status](evaluation/requirements-status.md)、`artifacts/software-benchmark.json` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R24 | P2・P5・P6 | G4・G5 | 部分実装（main は ownership 基盤のみ。#17/#20 は OPEN / Draft で未マージ） | 未確認（複数タブ実機・同時推論・取消後再開） | [status](evaluation/requirements-status.md)、`analysis/ownership.ts`、#17/#20 | `3acf2f1958359852b33ae7b34bc0ec259d14dd4d`（Draft #20限定） | 開発headless Chromium（OS/版のR別来歴未取得、model/GPUなし） | `e2e/ownership-pending.spec.ts:14`「待機中の{cancel/timeout}はnative queueを除去…」/ `ownership-lease.spec.ts:4`「所有権{expiry/cancel}は旧Workerを停止…」/ `ownership-fencing.spec.ts:314`「tab close…」 | [Draft #20 push 39155416740](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155416740) / [PR 39155470947](https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39155470947)（model-free限定、full R24でない） |
+| R25 | P0・P6 | G6 | 部分実装 | 未確認（公開origin・別作品隔離） | [status](evaluation/requirements-status.md)、`src/storage/projects.ts` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R26 | P0・P2・P6 | G3・G6 | 部分実装 | 未完了（全通信・悪意入力・モデル取得実行時検証） | [status](evaluation/requirements-status.md)、`analysis/client.ts`、Worker出力、offline shell | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R27 | P0・P2・P6 | G1・G2 | 部分実装 | 未測定（実モデルの原文保持・意味反映率） | [status](evaluation/requirements-status.md)、`Source.text`、`Utterance.quote`、coverage | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R28 | P0・P2・P3・P6 | G2・G3 | 部分実装 | 未完了（UI・機能別採点） | [status](evaluation/requirements-status.md)、reasoningの立場・解釈・まとめAPI | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R29 | P0・P2・P6 | G3・G8 | 未着手 | 未実施（公平性比較、実予測） | [status](evaluation/requirements-status.md)、`evals/cases.json`（fixture基盤のみ） | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R30 | P0・P3・P6 | G8 | 未着手 | 未実施（被験者比較・正答・時間・訂正負担） | [status](evaluation/requirements-status.md) | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R31 | P0以降の全段階 | G0 | 部分実装（追跡・評価ハーネス・artifacts） | 未達（担当・証拠・承認の継続登録） | [status](evaluation/requirements-status.md)、本表、評価ハーネス、`artifacts/` | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R32 | P0・P2・P6 | G0・G4 | 部分実装 | 未完了（モデル単体/実アプリ/配信の境界） | [status](evaluation/requirements-status.md)、`analysis/client.ts`、session/checkpoint、ReadinessPanel | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
+| R33 | P0以降の全段階 | G0・G7 | 未着手 | 未実施（担当・実機・許諾・変更時再実行・承認） | [status](evaluation/requirements-status.md)、`evals/cases.json`（固定基盤のみ） | 未取得 | 未取得 | 未取得 | 未取得（追跡リンク/ファイル存在をR単位の実行証拠としない） |
 
 **証拠と受入れ：** G0–G8はいずれも総合合格ではない。文書の追跡更新はG0完了ではない。#13–#15は外部マージ履歴で、#15は最終検証・本文・artifact照合の完了前にマージされ、ローカル性能不合格が報告された。#16–#20はOPEN / Draftの計画依存で、main実装へ加算しない。exact head/base、確認時刻、run・artifact・digest、旧失敗と後続結果は[中央証拠台帳](evaluation/requirements-status.md)に固定する。
 
 **検証限界：** snapshotのAPI取得時点で#16/#17/#18のCIはsuccessだが、#16/#17の通常ローカル性能は200ms上限に不合格。controlled9群やCI成功で失敗を取り消さず、G5を合格としない。#19はautosave-B成功とB成功後の低revision A成功、#20はgrant競合・null-lock・release後listener直接計数が未検証。FixtureLocksの計数はnative listener除去の証明ではない。未マージsliceや部分テストを要件全体の完成へ読み替えない。#19/#20の後続CI完了（03:53:58取得）と、#17のR20/G5固有系列の測定契約・来歴・原因未解決は中央台帳の追記へ分離した。500-node選択/検索/折り畳みはR20/G5で、R23の保存/訂正/出力/復元・履歴メモリの実測と混同しない。
+
+**R23の証拠範囲（脚注）：** R23で必須なのは、履歴成長に対する訂正差分・保存、限定出力と完全出力、再読込・復元の各段階の所要時間およびピークメモリである。既存の Node/Linux ベンチマークは合法最大モデル・端末を含む広い条件の参考値にすぎず、R23定義そのものの実測証拠ではない。
 
 ### 20.1 判定の順序
 
