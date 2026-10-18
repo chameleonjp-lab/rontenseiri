@@ -660,3 +660,125 @@ test("現在版の保存待ち・失敗は開始を阻止してcheckpointゼロ�
   await start(page);
   expect((await record(page)).state).toBe("partial");
 });
+
+test("通常runの9件再開応答は実IndexedDBへcommitせず、確定prefixを保持して再読込後に再開できる", async ({
+  page,
+}) => {
+  await setup(page);
+  await start(page);
+  const before = await record(page);
+  const prefix = structuredClone(before.checkpoint!);
+  await page.evaluate(async (prior) => {
+    const reconcilePath = "/src/analysis/bounded-reconcile.ts";
+    const inventoryPath = "/src/analysis/span-inventory.ts";
+    const { reconcileFixtureCandidates, parseBoundedResult } = await import(
+      reconcilePath
+    );
+    const { INVENTORY_LIMITS } = await import(inventoryPath);
+    const candidates = prior.candidates.map((c: any) => c.value);
+    const bad = reconcileFixtureCandidates(
+      candidates,
+      { ...INVENTORY_LIMITS, maxComparisons: 9, maxRetainedResults: 9 },
+      { cursor: prior.reconciled.cursor, elapsedMs: 0 },
+    );
+    parseBoundedResult(bad, candidates);
+    if (bad.results.length !== 9)
+      throw new Error("fixture must contain 9 pairs");
+    const state = { injected: 0, writes: [] as any[] };
+    Object.assign(window, { __inventoryBadPage: state });
+    const nativePost = Worker.prototype.postMessage;
+    Worker.prototype.postMessage = function (message: any, ...rest: any[]) {
+      if (message.phase === "reconcile") {
+        state.injected++;
+        queueMicrotask(() =>
+          this.dispatchEvent(
+            new MessageEvent("message", {
+              data: {
+                runId: message.runId,
+                generationId: message.generationId,
+                requestId: message.requestId,
+                value: bad,
+              },
+            }),
+          ),
+        );
+        return;
+      }
+      return Reflect.apply(nativePost, this, [message, ...rest]);
+    };
+    const nativePut = IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put = function (value: any, key?: IDBValidKey) {
+      if (this.name === "runs" && value?.id?.startsWith("span-inventory:"))
+        state.writes.push(structuredClone(value));
+      return key === undefined
+        ? nativePut.call(this, value)
+        : nativePut.call(this, value, key);
+    };
+  }, prefix as any);
+  await page
+    .getByRole("button", { name: "保存済みペアの次ページへ", exact: true })
+    .click();
+  await expect(page.getByTestId("inventory-state")).toContainText("失敗");
+  await expect(page.getByRole("alert")).toContainText("8ペア");
+  const after = await record(page);
+  expect(after.owner).not.toBe(before.owner);
+  expect(after.checkpoint).toEqual({ ...prefix, generationId: after.owner });
+  const observed = await page.evaluate(
+    () => (window as any).__inventoryBadPage,
+  );
+  expect(observed.injected).toBe(1);
+  expect(observed.writes.length).toBeGreaterThan(0);
+  // Claim only updates the owner/generation fence. Every other checkpoint
+  // field must remain exactly equal: no candidate/pair/cursor commit is allowed.
+  for (const write of observed.writes)
+    expect(write.checkpoint).toEqual({ ...prefix, generationId: write.owner });
+  await reload(page);
+  expect(await record(page)).toEqual(after);
+  await page
+    .getByRole("button", { name: "保存済みペアの次ページへ", exact: true })
+    .click();
+  await expect(page.getByTestId("inventory-state")).toContainText(
+    "部分結果（保存済み）",
+  );
+  const resumed = (await record(page)).checkpoint!
+    .reconciled as ReconciliationResult;
+  expect(resumed.results).toHaveLength(16);
+  expect(resumed.results.slice(0, 8)).toEqual(
+    (prefix.reconciled as ReconciliationResult).results,
+  );
+  expect(resumed.cursor.nextPairIndex).toBe(16);
+});
+
+test("未保存ProjectはUIと直接APIの両方で開始不可、Workerもcheckpointも作らない", async ({
+  page,
+}) => {
+  const workers: string[] = [];
+  page.on("worker", (worker) => workers.push(worker.url()));
+  await page.goto("/");
+  await page
+    .getByRole("button", { name: "サンプルを見てみる", exact: true })
+    .click();
+  await openPanel(page);
+  await expect(
+    page.getByRole("button", { name: "意味解析なしで台帳を開始", exact: true }),
+  ).toBeDisabled();
+  expect(await record(page)).toBeUndefined();
+  const rejected = await page.evaluate(async () => {
+    const samplePath = "/src/analysis/sample.ts";
+    const runPath = "/src/analysis/inventory-run.ts";
+    const { sampleProject } = await import(samplePath);
+    const { runSpanInventory } = await import(runPath);
+    const project = sampleProject();
+    project.saved = false;
+    try {
+      await runSpanInventory(project, new AbortController().signal, () => {});
+      return false;
+    } catch (error) {
+      return String(error).includes("現在版をこの端末に保存");
+    }
+  });
+  expect(rejected).toBe(true);
+  expect(await record(page)).toBeUndefined();
+  expect(await savedProjects(page)).toEqual([]);
+  expect(workers).toEqual([]);
+});

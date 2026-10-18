@@ -137,6 +137,18 @@ export default function App() {
   const importRef = useRef<HTMLInputElement>(null);
   const lastFocused = useRef<HTMLElement | null>(null);
   const savedProjectRef = useRef<Project | null>(null);
+  // Save callbacks may complete out of order. This identity excludes only
+  // persistence metadata, so a result for the same semantic revision can
+  // satisfy a later callback without treating a newer edit as durable.
+  const persistenceKey = (value: Project) => {
+    const {
+      saved: _saved,
+      updatedAt: _updatedAt,
+      storageRevision: _storageRevision,
+      ...content
+    } = value;
+    return JSON.stringify(content);
+  };
   const activeProjectRef = useRef(project);
   const selectedIdRef = useRef(selectedId);
   const inspectorDraftDirty = useRef(false);
@@ -219,7 +231,17 @@ export default function App() {
           }
         })
         .catch((e: Error) => {
-          if (activeProjectRef.current?.id !== project.id) return;
+          const current = activeProjectRef.current;
+          if (!current || current.id !== project.id) return;
+          const submittedKey = persistenceKey(project);
+          const currentKey = persistenceKey(current);
+          const durableKey = savedProjectRef.current
+            ? persistenceKey(savedProjectRef.current)
+            : undefined;
+          // A loser from the same revision must not undo the winner. A
+          // callback for an older revision must not clobber a newer edit.
+          if (durableKey === submittedKey || currentKey !== submittedKey)
+            return;
           setSaveFailed(true);
           setMessage("");
           setError(
@@ -420,7 +442,14 @@ export default function App() {
           : "保存しました。保存中の新しい編集は自動保存へ引き継ぎます。",
       );
     } catch (error) {
-      if (activeProjectRef.current?.id !== submitted.id) return;
+      const current = activeProjectRef.current;
+      if (!current || current.id !== submitted.id) return;
+      const submittedKey = persistenceKey(submitted);
+      const currentKey = persistenceKey(current);
+      const durableKey = savedProjectRef.current
+        ? persistenceKey(savedProjectRef.current)
+        : undefined;
+      if (durableKey === submittedKey || currentKey !== submittedKey) return;
       setSaveFailed(true);
       setMessage("");
       setError(
