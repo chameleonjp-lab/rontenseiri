@@ -1,10 +1,12 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent } from "react";
 import type { Project } from "../domain/types";
 import {
   addEvidence,
   addQuestion,
   addSemanticItem,
   linkResponse,
+  updateResponse,
+  removeResponse,
   reviseQuestion,
   retractQuestion,
   type ReasoningProject,
@@ -62,6 +64,37 @@ const certaintyLabel: Record<Certainty, string> = {
   retracted: "撤回",
 };
 
+const toggle = (ids: string[], id: string) =>
+  ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id];
+
+const Checks = ({
+  ids,
+  setIds,
+  label,
+  utterances,
+}: {
+  ids: string[];
+  setIds: (v: string[]) => void;
+  label: string;
+  utterances: Project["utterances"];
+}) => (
+  <fieldset className="reasoning-checks">
+    <legend>{label}</legend>
+    {utterances.map((u) => (
+      <label key={u.id}>
+        <input
+          type="checkbox"
+          checked={ids.includes(u.id)}
+          onChange={() => setIds(toggle(ids, u.id))}
+        />{" "}
+        <span>
+          {u.id} {u.speaker}: {u.quote}
+        </span>
+      </label>
+    ))}
+  </fieldset>
+);
+
 export default function ReasoningPanel({
   project,
   onUpdate,
@@ -92,12 +125,19 @@ export default function ReasoningPanel({
     text: string;
     reason: string;
   } | null>(null);
+  const responseVersionRef = useRef<HTMLSelectElement>(null);
+  const [editingResponseId, setEditingResponseId] = useState<string | null>(
+    null,
+  );
+  const [relationMessage, setRelationMessage] = useState("");
   const [response, setResponse] = useState({
     versionId: "",
     kind: "answer" as ResponseKind,
     fulfillment: "unassessed" as Fulfillment,
     reason: "",
     ids: [] as string[],
+    evidenceIds: [] as string[],
+    counterargumentToClaimIds: [] as string[],
   });
   const [evidence, setEvidence] = useState({
     note: "",
@@ -121,12 +161,12 @@ export default function ReasoningPanel({
   const run = (fn: () => Project) => {
     try {
       onUpdate(fn());
+      return true;
     } catch (error) {
       onError(error instanceof Error ? error.message : String(error));
+      return false;
     }
   };
-  const toggle = (ids: string[], id: string) =>
-    ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id];
   const selectedText = questionSources.length
     ? questionSources.join(", ")
     : "未選択（全発言を根拠にしません）";
@@ -171,33 +211,46 @@ export default function ReasoningPanel({
     e.preventDefault();
     if (!response.versionId || !response.ids.length)
       return onError("対象の問い版と発言を明示選択してください");
-    run(() =>
-      linkResponse(
-        project as ReasoningProject,
-        {
-          questionVersionId: response.versionId,
-          utteranceIds: response.ids,
-          kind: response.kind,
-          fulfillment: response.fulfillment,
-          actor: "manual",
-          time: {
-            asOf: new Date().toISOString(),
-            recordedAt: new Date().toISOString(),
-          },
-          counterargumentToClaimIds: [],
-          evidenceIds: [],
-          note: response.reason,
-        },
-        response.reason,
-      ),
+    const value = {
+      questionVersionId: response.versionId,
+      utteranceIds: response.ids,
+      kind: response.kind,
+      fulfillment: response.fulfillment,
+      counterargumentToClaimIds: response.counterargumentToClaimIds,
+      evidenceIds: response.evidenceIds,
+    };
+    const ok = run(() =>
+      editingResponseId
+        ? updateResponse(project, editingResponseId, value, response.reason)
+        : linkResponse(
+            project,
+            {
+              ...value,
+              actor: "manual",
+              note: response.reason,
+              time: {
+                asOf: new Date().toISOString(),
+                recordedAt: new Date().toISOString(),
+              },
+            },
+            response.reason,
+          ),
     );
-    setResponse({
-      versionId: "",
-      kind: "answer",
-      fulfillment: "unassessed",
-      reason: "",
-      ids: [],
-    });
+    if (ok) {
+      setRelationMessage(
+        editingResponseId ? "応答の関連を修正しました" : "応答を登録しました",
+      );
+      setEditingResponseId(null);
+      setResponse({
+        versionId: "",
+        kind: "answer",
+        fulfillment: "unassessed",
+        reason: "",
+        ids: [],
+        evidenceIds: [],
+        counterargumentToClaimIds: [],
+      });
+    }
   }
   function submitEvidence(e: FormEvent) {
     e.preventDefault();
@@ -260,31 +313,6 @@ export default function ReasoningPanel({
       evidenceIds: [],
     });
   }
-  const Checks = ({
-    ids,
-    setIds,
-    label,
-  }: {
-    ids: string[];
-    setIds: (v: string[]) => void;
-    label: string;
-  }) => (
-    <fieldset className="reasoning-checks">
-      <legend>{label}</legend>
-      {utterances.map((u) => (
-        <label key={u.id}>
-          <input
-            type="checkbox"
-            checked={ids.includes(u.id)}
-            onChange={() => setIds(toggle(ids, u.id))}
-          />{" "}
-          <span>
-            {u.id} {u.speaker}: {u.quote}
-          </span>
-        </label>
-      ))}
-    </fieldset>
-  );
   return (
     <section className="reasoning-panel" aria-label="問い・根拠">
       <header className="reasoning-panel__header">
@@ -362,6 +390,7 @@ export default function ReasoningPanel({
               </label>
             </div>
             <Checks
+              utterances={utterances}
               ids={questionSources}
               setIds={setQuestionSources}
               label={`根拠発言（選択中: ${selectedText}）`}
@@ -471,10 +500,22 @@ export default function ReasoningPanel({
           )}
           <section className="reasoning-section">
             <h3>問い版への応答（kind と要求充足は独立）</h3>
-            <form className="reasoning-form" onSubmit={submitResponse}>
+            <p aria-live="polite">{relationMessage}</p>
+            <form
+              className="reasoning-form"
+              aria-label="応答関係の編集"
+              onSubmit={submitResponse}
+            >
+              <p>
+                {editingResponseId
+                  ? `修正中: ${editingResponseId}`
+                  : "新しい応答を登録"}
+                （旧版から新版へ自動移動しません）
+              </p>
               <label>
                 対象問い版
                 <select
+                  ref={responseVersionRef}
                   value={response.versionId}
                   onChange={(e) =>
                     setResponse({ ...response, versionId: e.target.value })
@@ -527,10 +568,56 @@ export default function ReasoningPanel({
                 </label>
               </div>
               <Checks
+                utterances={[...project.utterances].sort(
+                  (a, b) => a.order - b.order,
+                )}
                 ids={response.ids}
                 setIds={(ids) => setResponse({ ...response, ids })}
                 label="回答にする発言（複数選択可）"
               />
+              <fieldset className="reasoning-checks">
+                <legend>応答の根拠（複数選択可・外すと関連だけ解除）</legend>
+                {evidenceList.map((e) => (
+                  <label key={e.id}>
+                    <input
+                      type="checkbox"
+                      checked={response.evidenceIds.includes(e.id)}
+                      onChange={() =>
+                        setResponse({
+                          ...response,
+                          evidenceIds: toggle(response.evidenceIds, e.id),
+                        })
+                      }
+                    />
+                    {e.id} · {e.note || e.utteranceIds.join(", ")}
+                  </label>
+                ))}
+              </fieldset>
+              <fieldset className="reasoning-checks">
+                <legend>
+                  反論先の意味項目（種別・要求充足とは独立、複数選択可）
+                </legend>
+                {items.map((x) => (
+                  <label key={x.id}>
+                    <input
+                      type="checkbox"
+                      checked={response.counterargumentToClaimIds.includes(
+                        x.id,
+                      )}
+                      onChange={() =>
+                        setResponse({
+                          ...response,
+                          counterargumentToClaimIds: toggle(
+                            response.counterargumentToClaimIds,
+                            x.id,
+                          ),
+                        })
+                      }
+                    />
+                    {x.id} · {x.text}
+                  </label>
+                ))}
+              </fieldset>
               <label>
                 登録理由
                 <input
@@ -542,8 +629,61 @@ export default function ReasoningPanel({
                 />
               </label>
               <button className="primary" type="submit">
-                応答を登録
+                {editingResponseId ? "応答の修正を保存" : "応答を登録"}
               </button>
+              {editingResponseId && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (
+                        run(() =>
+                          removeResponse(
+                            project,
+                            editingResponseId,
+                            response.reason,
+                          ),
+                        )
+                      ) {
+                        setEditingResponseId(null);
+                        setResponse({
+                          versionId: "",
+                          kind: "answer",
+                          fulfillment: "unassessed",
+                          reason: "",
+                          ids: [],
+                          evidenceIds: [],
+                          counterargumentToClaimIds: [],
+                        });
+                        setRelationMessage(
+                          "関連を解除しました。未回答・反論なしとは断定しません",
+                        );
+                        responseVersionRef.current?.focus();
+                      }
+                    }}
+                  >
+                    理由を記録して応答の関連を解除
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingResponseId(null);
+                      setResponse({
+                        versionId: "",
+                        kind: "answer",
+                        fulfillment: "unassessed",
+                        reason: "",
+                        ids: [],
+                        evidenceIds: [],
+                        counterargumentToClaimIds: [],
+                      });
+                      responseVersionRef.current?.focus();
+                    }}
+                  >
+                    応答の修正をキャンセル
+                  </button>
+                </>
+              )}
             </form>
             {responses.length === 0 ? (
               <p className="reasoning-empty">応答未記録</p>
@@ -560,6 +700,31 @@ export default function ReasoningPanel({
                     問い版 {r.questionVersionId} · 発言{" "}
                     {r.utteranceIds.join(", ") || "未特定"}
                   </p>
+                  <p>
+                    根拠 {r.evidenceIds.join(", ") || "関連未記録"} · 反論先{" "}
+                    {r.counterargumentToClaimIds.join(", ") ||
+                      "関連未記録（反論なしとは断定しません）"}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingResponseId(r.id);
+                      setResponse({
+                        versionId: r.questionVersionId,
+                        ids: [...r.utteranceIds],
+                        kind: r.kind,
+                        fulfillment: r.fulfillment,
+                        reason: "",
+                        evidenceIds: [...r.evidenceIds],
+                        counterargumentToClaimIds: [
+                          ...r.counterargumentToClaimIds,
+                        ],
+                      });
+                      responseVersionRef.current?.focus();
+                    }}
+                  >
+                    応答 {r.id} を修正
+                  </button>
                   <small>
                     登録時点 {r.time.recordedAt} / 対象時点 {r.time.asOf}
                   </small>
@@ -572,6 +737,7 @@ export default function ReasoningPanel({
             <form className="reasoning-form" onSubmit={submitEvidence}>
               <h4>根拠を登録</h4>
               <Checks
+                utterances={utterances}
                 ids={evidence.ids}
                 setIds={(ids) => setEvidence({ ...evidence, ids })}
                 label="根拠発言（明示選択）"
@@ -665,6 +831,7 @@ export default function ReasoningPanel({
                 </label>
               </div>
               <Checks
+                utterances={utterances}
                 ids={item.ids}
                 setIds={(ids) => setItem({ ...item, ids })}
                 label="意味項目の発言根拠（明示選択）"

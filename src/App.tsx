@@ -405,7 +405,7 @@ export default function App() {
                     ? "ブラウザ保存"
                     : "一時作業・未保存"}
               </span>
-              <button onClick={save}>
+              <button onClick={save} aria-label="この端末に保存">
                 <Save size={16} />
                 <span>この端末に保存</span>
               </button>

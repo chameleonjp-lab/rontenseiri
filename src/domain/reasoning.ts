@@ -1,7 +1,10 @@
 import type { Project, Revision } from "./types";
 import { semanticSnapshot } from "./snapshot";
 import { validateReasoning } from "./reasoning-validation";
-import { invalidateReasoningDependents } from "./invalidation";
+import {
+  invalidateDependents,
+  invalidateReasoningDependents,
+} from "./invalidation";
 import type {
   ReasoningGraph,
   QuestionOrigin,
@@ -50,10 +53,13 @@ function commit(
   kind: string,
   reason: string,
   changedQuestionVersionIds: readonly string[] = [],
+  changedResponseUtteranceIds: readonly string[] = [],
 ): ReasoningProject {
   requireText(reason, "reason");
   let out = clone(p);
   out.reasoning = after;
+  if (changedResponseUtteranceIds.length)
+    out = invalidateDependents(out, changedResponseUtteranceIds);
   if (changedQuestionVersionIds.length)
     out = invalidateReasoningDependents(
       out,
@@ -203,6 +209,81 @@ export function linkResponse(
     x = { ...clone(value), id: id("response") };
   g.responses.push(x);
   return commit(p, b, g, x.id, "response-linked", reason);
+}
+
+/** A patch never follows currentVersionId or derives fulfillment from kind. */
+export function updateResponse(
+  project: ReasoningProject,
+  responseId: string,
+  patch: Partial<
+    Pick<
+      ReasoningGraph["responses"][number],
+      | "questionVersionId"
+      | "utteranceIds"
+      | "kind"
+      | "fulfillment"
+      | "counterargumentToClaimIds"
+      | "evidenceIds"
+      | "note"
+    >
+  >,
+  reason: string,
+): ReasoningProject {
+  const p = checked(project),
+    before = graph(p),
+    after = graph(p);
+  const response = after.responses.find((r) => r.id === responseId);
+  if (!response) throw new Error("response not found");
+  const oldIds = [...response.utteranceIds];
+  // Copy only editable fields, including at runtime; identity/provenance stay fixed.
+  for (const key of [
+    "questionVersionId",
+    "utteranceIds",
+    "kind",
+    "fulfillment",
+    "counterargumentToClaimIds",
+    "evidenceIds",
+    "note",
+  ] as const) {
+    if (Object.prototype.hasOwnProperty.call(patch, key))
+      Object.assign(response, { [key]: clone(patch[key]) });
+  }
+  if (!response.utteranceIds?.length)
+    throw new Error("response utterance required");
+  return commit(
+    p,
+    before,
+    after,
+    responseId,
+    "response-updated",
+    reason,
+    [],
+    [...new Set([...oldIds, ...response.utteranceIds])],
+  );
+}
+
+/** Removal records absence of a link, not an unanswered/no-rebuttal conclusion. */
+export function removeResponse(
+  project: ReasoningProject,
+  responseId: string,
+  reason: string,
+): ReasoningProject {
+  const p = checked(project),
+    before = graph(p),
+    after = graph(p);
+  const response = after.responses.find((r) => r.id === responseId);
+  if (!response) throw new Error("response not found");
+  after.responses = after.responses.filter((r) => r.id !== responseId);
+  return commit(
+    p,
+    before,
+    after,
+    responseId,
+    "response-removed",
+    reason,
+    [],
+    response.utteranceIds,
+  );
 }
 export function addPositionChange(
   project: ReasoningProject,
