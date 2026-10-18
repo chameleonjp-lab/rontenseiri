@@ -1,9 +1,4 @@
 import { expect, test } from "@playwright/test";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
-
-const evidenceDir = "/workspace/rontenseiri-evidence/review-758b1db";
-const evidencePath = `${evidenceDir}/inspector-membership-repro.json`;
-const cases: Array<Record<string, unknown>> = [];
 let observed: Record<string, unknown> = {};
 
 async function sample(page: import("@playwright/test").Page) {
@@ -50,42 +45,11 @@ async function moveU01ToAnotherAgenda(
 }
 
 test.afterEach(async ({}, testInfo) => {
-  const completedCase = {
-    ...observed,
-    name: testInfo.title,
-    status: testInfo.status,
-    expectedStatus: testInfo.expectedStatus,
-    errors: testInfo.errors.map((error) => error.message),
-  };
-  let priorCases: Array<Record<string, unknown>> = [];
-  try {
-    priorCases = JSON.parse(await readFile(evidencePath, "utf8")).cases ?? [];
-  } catch {
-    // The first test in a run creates the evidence file.
-  }
-  const mergedCases = [
-    ...priorCases.filter((entry) => entry.name !== completedCase.name),
-    completedCase,
-  ];
-  cases.splice(0, cases.length, ...mergedCases);
+  await testInfo.attach("inspector-draft-observation", {
+    body: JSON.stringify(observed, null, 2),
+    contentType: "application/json",
+  });
   observed = {};
-  await mkdir(evidenceDir, { recursive: true });
-  await writeFile(
-    evidencePath,
-    JSON.stringify(
-      {
-        repoHead: "758b1db0160064504180cb04526ac1fb05791923",
-        scope: "e2e/inspector-membership-draft.spec.ts",
-        hypothesis:
-          "Inspector同期effectがagenda membership変化で別欄unsaved draftを消す",
-        sourceChanged: false,
-        cases,
-        note: "membership action UIを使用。所属・境界の変更理由は別labelで入力。",
-      },
-      null,
-      2,
-    ) + "\n",
-  );
 });
 
 test("変更理由の未保存ドラフトは議題所属変更後も保持され後続保存に使える", async ({
@@ -183,4 +147,99 @@ test("原文ドラフトは分類モードの保存後も保持される", async
     draftQuote,
   };
   await expect(quote).toHaveValue(draftQuote);
+});
+
+test("原文ドラフトは所属保存後も保持され後続の原文保存が再読込後も残る", async ({
+  page,
+}) => {
+  await sample(page);
+  const details = await openU01(page);
+  await details
+    .getByRole("button", { name: "発言・原文", exact: true })
+    .click();
+  const quote = details.getByLabel("訂正後の原文", { exact: true });
+  const original = await quote.inputValue();
+  const draftQuote = `${original}（所属保存前の未保存ドラフト）`;
+  await quote.fill(draftQuote);
+  const membership = await moveU01ToAnotherAgenda(details);
+  await expect(quote).toHaveValue(draftQuote);
+
+  const savedQuote = `${draftQuote}（後続の原文保存）`;
+  const sourceReason = "所属保存後の原文訂正理由";
+  await quote.fill(savedQuote);
+  await details.getByLabel("変更理由", { exact: true }).fill(sourceReason);
+  await details
+    .getByRole("button", { name: "訂正を保存", exact: true })
+    .click();
+  await expect(quote).toHaveValue(savedQuote);
+  await page
+    .getByRole("button", { name: "この端末に保存", exact: true })
+    .click();
+  await expect(page.getByRole("status")).toContainText("保存しました");
+  const stored = await page.evaluate(
+    async ({ wantedQuote, wantedReason }) => {
+      const db = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open("rontenseiri-projects-v1", 1);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      const rows = await new Promise<
+        Array<{
+          utterances: Array<{ id: string; quote: string }>;
+          revisions: Array<{ reason?: string }>;
+        }>
+      >((resolve, reject) => {
+        const request = db
+          .transaction("projects", "readonly")
+          .objectStore("projects")
+          .getAll();
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      db.close();
+      const project = rows.find((row) =>
+        row.utterances.some(
+          (utterance) =>
+            utterance.id === "U01" && utterance.quote === wantedQuote,
+        ),
+      );
+      return {
+        quotePersisted: Boolean(project),
+        reasonPersisted: Boolean(
+          project?.revisions.some(
+            (revision) => revision.reason === wantedReason,
+          ),
+        ),
+      };
+    },
+    { wantedQuote: savedQuote, wantedReason: sourceReason },
+  );
+  expect(stored).toEqual({ quotePersisted: true, reasonPersisted: true });
+
+  await page.reload();
+  await page
+    .locator("button.recent-open", {
+      hasText: "在宅勤務の試行会議（架空サンプル）",
+    })
+    .click();
+  await page.getByRole("button", { name: /^U01 / }).click();
+  const reloaded = page.getByRole("complementary", {
+    name: "選択した発言の詳細",
+  });
+  await reloaded
+    .getByRole("button", { name: "発言・原文", exact: true })
+    .click();
+  await expect(
+    reloaded.getByLabel("訂正後の原文", { exact: true }),
+  ).toHaveValue(savedQuote);
+  await page.getByRole("button", { name: "訂正履歴", exact: true }).click();
+  await expect(page.getByText(sourceReason, { exact: true })).toBeVisible();
+  observed = {
+    result: "pass",
+    draftQuote,
+    savedQuote,
+    sourceReason,
+    membership,
+    persistedBy: "IndexedDB and correction-history DOM after reload",
+  };
 });

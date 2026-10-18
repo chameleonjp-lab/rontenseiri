@@ -8,7 +8,7 @@ import {
 } from "../src/domain/reasoning";
 import { exportProject } from "../src/export/project";
 
-type Destination = "right" | "both" | "unresolved";
+type Destination = "left" | "right" | "both" | "unresolved";
 const time = {
   asOf: "2020-01-01T00:00:00.000Z",
   recordedAt: "2020-01-01T00:00:00.000Z",
@@ -59,10 +59,28 @@ async function makeFixture() {
 
 test.describe("発言分割の実選択・保存・復元", () => {
   test.describe.configure({ mode: "serial" });
-  for (const destination of ["right", "both", "unresolved"] as Destination[])
+  for (const destination of [
+    "left",
+    "right",
+    "both",
+    "unresolved",
+  ] as Destination[])
     test(`${destination} 選択を実UIで完了する`, async ({ page }) => {
       const { project, target, evidenceId, questionVersionId, responseId } =
         await makeFixture();
+      const originalUtteranceIds = project.utterances.map((u) => u.id);
+      const originalOtherUtterances = project.utterances.filter(
+        (u) => u.id !== target.id,
+      );
+      const originalEvidence = project.reasoning!.evidence.find(
+        (e) => e.id === evidenceId,
+      )!;
+      const originalQuestionVersion = project.reasoning!.questionVersions.find(
+        (q) => q.id === questionVersionId,
+      )!;
+      const originalResponse = project.reasoning!.responses.find(
+        (r) => r.id === responseId,
+      )!;
       const json = exportProject(project, "json");
       await page.goto("/");
       await page.getByLabel("JSONから復元").setInputFiles({
@@ -137,9 +155,90 @@ test.describe("発言分割の実選択・保存・復元", () => {
         .getByRole("button", { name: "出力内容をプレビュー", exact: true })
         .click();
       const preview = dialog.locator("pre.export-preview");
-      await expect(preview).toContainText('"reasoning"');
-      await expect(preview).toContainText('"lineage"');
-      await expect(preview).toContainText(target.sourceId);
+      const parsedEnvelope = JSON.parse((await preview.textContent()) ?? "");
+      const parsed = parsedEnvelope.project;
+      const record = [...(parsed.lineage?.records ?? [])]
+        .reverse()
+        .find(
+          (candidate: { operation?: string; oldIds?: string[] }) =>
+            candidate.operation === "split" &&
+            candidate.oldIds?.includes(target.id),
+        );
+      expect(record).toBeDefined();
+      const newIds = record.newIds as [string, string];
+      const expectedReferenceIds = {
+        evidence: newIds,
+        response: newIds,
+        questionVersion: newIds,
+      };
+      const expectedIds =
+        destination === "left"
+          ? [newIds[0]]
+          : destination === "right"
+            ? [newIds[1]]
+            : newIds;
+      const expectedUnresolved = destination === "unresolved";
+      const expectedReasoningIds = expectedUnresolved ? newIds : expectedIds;
+      const responseUtteranceIds = (parsed.reasoning.responses.find(
+        (r: { id: string }) => r.id === responseId,
+      ) as { utteranceIds?: string[]; sourceUtteranceIds?: string[] })!;
+      expect(
+        new Set(parsed.utterances.map((u: { id: string }) => u.id)),
+      ).toEqual(
+        new Set([
+          ...originalUtteranceIds.filter((id) => id !== target.id),
+          ...newIds,
+        ]),
+      );
+      for (const original of originalOtherUtterances) {
+        const expected = {
+          ...JSON.parse(JSON.stringify(original)),
+          order:
+            original.order > target.order ? original.order + 1 : original.order,
+        };
+        expect(
+          parsed.utterances.find((u: { id: string }) => u.id === original.id),
+        ).toEqual(expected);
+      }
+      expect(
+        parsed.reasoning.evidence.find(
+          (e: { id: string }) => e.id === evidenceId,
+        ).utteranceIds,
+      ).toEqual(expectedReasoningIds);
+      expect(
+        parsed.reasoning.questionVersions.find(
+          (q: { id: string }) => q.id === questionVersionId,
+        ).sourceUtteranceIds,
+      ).toEqual(expectedReasoningIds);
+      expect(
+        responseUtteranceIds.sourceUtteranceIds ??
+          responseUtteranceIds.utteranceIds,
+      ).toEqual(expectedReasoningIds);
+      expect(
+        parsed.reasoning.responses.find(
+          (r: { id: string }) => r.id === responseId,
+        ).fulfillment,
+      ).toBe("unassessed");
+      expect(record.status).toBe("pending");
+      for (const [referenceId, referenceIds] of Object.entries(
+        expectedReferenceIds,
+      )) {
+        const reasoningId =
+          referenceId === "evidence"
+            ? evidenceId
+            : referenceId === "response"
+              ? responseId
+              : questionVersionId;
+        const ref = record.references.find(
+          (candidate: { referenceId: string }) =>
+            candidate.referenceId === reasoningId,
+        );
+        expect(ref).toBeDefined();
+        expect(ref.targetIds).toEqual(
+          expectedUnresolved ? referenceIds : expectedIds,
+        );
+        expect(ref.status).toBe(expectedUnresolved ? "unresolved" : "applied");
+      }
 
       await dialog.getByRole("button", { name: "ダイアログを閉じる" }).click();
       await page.getByRole("button", { name: "訂正履歴", exact: true }).click();
@@ -150,6 +249,37 @@ test.describe("発言分割の実選択・保存・復元", () => {
       await expect(undo).toBeEnabled();
       await undo.click();
       await expect(page.getByRole("status")).toContainText("元に戻しました");
+      await page.getByRole("button", { name: "出力", exact: true }).click();
+      const undoDialog = page.getByRole("dialog", { name: "資料を出力する" });
+      await undoDialog
+        .getByRole("button", { name: "出力内容をプレビュー", exact: true })
+        .click();
+      const undoParsedEnvelope = JSON.parse(
+        (await undoDialog.locator("pre.export-preview").textContent()) ?? "",
+      );
+      const undoParsed = undoParsedEnvelope.project;
+      expect(undoParsed.utterances.map((u: { id: string }) => u.id)).toEqual(
+        originalUtteranceIds,
+      );
+      expect(
+        undoParsed.reasoning.evidence.find(
+          (e: { id: string }) => e.id === evidenceId,
+        ).utteranceIds,
+      ).toEqual(originalEvidence.utteranceIds);
+      expect(
+        undoParsed.reasoning.questionVersions.find(
+          (q: { id: string }) => q.id === questionVersionId,
+        ).sourceUtteranceIds,
+      ).toEqual(originalQuestionVersion.sourceUtteranceIds);
+      const undoResponse = undoParsed.reasoning.responses.find(
+        (r: { id: string }) => r.id === responseId,
+      );
+      expect(undoResponse.utteranceIds).toEqual(originalResponse.utteranceIds);
+      expect(undoResponse.fulfillment).toBe("fulfilled");
+      expect(undoParsed.lineage?.records ?? []).toEqual([]);
+      await undoDialog
+        .getByRole("button", { name: "ダイアログを閉じる" })
+        .click();
       await page
         .getByRole("button", { name: "発言と原文", exact: true })
         .click();

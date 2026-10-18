@@ -126,7 +126,11 @@ function transferReasoningReferences(
       return undefined;
     const target = targetsFor(recordId);
     return {
-      value: value.flatMap((x) => (old.has(String(x)) ? target.ids : [x])),
+      value: [
+        ...new Set(
+          value.flatMap((x) => (old.has(String(x)) ? target.ids : [x])),
+        ),
+      ],
       unresolved: target.unresolved,
     };
   };
@@ -565,8 +569,8 @@ export function resolveLineageTransfer(
     const original =
       originalGraph &&
       (Object.values(originalGraph)
-        .flatMap((x) => (Array.isArray(x) ? x : []))
-        .find((x) => (x as { id?: unknown }).id === referenceId) as
+        .flatMap((value) => (Array.isArray(value) ? value : []))
+        .find((value) => (value as { id?: unknown }).id === referenceId) as
         Record<string, unknown> | undefined);
     const current =
       reasoning &&
@@ -574,12 +578,43 @@ export function resolveLineageTransfer(
         .flatMap((x) => (Array.isArray(x) ? x : []))
         .find((x) => (x as { id?: unknown }).id === referenceId) as
         Record<string, unknown> | undefined);
-    if (current && original)
+    if (current) {
+      // Historical snapshots identify the reference, but live graph fields
+      // are authoritative for unrelated roots edited in the meantime.
+      const rootIds = new Set([
+        ...record.oldIds,
+        ...lineageTargetIds(p, record.id),
+      ]);
       for (const field of ["utteranceIds", "sourceUtteranceIds"])
-        if (Array.isArray(original[field]) && Array.isArray(current[field]))
-          current[field] = (original[field] as unknown[]).flatMap((x) =>
-            record.oldIds.includes(String(x)) ? targetIds : [x],
+        if (Array.isArray(current[field])) {
+          const originalIds = Array.isArray(original?.[field])
+            ? (original[field] as unknown[])
+            : [];
+          const protectedIds = new Set(
+            originalIds.flatMap((value) => {
+              const id = String(value);
+              if (record.oldIds.includes(id)) return [];
+              if (p.utterances.some((utterance) => utterance.id === id))
+                return [id];
+              const later = p.lineage?.records.find((item) =>
+                item.oldIds.includes(id),
+              );
+              return later ? lineageTargetIds(p, later.id) : [];
+            }),
           );
+          current[field] = [
+            ...new Set(
+              (current[field] as unknown[]).flatMap((x) =>
+                rootIds.has(String(x))
+                  ? protectedIds.has(String(x))
+                    ? [...targetIds, x]
+                    : targetIds
+                  : [x],
+              ),
+            ),
+          ];
+        }
+    }
     if (current && status === "unresolved")
       current.note =
         typeof current.note === "string"

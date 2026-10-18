@@ -394,7 +394,29 @@ export function importProject(text: string): Project {
       !Array.isArray(wrapper.manifest.allowedUtteranceIds))
   )
     throw new Error("限定出力manifestが不正です");
+  if (wrapper.scope === "full" && wrapper.manifest !== undefined) {
+    const manifest = wrapper.manifest;
+    if (
+      !manifest ||
+      typeof manifest !== "object" ||
+      manifest.schemaVersion !== 1 ||
+      manifest.limited !== false ||
+      manifest.fullBackup !== true ||
+      manifest.historyIncluded !== true ||
+      typeof manifest.sourceCoverageComplete !== "boolean" ||
+      manifest.organizationComplete !== false ||
+      Object.prototype.hasOwnProperty.call(manifest, "allowedUtteranceIds")
+    )
+      throw new Error("完全出力manifestが不正です");
+  }
   const validated = validateProject(wrapper.project);
+  if (
+    wrapper.scope === "full" &&
+    wrapper.manifest !== undefined &&
+    wrapper.manifest.sourceCoverageComplete !==
+      projectCoverageComplete(validated)
+  )
+    throw new Error("完全出力manifestと原文対応が一致しません");
   const p = projectDto(validated, wrapper.scope === "full");
   if (wrapper.scope === "agenda") {
     const allowed = wrapper.manifest!.allowedUtteranceIds as unknown[];

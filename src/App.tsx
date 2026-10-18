@@ -175,23 +175,47 @@ export default function App() {
   const closeDetails = useCallback(() => {
     setDetailsOpen(false);
     requestAnimationFrame(() => {
+      const focusIfUsable = (element: HTMLElement | null): boolean => {
+        if (
+          !element?.isConnected ||
+          !element.getClientRects().length ||
+          element.closest('[hidden], [inert], [aria-hidden="true"]') ||
+          element.matches(":disabled")
+        )
+          return false;
+        const style = getComputedStyle(element);
+        if (style.visibility !== "visible" || style.display === "none")
+          return false;
+        element.focus({ preventScroll: true });
+        return document.activeElement === element;
+      };
+      if (focusIfUsable(lastFocused.current)) return;
+      const selected = selectedIdRef.current;
       if (
-        lastFocused.current?.isConnected &&
-        lastFocused.current.getClientRects().length
+        selected &&
+        focusIfUsable(
+          document.querySelector<HTMLElement>(
+            `.speech-hit[aria-label^="${CSS.escape(selected)} "]`,
+          ),
+        )
       )
-        lastFocused.current.focus();
-      else {
-        const id = selectedIdRef.current
-          ? CSS.escape(selectedIdRef.current)
-          : "";
-        document
-          .querySelector<HTMLElement>(
-            id
-              ? `.speech-hit[aria-label^="${id} "]`
-              : '.sidebar button[aria-current="page"]',
-          )
-          ?.focus({ preventScroll: true });
-      }
+        return;
+      const agenda = activeProjectRef.current?.agendas.find((item) =>
+        item.utteranceIds.includes(selected ?? ""),
+      );
+      if (
+        agenda &&
+        focusIfUsable(
+          document.querySelector<HTMLElement>(
+            `.agenda-frame-title[aria-label^="${CSS.escape(agenda.id)} "]`,
+          ),
+        )
+      )
+        return;
+      for (const candidate of document.querySelectorAll<HTMLElement>(
+        '.sidebar button[aria-current="page"], header button',
+      ))
+        if (focusIfUsable(candidate)) return;
     });
   }, []);
   function goGraph(id = selectedId) {

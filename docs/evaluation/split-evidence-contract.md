@@ -18,4 +18,12 @@
 
 後から系譜の移送先を確認するときも、選択したIDをそのまま適用する。「未確定」へ戻すときは生存する全候補を保持し、一片だけを残して両片保持と表示しない。衝突と未確定は別状態である。Undoは根拠・回答・原文参照を元の状態に戻し、取り消した経緯も残す。
 
-回帰試験は`tests/split-response-evidence.test.ts`、`tests/split-transfer-locality.test.ts`と`e2e/split-evidence.spec.ts`。この手動整理の正しさを、実AIの推論品質やG5全体の合格とは呼ばない。
+## 複数の元発言を順に編集した場合
+
+根拠がU01とU02を参照し、それぞれをA/BとC/Dへ分割したあとで最初の移送をAへ確定すると、以前は最初のスナップショットから参照全体を再構築し、退役したU02を戻して検証エラーになった。現在の参照を基準に対象の根だけを置き換え、別の元発言のC/Dや後続選択は保持する。未確定へ戻す場合も同じである。同一根をさらに分割して生存子孫へ解決するケースは元から通過しており、別々の根で再現した問題とは区別する。
+
+結合で複数の参照が同じ新IDへ移る場合は重複を除く。現存する子孫を別の元発言とも共有する場合は、対象の根だけを変更しても共有根拠まで落とさない。`tests/multi-split-transfer.test.ts`と`tests/multi-root-transfer-locality.test.ts`が、生存ID・非対象参照・移送状態・unassessed・JSON往復・Undoを比較する。
+
+`e2e/split-evidence.spec.ts`ではleft/right/both/unresolvedの全4経路を実UIで選び、保存・再読込後のJSONを解析する。実際の新ID、各参照先、移送状態、回答のunassessedを厳密に比較し、Undo後の原ID・reasoning・lineage状態も比較する。JSONに単語が含まれるだけでは合格にしない。
+
+ほかに`tests/split-response-evidence.test.ts`と`tests/split-transfer-locality.test.ts`も維持する。この手動整理の正しさを、実AIの推論品質やG5全体の合格とは呼ばない。

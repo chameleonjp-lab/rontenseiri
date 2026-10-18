@@ -63,22 +63,25 @@ export default function Inspector({
   const [boundaryReason, setBoundaryReason] = useState("");
   useEffect(() => {
     setClassification(u.classification);
+  }, [utteranceId, u.classification]);
+  useEffect(() => {
     setSpeaker(u.speaker);
+  }, [utteranceId, u.speaker]);
+  useEffect(() => {
     setImportant(u.important);
+  }, [utteranceId, u.important]);
+  useEffect(() => {
     setQuote(u.quote);
+  }, [utteranceId, u.quote]);
+  useEffect(() => {
     setReturnTo(returnValue);
-    setIncomingReturnAction("");
+  }, [utteranceId, returnValue]);
+  useEffect(() => {
     setTargetAgenda(agenda?.id || "");
-  }, [
-    utteranceId,
-    u.classification,
-    u.speaker,
-    u.important,
-    u.quote,
-    returnValue,
-    agenda?.id,
-    incomingReturn?.from,
-  ]);
+  }, [utteranceId, agenda?.id]);
+  useEffect(() => {
+    setIncomingReturnAction("");
+  }, [utteranceId, u.classification, incomingReturn?.from]);
   const source = project.sources.find((s) => s.versionId === u.sourceVersionId);
   const userCorrection = project.revisions.some(
     (r) =>
