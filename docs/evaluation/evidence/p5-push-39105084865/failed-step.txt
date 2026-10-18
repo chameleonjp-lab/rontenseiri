@@ -1,0 +1,127 @@
+verify	Browser acceptance tests	﻿2026-10-18T06:44:54.5293069Z ##[group]Run npm run test:e2e -- --grep-invert "各100操作で観測する"
+verify	Browser acceptance tests	2026-10-18T06:44:54.5293532Z ^[[36;1mnpm run test:e2e -- --grep-invert "各100操作で観測する"^[[0m
+verify	Browser acceptance tests	2026-10-18T06:44:54.5355856Z shell: /usr/bin/bash -e {0}
+verify	Browser acceptance tests	2026-10-18T06:44:54.5356139Z ##[endgroup]
+verify	Browser acceptance tests	2026-10-18T06:44:54.6354773Z 
+verify	Browser acceptance tests	2026-10-18T06:44:54.6355229Z > rontenseiri@0.1.0-prototype test:e2e
+verify	Browser acceptance tests	2026-10-18T06:44:54.6356152Z > playwright test --grep-invert 各100操作で観測する
+verify	Browser acceptance tests	2026-10-18T06:44:54.6356425Z 
+verify	Browser acceptance tests	2026-10-18T06:44:56.7967764Z 
+verify	Browser acceptance tests	2026-10-18T06:44:56.7968505Z Running 77 tests using 1 worker
+verify	Browser acceptance tests	2026-10-18T06:44:56.7968861Z 
+verify	Browser acceptance tests	2026-10-18T06:44:59.0985530Z   ✓   1 e2e/app.spec.ts:12:1 › home, fixed agenda fixture and no unsolicited external request (1.1s)
+verify	Browser acceptance tests	2026-10-18T06:45:00.9518289Z   ✓   2 e2e/app.spec.ts:43:1 › collapse, pan, zoom and view switches preserve semantic positions (1.8s)
+verify	Browser acceptance tests	2026-10-18T06:45:02.4508577Z   ✓   3 e2e/app.spec.ts:104:1 › keyboard detail, classification, exact source revision and history (1.5s)
+verify	Browser acceptance tests	2026-10-18T06:45:04.4028202Z   ✓   4 e2e/app.spec.ts:146:1 › manual text input, extraction preview, summary editing and explicit save (1.9s)
+verify	Browser acceptance tests	2026-10-18T06:45:05.9588724Z   ✓   5 e2e/app.spec.ts:197:1 › limited JSON preview excludes other agenda and restores to a new copy (1.5s)
+verify	Browser acceptance tests	2026-10-18T06:45:07.9204530Z   ✓   6 e2e/app.spec.ts:234:3 › mobile touch emulation (not iPhone real-device certification) › same agenda can be reviewed vertically with next action first (1.9s)
+verify	Browser acceptance tests	2026-10-18T06:45:09.5587004Z   ✓   7 e2e/app.spec.ts:268:1 › A-B-A occurrences and membership-only correction can be undone without changing evidence (1.6s)
+verify	Browser acceptance tests	2026-10-18T06:45:10.9134176Z   ✓   8 e2e/app.spec.ts:314:1 › folded branches are unavailable for limited export and dialog focus is trapped (1.3s)
+verify	Browser acceptance tests	2026-10-18T06:45:12.9313270Z   ✓   9 e2e/app.spec.ts:350:1 › pointer selection reaches nodes and agenda headers while blank space pans (2.0s)
+verify	Browser acceptance tests	2026-10-18T06:45:14.3373567Z   ✓  10 e2e/collapsed-focus-recovery.spec.ts:115:3 › 折り畳み後に原文から開いた非表示ノードをbuttonで閉じてもBODYやhiddenへフォーカスしない (1.4s)
+verify	Browser acceptance tests	2026-10-18T06:45:15.7243585Z   ✓  11 e2e/collapsed-focus-recovery.spec.ts:115:3 › 折り畳み後に原文から開いた非表示ノードをescapeで閉じてもBODYやhiddenへフォーカスしない (1.4s)
+verify	Browser acceptance tests	2026-10-18T06:45:16.9595636Z   ✓  12 e2e/collapsed-focus-recovery.spec.ts:161:1 › 折り畳みなしの表示中ノードはEscapeと閉じるボタンの両方で元ノードへ戻る (1.2s)
+verify	Browser acceptance tests	2026-10-18T06:45:17.6220127Z   ✓  13 e2e/domain-consistency.spec.ts:3:1 › 直接APIの復帰なしは正規化され、矛盾した外部状態の保存を拒否する (648ms)
+verify	Browser acceptance tests	2026-10-18T06:45:18.9254014Z   ✓  14 e2e/draft-recovery-guard.spec.ts:25:1 › saved Project with only an omission form draft protects view and copy switches (1.3s)
+verify	Browser acceptance tests	2026-10-18T06:45:20.1215452Z   ✓  15 e2e/draft-recovery-guard.spec.ts:60:1 › summary draft survives form close/reopen and unrelated durable save; leaving asks (1.2s)
+verify	Browser acceptance tests	2026-10-18T06:45:21.4984961Z   ✓  16 e2e/draft-recovery-guard.spec.ts:86:1 › reasoning form and utterance boundary drafts guard the views that would discard them (1.4s)
+verify	Browser acceptance tests	2026-10-18T06:45:22.5725490Z   ✓  17 e2e/escape-editing.spec.ts:16:1 › Escape in a text input retains the inspector draft; explicit exit restores node focus (1.1s)
+verify	Browser acceptance tests	2026-10-18T06:45:23.6162098Z   ✓  18 e2e/escape-editing.spec.ts:40:1 › Escape in the source textarea does not discard the unsaved quotation (1.0s)
+verify	Browser acceptance tests	2026-10-18T06:45:24.5776883Z   ✓  19 e2e/escape-editing.spec.ts:53:1 › IME composition and already-consumed Escape do not close details (951ms)
+verify	Browser acceptance tests	2026-10-18T06:45:25.5387028Z   ✓  20 e2e/focus.spec.ts:37:1 › U01をEnterで詳細化し、詳細を閉じると元のnode buttonへfocusを戻す (944ms)
+verify	Browser acceptance tests	2026-10-18T06:45:27.2392392Z   ✓  21 e2e/focus.spec.ts:49:1 › 図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる (1.7s)
+verify	Browser acceptance tests	2026-10-18T06:45:29.5023553Z   ✓  22 e2e/fold-export-composition.spec.ts:3:1 › fold, search, limited export and re-expand preserve scope and node identity (2.2s)
+verify	Browser acceptance tests	2026-10-18T06:45:33.5781742Z   ✓  23 e2e/g5-recovery.spec.ts:36:1 › 2ページ共有contextで旧revisionの保存を拒否し、最新保存内容を保持する (4.1s)
+verify	Browser acceptance tests	2026-10-18T06:45:34.8529252Z   ✓  24 e2e/g5-recovery.spec.ts:121:1 › 不正JSONのfile UI importでも既存作業を変更しない (1.3s)
+verify	Browser acceptance tests	2026-10-18T06:45:36.1266852Z   ✓  25 e2e/incoming-context-refresh.spec.ts:29:1 › browser component: 保持線に表示した根拠本文の変更でも承認を無効化する (1.3s)
+verify	Browser acceptance tests	2026-10-18T06:45:37.1602667Z   ✓  26 e2e/incoming-context-refresh.spec.ts:60:1 › browser component: 確認に表示していない無関係な本文変更では承認と下書きを維持する (1.0s)
+verify	Browser acceptance tests	2026-10-18T06:45:38.2581108Z   ✓  27 e2e/incoming-context-refresh.spec.ts:88:1 › browser component: 根拠IDにない対象発言でも表示本文変更後は再承認を要求する (1.1s)
+verify	Browser acceptance tests	2026-10-18T06:45:39.3092219Z   ✓  28 e2e/incoming-context-refresh.spec.ts:119:1 › browser component: 承認後の復帰線付け替えで再承認前の解除を拒否する (1.0s)
+verify	Browser acceptance tests	2026-10-18T06:45:40.3750377Z   ✓  29 e2e/incoming-context-refresh.spec.ts:171:1 › browser component: 承認後の根拠ID差し替えで再承認前の解除を拒否する (1.1s)
+verify	Browser acceptance tests	2026-10-18T06:45:43.5899438Z   ✓  30 e2e/incoming-returns.spec.ts:57:1 › 複数のincoming復帰線は始点と全根拠を説明し、全解除は対象だけ、UndoはID・順序・根拠まで復元 (3.2s)
+verify	Browser acceptance tests	2026-10-18T06:45:44.8677949Z   ✓  31 e2e/incoming-returns.spec.ts:134:1 › 複数incomingの保持選択は全edgeのID・順序・根拠を変えない (1.3s)
+verify	Browser acceptance tests	2026-10-18T06:45:47.5641036Z   ✓  32 e2e/incoming-returns.spec.ts:153:1 › 確認選択後に原文モードで根拠本文を保存すると選択を無効化し、再承認までは解除しない (2.7s)
+verify	Browser acceptance tests	2026-10-18T06:45:50.8494520Z   ✓  33 e2e/input-provenance.spec.ts:55:1 › 入力外の欠落申告は下書きと適用を区別し、保存・キーボードUndo・JSON別コピーで保持する (3.3s)
+verify	Browser acceptance tests	2026-10-18T06:45:55.2195345Z   ✓  34 e2e/input-provenance.spec.ts:129:1 › VTT本文統合と一cue訂正は時刻行を引用に入れず来歴を保存・JSON復元・Undoする (4.4s)
+verify	Browser acceptance tests	2026-10-18T06:45:56.5254552Z   ✓  35 e2e/inspector-draft-sync.spec.ts:38:1 › classification save then Undo restores the dropdown for the same selection (1.3s)
+verify	Browser acceptance tests	2026-10-18T06:45:57.9432750Z   ✓  36 e2e/inspector-draft-sync.spec.ts:55:1 › source quote save then Undo restores the latest textarea for the same selection (1.4s)
+verify	Browser acceptance tests	2026-10-18T06:45:59.0636530Z   ✓  37 e2e/inspector-draft-sync.spec.ts:76:1 › an unrelated browser save does not clear an in-progress Inspector draft (1.1s)
+verify	Browser acceptance tests	2026-10-18T06:46:00.5743322Z   ✓  38 e2e/inspector-membership-draft.spec.ts:55:1 › 変更理由の未保存ドラフトは議題所属変更後も保持され後続保存に使える (1.5s)
+verify	Browser acceptance tests	2026-10-18T06:46:02.0426680Z   ✓  39 e2e/inspector-membership-draft.spec.ts:84:1 › 話者の未保存ドラフトは議題所属変更後も保持され後続保存にpersistする (1.5s)
+verify	Browser acceptance tests	2026-10-18T06:46:03.4168438Z   ✓  40 e2e/inspector-membership-draft.spec.ts:119:1 › 原文ドラフトは分類モードの保存後も保持される (1.4s)
+verify	Browser acceptance tests	2026-10-18T06:46:05.8810059Z   ✓  41 e2e/inspector-membership-draft.spec.ts:152:1 › 原文ドラフトは所属保存後も保持され後続の原文保存が再読込後も残る (2.5s)
+verify	Browser acceptance tests	2026-10-18T06:46:08.6941942Z   ✓  42 e2e/large-canvas.spec.ts:7:1 › 50,000文字・500発言の全体表示とパン入力を実データ経路で確認 (2.8s)
+verify	Browser acceptance tests	2026-10-18T06:46:09.8469330Z   ✓  43 e2e/lazy-details.spec.ts:12:1 › 依存候補はdetailsを開くまで生成せず、閉じても入力draftを保持する (1.1s)
+verify	Browser acceptance tests	2026-10-18T06:46:10.7653245Z   ✓  44 e2e/lineage-import-rejection.spec.ts:8:1 › 説明のないlineage old IDの完全JSONを拒否して現在の作業・元の保存版を保持する (899ms)
+verify	Browser acceptance tests	2026-10-18T06:46:11.9549166Z   ✓  45 e2e/modal-background-state.spec.ts:17:3 › modal button preserves prior inert and aria-hidden background states across reopen (1.2s)
+verify	Browser acceptance tests	2026-10-18T06:46:13.1794586Z   ✓  46 e2e/modal-background-state.spec.ts:17:3 › modal escape preserves prior inert and aria-hidden background states across reopen (1.2s)
+verify	Browser acceptance tests	2026-10-18T06:46:13.2944696Z   -  47 e2e/offline.spec.ts:3:1 › production explicit preparation supports offline shell and keeps cache scoped
+verify	Browser acceptance tests	2026-10-18T06:46:15.4187192Z   ✓  48 e2e/persistence-focus.spec.ts:50:1 › real input survives same-tab recent reopen, correction history, and Undo (2.1s)
+verify	Browser acceptance tests	2026-10-18T06:46:18.0736987Z   ✓  49 e2e/preimport-omissions.spec.ts:36:1 › 読み込み前の欠落申告を保存し、JSON境界とUndoで状態を保つ (2.6s)
+verify	Browser acceptance tests	2026-10-18T06:46:19.1807662Z   ✓  50 e2e/preimport-omissions.spec.ts:131:3 › 読み込み前のunreportedを空申告と混同せず引き渡す (1.1s)
+verify	Browser acceptance tests	2026-10-18T06:46:20.5156257Z   ✓  51 e2e/preimport-omissions.spec.ts:131:3 › 読み込み前のreported-emptyを空申告と混同せず引き渡す (1.3s)
+verify	Browser acceptance tests	2026-10-18T06:46:21.9004082Z   ✓  52 e2e/preimport-omissions.spec.ts:131:3 › 読み込み前のreset-unreportedを空申告と混同せず引き渡す (1.4s)
+verify	Browser acceptance tests	2026-10-18T06:46:22.5774605Z   ✓  53 e2e/question-summary-persistence.spec.ts:3:1 › 問い改版と撤回の再確認状態・旧版応答を保存復元しUndoで元へ戻す (662ms)
+verify	Browser acceptance tests	2026-10-18T06:46:23.8073018Z   ✓  54 e2e/reasoning.spec.ts:12:1 › マウスとキーボードで、明示選択した発言だけに問いを追加できる (1.2s)
+verify	Browser acceptance tests	2026-10-18T06:46:25.9835730Z   ✓  55 e2e/reasoning.spec.ts:28:1 › 問い改訂は旧版を応答対象として保持し、共通Undoと原文IDへ戻れる (2.2s)
+verify	Browser acceptance tests	2026-10-18T06:46:28.2813763Z   ✓  56 e2e/retained-branches.spec.ts:4:1 › 枝DOMは保持しつつ視覚・AX・focusから除外し、同じ要素と配置で再展開する (2.3s)
+verify	Browser acceptance tests	2026-10-18T06:46:30.3291685Z   ✓  57 e2e/retained-branches.spec.ts:132:1 › 折り畳み中の派生→本筋→UndoでCSS・inert・AXと枝の座標を復元する (2.0s)
+verify	Browser acceptance tests	2026-10-18T06:46:31.7923084Z   ✓  58 e2e/return-correction.spec.ts:68:1 › 復帰なしを実保存・同一タブ再開しても旧edgeが残らず、復帰先は不変 (1.4s)
+verify	Browser acceptance tests	2026-10-18T06:46:33.3499264Z   ✓  59 e2e/return-correction.spec.ts:95:1 › 復帰先分類と関係を明示的に扱い、同時変更を一回のUndoで戻す (1.5s)
+verify	Browser acceptance tests	2026-10-18T06:46:34.7702379Z   ✓  60 e2e/return-correction.spec.ts:126:1 › 分類を派生へ訂正しても明示選択した復帰線を保持する (1.4s)
+verify	Browser acceptance tests	2026-10-18T06:46:40.0576843Z   ✓  61 e2e/rich-persistence.spec.ts:88:1 › rich状態r1/r2が原文版・問い版・旧版応答・履歴・Undoまで永続化される (5.3s)
+verify	Browser acceptance tests	2026-10-18T06:46:44.6805464Z   ✓  62 e2e/save-failure-recovery.spec.ts:275:3 › P5 quota: failed r2 retains exact persisted r1 and drafts; full current JSON restores only as a copy (4.6s)
+verify	Browser acceptance tests	2026-10-18T06:46:47.0268794Z   ✓  63 e2e/save-failure-recovery.spec.ts:404:3 › P5 first-save quota: current correction has a full backup without any last-saved ref (2.3s)
+verify	Browser acceptance tests	2026-10-18T06:46:51.6288238Z   ✓  64 e2e/save-failure-recovery.spec.ts:275:3 › P5 abort: failed r2 retains exact persisted r1 and drafts; full current JSON restores only as a copy (4.6s)
+verify	Browser acceptance tests	2026-10-18T06:46:53.9566534Z   ✓  65 e2e/save-failure-recovery.spec.ts:404:3 › P5 first-save abort: current correction has a full backup without any last-saved ref (2.3s)
+verify	Browser acceptance tests	2026-10-18T06:46:57.1950699Z   ✓  66 e2e/save-failure-recovery.spec.ts:462:1 › P5 autosave failure keeps the focused draft; later successful autosave clears stale failure state (3.2s)
+verify	Browser acceptance tests	2026-10-18T06:47:27.5077878Z   ✘  67 e2e/source-draft-navigation.spec.ts:41:1 › 未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない (30.2s)
+verify	Browser acceptance tests	2026-10-18T06:47:29.4934724Z   ✓  68 e2e/source-draft-navigation.spec.ts:124:1 › 複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する (1.3s)
+verify	Browser acceptance tests	2026-10-18T06:47:30.5923297Z   ✓  69 e2e/source-draft-navigation.spec.ts:164:1 › 明示破棄は選んだ字幕本文の原文と理由だけを戻す (1.1s)
+verify	Browser acceptance tests	2026-10-18T06:47:33.4132243Z   ✓  70 e2e/split-evidence.spec.ts:69:5 › 発言分割の実選択・保存・復元 › left 選択を実UIで完了する (2.8s)
+verify	Browser acceptance tests	2026-10-18T06:47:36.1141535Z   ✓  71 e2e/split-evidence.spec.ts:69:5 › 発言分割の実選択・保存・復元 › right 選択を実UIで完了する (2.7s)
+verify	Browser acceptance tests	2026-10-18T06:47:38.8432491Z   ✓  72 e2e/split-evidence.spec.ts:69:5 › 発言分割の実選択・保存・復元 › both 選択を実UIで完了する (2.7s)
+verify	Browser acceptance tests	2026-10-18T06:47:41.5286568Z   ✓  73 e2e/split-evidence.spec.ts:69:5 › 発言分割の実選択・保存・復元 › unresolved 選択を実UIで完了する (2.7s)
+verify	Browser acceptance tests	2026-10-18T06:47:42.2024326Z   ✓  74 e2e/storage-conflict.spec.ts:3:1 › 旧保存版の上書きを拒否し、新版・履歴・Undo後の保存版を保持する (656ms)
+verify	Browser acceptance tests	2026-10-18T06:47:43.1659681Z   ✓  75 e2e/undo-escape-regression.spec.ts:11:1 › last node selection returns focus after Escape (946ms)
+verify	Browser acceptance tests	2026-10-18T06:47:44.3193970Z   ✓  76 e2e/undo-escape-regression.spec.ts:26:1 › Escape restores the latest node when the transcript origin was unmounted (1.1s)
+verify	Browser acceptance tests	2026-10-18T06:47:45.6374294Z   ✓  77 e2e/undo-escape-regression.spec.ts:45:1 › Undo becomes disabled after the only revision is undone (1.3s)
+verify	Browser acceptance tests	2026-10-18T06:47:45.7247076Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7253805Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7264549Z   1) e2e/source-draft-navigation.spec.ts:41:1 › 未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない ─────
+verify	Browser acceptance tests	2026-10-18T06:47:45.7265001Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7265198Z     Test timeout of 30000ms exceeded.
+verify	Browser acceptance tests	2026-10-18T06:47:45.7265399Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7265607Z     Error: locator.press: Test timeout of 30000ms exceeded.
+verify	Browser acceptance tests	2026-10-18T06:47:45.7265960Z     Call log:
+verify	Browser acceptance tests	2026-10-18T06:47:45.7266600Z       - waiting for getByRole('button', { name: '直前の訂正を元に戻す', exact: true })
+verify	Browser acceptance tests	2026-10-18T06:47:45.7267128Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7267138Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7272527Z       111 |   await page
+verify	Browser acceptance tests	2026-10-18T06:47:45.7273032Z       112 |     .getByRole("button", { name: "直前の訂正を元に戻す", exact: true })
+verify	Browser acceptance tests	2026-10-18T06:47:45.7273493Z     > 113 |     .press("Enter");
+verify	Browser acceptance tests	2026-10-18T06:47:45.7273735Z           |      ^
+verify	Browser acceptance tests	2026-10-18T06:47:45.7273949Z       114 |   await page
+verify	Browser acceptance tests	2026-10-18T06:47:45.7274358Z       115 |     .getByRole("button", { name: "議題の流れ", exact: true })
+verify	Browser acceptance tests	2026-10-18T06:47:45.7274735Z       116 |     .press("Enter");
+verify	Browser acceptance tests	2026-10-18T06:47:45.7275224Z         at /home/runner/work/rontenseiri/rontenseiri/e2e/source-draft-navigation.spec.ts:113:6
+verify	Browser acceptance tests	2026-10-18T06:47:45.7275597Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7276017Z     attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+verify	Browser acceptance tests	2026-10-18T06:47:45.7278923Z     test-results/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/test-failed-1.png
+verify	Browser acceptance tests	2026-10-18T06:47:45.7279861Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+verify	Browser acceptance tests	2026-10-18T06:47:45.7280187Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7281185Z     Error Context: test-results/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/error-context.md
+verify	Browser acceptance tests	2026-10-18T06:47:45.7282049Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7282526Z     attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+verify	Browser acceptance tests	2026-10-18T06:47:45.7283828Z     test-results/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/trace.zip
+verify	Browser acceptance tests	2026-10-18T06:47:45.7284528Z     Usage:
+verify	Browser acceptance tests	2026-10-18T06:47:45.7284718Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7285363Z         npx playwright show-trace test-results/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/trace.zip
+verify	Browser acceptance tests	2026-10-18T06:47:45.7286041Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7286415Z     ────────────────────────────────────────────────────────────────────────────────────────────────
+verify	Browser acceptance tests	2026-10-18T06:47:45.7286712Z 
+verify	Browser acceptance tests	2026-10-18T06:47:45.7286794Z   1 failed
+verify	Browser acceptance tests	2026-10-18T06:47:45.7287696Z     e2e/source-draft-navigation.spec.ts:41:1 › 未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない ──────
+verify	Browser acceptance tests	2026-10-18T06:47:45.7288181Z   1 skipped
+verify	Browser acceptance tests	2026-10-18T06:47:45.7288387Z   75 passed (2.8m)
+verify	Browser acceptance tests	2026-10-18T06:47:45.7532165Z ##[error]Process completed with exit code 1.

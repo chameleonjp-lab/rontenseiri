@@ -1,0 +1,3228 @@
+{
+  "config": {
+    "argv": [
+      "/opt/hostedtoolcache/node/24.21.0/x64/bin/node",
+      "/home/runner/work/rontenseiri/rontenseiri/node_modules/.bin/playwright",
+      "test",
+      "--grep-invert",
+      "各100操作で観測する"
+    ],
+    "configFile": "/home/runner/work/rontenseiri/rontenseiri/playwright.config.ts",
+    "rootDir": "/home/runner/work/rontenseiri/rontenseiri/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/chameleonjp-lab/rontenseiri/commit/417993abc687a3385c19ed7c14010a4bfc20b83a",
+        "commitHash": "417993abc687a3385c19ed7c14010a4bfc20b83a",
+        "buildHref": "https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39105084865"
+      },
+      "gitCommit": {
+        "shortHash": "417993a",
+        "hash": "417993abc687a3385c19ed7c14010a4bfc20b83a",
+        "subject": "fix: preserve unsaved work after IndexedDB save failures",
+        "body": "fix: preserve unsaved work after IndexedDB save failures\n",
+        "author": {
+          "name": "Cue Agent",
+          "email": "cue-agent@localhost",
+          "time": 1792305840000
+        },
+        "committer": {
+          "name": "Cue Agent",
+          "email": "cue-agent@localhost",
+          "time": 1792305840000
+        },
+        "branch": "HEAD"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/home/runner/work/rontenseiri/rontenseiri/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/chameleonjp-lab/rontenseiri/commit/417993abc687a3385c19ed7c14010a4bfc20b83a",
+            "commitHash": "417993abc687a3385c19ed7c14010a4bfc20b83a",
+            "buildHref": "https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39105084865"
+          },
+          "gitCommit": {
+            "shortHash": "417993a",
+            "hash": "417993abc687a3385c19ed7c14010a4bfc20b83a",
+            "subject": "fix: preserve unsaved work after IndexedDB save failures",
+            "body": "fix: preserve unsaved work after IndexedDB save failures\n",
+            "author": {
+              "name": "Cue Agent",
+              "email": "cue-agent@localhost",
+              "time": 1792305840000
+            },
+            "committer": {
+              "name": "Cue Agent",
+              "email": "cue-agent@localhost",
+              "time": 1792305840000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/home/runner/work/rontenseiri/rontenseiri/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "/home/runner/work/rontenseiri/rontenseiri/test-results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/chameleonjp-lab/rontenseiri/commit/417993abc687a3385c19ed7c14010a4bfc20b83a",
+            "commitHash": "417993abc687a3385c19ed7c14010a4bfc20b83a",
+            "buildHref": "https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39105084865"
+          },
+          "gitCommit": {
+            "shortHash": "417993a",
+            "hash": "417993abc687a3385c19ed7c14010a4bfc20b83a",
+            "subject": "fix: preserve unsaved work after IndexedDB save failures",
+            "body": "fix: preserve unsaved work after IndexedDB save failures\n",
+            "author": {
+              "name": "Cue Agent",
+              "email": "cue-agent@localhost",
+              "time": 1792305840000
+            },
+            "committer": {
+              "name": "Cue Agent",
+              "email": "cue-agent@localhost",
+              "time": 1792305840000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "name": "",
+        "testDir": "/home/runner/work/rontenseiri/rontenseiri/e2e",
+        "snapshotDir": "/home/runner/work/rontenseiri/rontenseiri/e2e",
+        "testIgnore": [],
+        "testMatch": "**/*.@(spec|test).?(c|m)[jt]s?(x)",
+        "timeout": 30000,
+        "use": {
+          "baseURL": "http://127.0.0.1:4173",
+          "viewport": {
+            "width": 1440,
+            "height": 980
+          },
+          "headless": true,
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "launchOptions": {
+            "args": [
+              "--no-sandbox"
+            ]
+          }
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": ""
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "artifacts/e2e-results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.1",
+    "workers": 1,
+    "webServer": {
+      "command": "npm run dev -- --port 4173 --strictPort",
+      "url": "http://127.0.0.1:4173",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "app.spec.ts",
+      "file": "app.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "home, fixed agenda fixture and no unsolicited external request",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1089,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:44:57.198Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-cbeb9a229a18d0ad3c71",
+          "file": "app.spec.ts",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "collapse, pan, zoom and view switches preserve semantic positions",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1841,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:44:59.095Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-4fb75399f0afc0ab6d2c",
+          "file": "app.spec.ts",
+          "line": 43,
+          "column": 1
+        },
+        {
+          "title": "keyboard detail, classification, exact source revision and history",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1483,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:00.950Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-0975579e4341d2ae3462",
+          "file": "app.spec.ts",
+          "line": 104,
+          "column": 1
+        },
+        {
+          "title": "manual text input, extraction preview, summary editing and explicit save",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1935,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:02.450Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-a6e684e1d9b35d73e3e6",
+          "file": "app.spec.ts",
+          "line": 146,
+          "column": 1
+        },
+        {
+          "title": "limited JSON preview excludes other agenda and restores to a new copy",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1542,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:04.402Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-29cff8651e40de578aad",
+          "file": "app.spec.ts",
+          "line": 197,
+          "column": 1
+        },
+        {
+          "title": "A-B-A occurrences and membership-only correction can be undone without changing evidence",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1625,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:07.920Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-7e0968fc05f480359531",
+          "file": "app.spec.ts",
+          "line": 268,
+          "column": 1
+        },
+        {
+          "title": "folded branches are unavailable for limited export and dialog focus is trapped",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1341,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:09.558Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-1bac483986564a81b2d6",
+          "file": "app.spec.ts",
+          "line": 314,
+          "column": 1
+        },
+        {
+          "title": "pointer selection reaches nodes and agenda headers while blank space pans",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2005,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:10.913Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "c31ff144dc4fee3acd0a-9d019bc92dbfe60e12ae",
+          "file": "app.spec.ts",
+          "line": 350,
+          "column": 1
+        }
+      ],
+      "suites": [
+        {
+          "title": "mobile touch emulation (not iPhone real-device certification)",
+          "file": "app.spec.ts",
+          "line": 228,
+          "column": 6,
+          "specs": [
+            {
+              "title": "same agenda can be reviewed vertically with next action first",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1944,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-18T06:45:05.958Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c31ff144dc4fee3acd0a-aa4a92d2d5404374b783",
+              "file": "app.spec.ts",
+              "line": 234,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "collapsed-focus-recovery.spec.ts",
+      "file": "collapsed-focus-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "折り畳み後に原文から開いた非表示ノードをbuttonで閉じてもBODYやhiddenへフォーカスしない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1378,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:12.943Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "focus-recovery-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAiZm9jdXMtcmVjb3ZlcnktYXNzZXJ0aW9uIiwKICAib3JpZ2luYWxJZCI6ICJVMDMiLAogICJvcmlnaW5hbFZpc2libGVBZnRlckNvbGxhcHNlIjogZmFsc2UsCiAgImZvY3VzIjogewogICAgInRhZyI6ICJCVVRUT04iLAogICAgImlkIjogbnVsbCwKICAgICJhcmlhTGFiZWwiOiAi6K2w6aGMMDEg6YCxMeaXpeOBruWcqOWuheWLpOWLmeOCkuippuOBmeOBiyDorbDpoYzjgpLpgbjmip4iLAogICAgImZsb3dOb2RlSWQiOiAiYWdlbmRhLeitsOmhjDAxIiwKICAgICJjbGFzc05hbWUiOiAiYWdlbmRhLWZyYW1lLXRpdGxlIG5vZHJhZyBub3BhbiIsCiAgICAiYm9keSI6IGZhbHNlLAogICAgImhpZGRlbkFuY2VzdG9yIjogbnVsbCwKICAgICJpbmVydCI6IGZhbHNlLAogICAgImFyaWFIaWRkZW4iOiBmYWxzZSwKICAgICJjc3NWaXNpYmlsaXR5IjogInZpc2libGUiLAogICAgImNzc0Rpc3BsYXkiOiAiZmxleCIsCiAgICAicmVjdHMiOiAxCiAgfQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c1823185f6e369b30eb-cd3f4468fc886a7bd6a3",
+          "file": "collapsed-focus-recovery.spec.ts",
+          "line": 115,
+          "column": 3
+        },
+        {
+          "title": "折り畳み後に原文から開いた非表示ノードをescapeで閉じてもBODYやhiddenへフォーカスしない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1376,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:14.336Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "focus-recovery-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAiZm9jdXMtcmVjb3ZlcnktYXNzZXJ0aW9uIiwKICAib3JpZ2luYWxJZCI6ICJVMDMiLAogICJvcmlnaW5hbFZpc2libGVBZnRlckNvbGxhcHNlIjogZmFsc2UsCiAgImZvY3VzIjogewogICAgInRhZyI6ICJCVVRUT04iLAogICAgImlkIjogbnVsbCwKICAgICJhcmlhTGFiZWwiOiAi6K2w6aGMMDEg6YCxMeaXpeOBruWcqOWuheWLpOWLmeOCkuippuOBmeOBiyDorbDpoYzjgpLpgbjmip4iLAogICAgImZsb3dOb2RlSWQiOiAiYWdlbmRhLeitsOmhjDAxIiwKICAgICJjbGFzc05hbWUiOiAiYWdlbmRhLWZyYW1lLXRpdGxlIG5vZHJhZyBub3BhbiIsCiAgICAiYm9keSI6IGZhbHNlLAogICAgImhpZGRlbkFuY2VzdG9yIjogbnVsbCwKICAgICJpbmVydCI6IGZhbHNlLAogICAgImFyaWFIaWRkZW4iOiBmYWxzZSwKICAgICJjc3NWaXNpYmlsaXR5IjogInZpc2libGUiLAogICAgImNzc0Rpc3BsYXkiOiAiZmxleCIsCiAgICAicmVjdHMiOiAxCiAgfQp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c1823185f6e369b30eb-263adb8a182350287c08",
+          "file": "collapsed-focus-recovery.spec.ts",
+          "line": 115,
+          "column": 3
+        },
+        {
+          "title": "折り畳みなしの表示中ノードはEscapeと閉じるボタンの両方で元ノードへ戻る",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1221,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:15.723Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "focus-recovery-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAicG9zaXRpdmUtY29udHJvbCIsCiAgIm9yaWdpbmFsSWQiOiAiVTAxIiwKICAiZXNjYXBlRm9jdXMiOiB7CiAgICAidGFnIjogIkJVVFRPTiIsCiAgICAiaWQiOiBudWxsLAogICAgImFyaWFMYWJlbCI6ICJVMDEgQeOBleOCkyDpgLEx5pel44Gu5Zyo5a6F5Yuk5YuZ44KS6Kmm44GX44Gm44G/44Gf44GE44Gn44GZ44CCIOips+e0sOOCkumWi+OBjyIsCiAgICAiZmxvd05vZGVJZCI6ICJVMDEiLAogICAgImNsYXNzTmFtZSI6ICJzcGVlY2gtaGl0IG5vZHJhZyBub3BhbiIsCiAgICAiYm9keSI6IGZhbHNlLAogICAgImhpZGRlbkFuY2VzdG9yIjogbnVsbCwKICAgICJpbmVydCI6IGZhbHNlLAogICAgImFyaWFIaWRkZW4iOiBmYWxzZSwKICAgICJjc3NWaXNpYmlsaXR5IjogInZpc2libGUiLAogICAgImNzc0Rpc3BsYXkiOiAiYmxvY2siLAogICAgInJlY3RzIjogMQogIH0sCiAgImJ1dHRvbkZvY3VzIjogewogICAgInRhZyI6ICJCVVRUT04iLAogICAgImlkIjogbnVsbCwKICAgICJhcmlhTGFiZWwiOiAiVTAxIEHjgZXjgpMg6YCxMeaXpeOBruWcqOWuheWLpOWLmeOCkuippuOBl+OBpuOBv+OBn+OBhOOBp+OBmeOAgiDoqbPntLDjgpLplovjgY8iLAogICAgImZsb3dOb2RlSWQiOiAiVTAxIiwKICAgICJjbGFzc05hbWUiOiAic3BlZWNoLWhpdCBub2RyYWcgbm9wYW4iLAogICAgImJvZHkiOiBmYWxzZSwKICAgICJoaWRkZW5BbmNlc3RvciI6IG51bGwsCiAgICAiaW5lcnQiOiBmYWxzZSwKICAgICJhcmlhSGlkZGVuIjogZmFsc2UsCiAgICAiY3NzVmlzaWJpbGl0eSI6ICJ2aXNpYmxlIiwKICAgICJjc3NEaXNwbGF5IjogImJsb2NrIiwKICAgICJyZWN0cyI6IDEKICB9Cn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "3c1823185f6e369b30eb-0e83b25ca0bdd1eafe84",
+          "file": "collapsed-focus-recovery.spec.ts",
+          "line": 161,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "domain-consistency.spec.ts",
+      "file": "domain-consistency.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "直接APIの復帰なしは正規化され、矛盾した外部状態の保存を拒否する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 648,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:16.963Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "f2e70affc1869ed57b35-7a85c2efd16e4daa3881",
+          "file": "domain-consistency.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "draft-recovery-guard.spec.ts",
+      "file": "draft-recovery-guard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "saved Project with only an omission form draft protects view and copy switches",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1279,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:17.635Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "15dafb4c1adcfca6bfa4-94b59c85ab1c23358ddc",
+          "file": "draft-recovery-guard.spec.ts",
+          "line": 25,
+          "column": 1
+        },
+        {
+          "title": "summary draft survives form close/reopen and unrelated durable save; leaving asks",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1183,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:18.925Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "15dafb4c1adcfca6bfa4-7389ba95d4cdfc7b68d0",
+          "file": "draft-recovery-guard.spec.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "reasoning form and utterance boundary drafts guard the views that would discard them",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1366,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:20.121Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "15dafb4c1adcfca6bfa4-ba41535231bc234e4b60",
+          "file": "draft-recovery-guard.spec.ts",
+          "line": 86,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "escape-editing.spec.ts",
+      "file": "escape-editing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "Escape in a text input retains the inspector draft; explicit exit restores node focus",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1059,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:21.501Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d3b2c6c31246f23a6bd4-16acc4d0f035c4fcfedc",
+          "file": "escape-editing.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "Escape in the source textarea does not discard the unsaved quotation",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1033,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:22.572Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d3b2c6c31246f23a6bd4-57100bd9fd1fbd33225b",
+          "file": "escape-editing.spec.ts",
+          "line": 40,
+          "column": 1
+        },
+        {
+          "title": "IME composition and already-consumed Escape do not close details",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 951,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:23.615Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d3b2c6c31246f23a6bd4-9ddcada19cdf3d220139",
+          "file": "escape-editing.spec.ts",
+          "line": 53,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "focus.spec.ts",
+      "file": "focus.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "U01をEnterで詳細化し、詳細を閉じると元のnode buttonへfocusを戻す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 944,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:24.581Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d21847c9dcced81f7ac2-908a1682fe7785d92d99",
+          "file": "focus.spec.ts",
+          "line": 37,
+          "column": 1
+        },
+        {
+          "title": "図へ戻るはパン後もU01をfitViewしてfocusし、発言一覧と議題の流れを往復できる",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1687,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:25.538Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d21847c9dcced81f7ac2-324497105fe214016edc",
+          "file": "focus.spec.ts",
+          "line": 49,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "fold-export-composition.spec.ts",
+      "file": "fold-export-composition.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "fold, search, limited export and re-expand preserve scope and node identity",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2244,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:27.242Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "24d6d31fdb8957c8ec1c-6107f02158b11881eb70",
+          "file": "fold-export-composition.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "g5-recovery.spec.ts",
+      "file": "g5-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "2ページ共有contextで旧revisionの保存を拒否し、最新保存内容を保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4058,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:29.506Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "284f3b23d7deea5be032-3612c43b5a5deb3c38a7",
+          "file": "g5-recovery.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "不正JSONのfile UI importでも既存作業を変更しない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1260,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:33.577Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "284f3b23d7deea5be032-4bd6074995c91830c814",
+          "file": "g5-recovery.spec.ts",
+          "line": 121,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "incoming-context-refresh.spec.ts",
+      "file": "incoming-context-refresh.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "browser component: 保持線に表示した根拠本文の変更でも承認を無効化する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1252,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:34.860Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "60bfb7fdc6aa294c4d07-d84383407e413e5a2c5d",
+          "file": "incoming-context-refresh.spec.ts",
+          "line": 29,
+          "column": 1
+        },
+        {
+          "title": "browser component: 確認に表示していない無関係な本文変更では承認と下書きを維持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1019,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:36.126Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "60bfb7fdc6aa294c4d07-4558898555ae05eed8b8",
+          "file": "incoming-context-refresh.spec.ts",
+          "line": 60,
+          "column": 1
+        },
+        {
+          "title": "browser component: 根拠IDにない対象発言でも表示本文変更後は再承認を要求する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1088,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:37.159Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "60bfb7fdc6aa294c4d07-8a263bdb5f1f84931b79",
+          "file": "incoming-context-refresh.spec.ts",
+          "line": 88,
+          "column": 1
+        },
+        {
+          "title": "browser component: 承認後の復帰線付け替えで再承認前の解除を拒否する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1040,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:38.257Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "60bfb7fdc6aa294c4d07-b40c35fb9a4cf20634eb",
+          "file": "incoming-context-refresh.spec.ts",
+          "line": 119,
+          "column": 1
+        },
+        {
+          "title": "browser component: 承認後の根拠ID差し替えで再承認前の解除を拒否する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1053,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:39.308Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "60bfb7fdc6aa294c4d07-f52edd45049ffed0da0b",
+          "file": "incoming-context-refresh.spec.ts",
+          "line": 171,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "incoming-returns.spec.ts",
+      "file": "incoming-returns.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "複数のincoming復帰線は始点と全根拠を説明し、全解除は対象だけ、UndoはID・順序・根拠まで復元",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3198,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:40.381Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e46623d30f9337c75c8c-f9bea23e3e103278ef7c",
+          "file": "incoming-returns.spec.ts",
+          "line": 57,
+          "column": 1
+        },
+        {
+          "title": "複数incomingの保持選択は全edgeのID・順序・根拠を変えない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1266,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:43.589Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e46623d30f9337c75c8c-407478875ea3e5a888e4",
+          "file": "incoming-returns.spec.ts",
+          "line": 134,
+          "column": 1
+        },
+        {
+          "title": "確認選択後に原文モードで根拠本文を保存すると選択を無効化し、再承認までは解除しない",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2686,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:44.867Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "e46623d30f9337c75c8c-2eaa09c1cc70a2c37af4",
+          "file": "incoming-returns.spec.ts",
+          "line": 153,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "input-provenance.spec.ts",
+      "file": "input-provenance.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "入力外の欠落申告は下書きと適用を区別し、保存・キーボードUndo・JSON別コピーで保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3263,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:47.571Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "be302458f4203dba960e-c6ef8aabce054c3cc9dd",
+          "file": "input-provenance.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "VTT本文統合と一cue訂正は時刻行を引用に入れず来歴を保存・JSON復元・Undoする",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4361,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:50.849Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "be302458f4203dba960e-dacdb03ae6c8a6a7bc48",
+          "file": "input-provenance.spec.ts",
+          "line": 129,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "inspector-draft-sync.spec.ts",
+      "file": "inspector-draft-sync.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "classification save then Undo restores the dropdown for the same selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1289,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:55.222Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03afcfe9979527226877-cdcd68c93e3b64964ee1",
+          "file": "inspector-draft-sync.spec.ts",
+          "line": 38,
+          "column": 1
+        },
+        {
+          "title": "source quote save then Undo restores the latest textarea for the same selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1405,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:56.525Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03afcfe9979527226877-a96ffdeae5cf8ebab33a",
+          "file": "inspector-draft-sync.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "an unrelated browser save does not clear an in-progress Inspector draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1109,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:57.942Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "03afcfe9979527226877-6ce7e23e93957ee79410",
+          "file": "inspector-draft-sync.spec.ts",
+          "line": 76,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "inspector-membership-draft.spec.ts",
+      "file": "inspector-membership-draft.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "変更理由の未保存ドラフトは議題所属変更後も保持され後続保存に使える",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1494,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:45:59.067Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "inspector-draft-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAicGFzcyIsCiAgImRyYWZ0RmllbGQiOiAi5aSJ5pu055CG55SxIiwKICAibWVtYmVyc2hpcCI6IHsKICAgICJmcm9tIjogIuitsOmhjDAxIiwKICAgICJ0byI6ICLorbDpoYwwMiIsCiAgICAiYm91bmRhcnlSZWFzb24iOiAibWVtYmVyc2hpcCBkcmFmdCByZXBybzogbW92ZSBVMDEiCiAgfSwKICAicGVyc2lzdGVkQnkiOiAiY2xhc3NpZmljYXRpb24gY29ycmVjdGlvbiBoaXN0b3J5Igp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f0d7854aa0eefb48ec-0f9a93558657769b602c",
+          "file": "inspector-membership-draft.spec.ts",
+          "line": 55,
+          "column": 1
+        },
+        {
+          "title": "話者の未保存ドラフトは議題所属変更後も保持され後続保存にpersistする",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1458,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:00.574Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "inspector-draft-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAicGFzcyIsCiAgImRyYWZ0RmllbGQiOiAi6Kmx6ICFIiwKICAibWVtYmVyc2hpcCI6IHsKICAgICJmcm9tIjogIuitsOmhjDAxIiwKICAgICJ0byI6ICLorbDpoYwwMiIsCiAgICAiYm91bmRhcnlSZWFzb24iOiAibWVtYmVyc2hpcCBkcmFmdCByZXBybzogbW92ZSBVMDEiCiAgfSwKICAicGVyc2lzdGVkQnkiOiAic3BlYWtlciBjb3JyZWN0aW9uIGhpc3RvcnkiCn0="
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f0d7854aa0eefb48ec-c094906b303b237fc077",
+          "file": "inspector-membership-draft.spec.ts",
+          "line": 84,
+          "column": 1
+        },
+        {
+          "title": "原文ドラフトは分類モードの保存後も保持される",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1362,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:02.042Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "inspector-draft-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAiZXhwZWN0ZWQtcHJlc2VydmF0aW9uLWFzc2VydGlvbiIsCiAgImRyYWZ0RmllbGQiOiAi6KiC5q2j5b6M44Gu5Y6f5paHIiwKICAiZXhwZWN0ZWQiOiAicXVvdGUgZHJhZnQgcmVtYWlucyBhZnRlciBjbGFzc2lmaWNhdGlvbi1tb2RlIHNhdmUiLAogICJkcmFmdFF1b3RlIjogIumAsTHml6Xjga7lnKjlroXli6Tli5njgpLoqabjgZfjgabjgb/jgZ/jgYTjgafjgZnjgILvvIhjcm9zcy1tb2RlIGRyYWZ0IHJlcHJv77yJIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f0d7854aa0eefb48ec-18030235d54a14fac70c",
+          "file": "inspector-membership-draft.spec.ts",
+          "line": 119,
+          "column": 1
+        },
+        {
+          "title": "原文ドラフトは所属保存後も保持され後続の原文保存が再読込後も残る",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2451,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:03.416Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "inspector-draft-observation",
+                      "contentType": "application/json",
+                      "body": "ewogICJyZXN1bHQiOiAicGFzcyIsCiAgImRyYWZ0UXVvdGUiOiAi6YCxMeaXpeOBruWcqOWuheWLpOWLmeOCkuippuOBl+OBpuOBv+OBn+OBhOOBp+OBmeOAgu+8iOaJgOWxnuS/neWtmOWJjeOBruacquS/neWtmOODieODqeODleODiO+8iSIsCiAgInNhdmVkUXVvdGUiOiAi6YCxMeaXpeOBruWcqOWuheWLpOWLmeOCkuippuOBl+OBpuOBv+OBn+OBhOOBp+OBmeOAgu+8iOaJgOWxnuS/neWtmOWJjeOBruacquS/neWtmOODieODqeODleODiO+8ie+8iOW+jOe2muOBruWOn+aWh+S/neWtmO+8iSIsCiAgInNvdXJjZVJlYXNvbiI6ICLmiYDlsZ7kv53lrZjlvozjga7ljp/mlofoqILmraPnkIbnlLEiLAogICJtZW1iZXJzaGlwIjogewogICAgImZyb20iOiAi6K2w6aGMMDEiLAogICAgInRvIjogIuitsOmhjDAyIiwKICAgICJib3VuZGFyeVJlYXNvbiI6ICJtZW1iZXJzaGlwIGRyYWZ0IHJlcHJvOiBtb3ZlIFUwMSIKICB9LAogICJwZXJzaXN0ZWRCeSI6ICJJbmRleGVkREIgYW5kIGNvcnJlY3Rpb24taGlzdG9yeSBET00gYWZ0ZXIgcmVsb2FkIgp9"
+                    }
+                  ]
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "54f0d7854aa0eefb48ec-59fd891c4a8e6b779697",
+          "file": "inspector-membership-draft.spec.ts",
+          "line": 152,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "large-canvas.spec.ts",
+      "file": "large-canvas.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "50,000文字・500発言の全体表示とパン入力を実データ経路で確認",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 60000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2796,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:05.886Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "2cb75f73d78f311bc19b-82e5e5746c9dbb4723b9",
+          "file": "large-canvas.spec.ts",
+          "line": 7,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "lazy-details.spec.ts",
+      "file": "lazy-details.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "依存候補はdetailsを開くまで生成せず、閉じても入力draftを保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1138,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:08.697Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "df9eb8070f8200e0756b-716684319c5aa9b17141",
+          "file": "lazy-details.spec.ts",
+          "line": 12,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "lineage-import-rejection.spec.ts",
+      "file": "lineage-import-rejection.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "説明のないlineage old IDの完全JSONを拒否して現在の作業・元の保存版を保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 899,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:09.856Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "be57210589cffd04243b-77c01384d2d19a0e8ac8",
+          "file": "lineage-import-rejection.spec.ts",
+          "line": 8,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "modal-background-state.spec.ts",
+      "file": "modal-background-state.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "modal button preserves prior inert and aria-hidden background states across reopen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1172,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:10.768Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "755214fd49ed50243725-29ffb2674bfc21f2a451",
+          "file": "modal-background-state.spec.ts",
+          "line": 17,
+          "column": 3
+        },
+        {
+          "title": "modal escape preserves prior inert and aria-hidden background states across reopen",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1213,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:11.954Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "755214fd49ed50243725-39b48f78b4b1bd892d8f",
+          "file": "modal-background-state.spec.ts",
+          "line": 17,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "offline.spec.ts",
+      "file": "offline.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "production explicit preparation supports offline shell and keeps cache scoped",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [
+                {
+                  "type": "skip",
+                  "description": "offline.spec.ts requires the dedicated production preview config",
+                  "location": {
+                    "file": "/home/runner/work/rontenseiri/rontenseiri/e2e/offline.spec.ts",
+                    "line": 7,
+                    "column": 8
+                  }
+                }
+              ],
+              "expectedStatus": "skipped",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "skipped",
+                  "duration": 96,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:13.184Z",
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "description": "offline.spec.ts requires the dedicated production preview config",
+                      "location": {
+                        "file": "/home/runner/work/rontenseiri/rontenseiri/e2e/offline.spec.ts",
+                        "line": 7,
+                        "column": 8
+                      }
+                    }
+                  ],
+                  "attachments": []
+                }
+              ],
+              "status": "skipped"
+            }
+          ],
+          "id": "586fc5283fd8ec7c7982-0c48ebe939aa1860c43a",
+          "file": "offline.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "persistence-focus.spec.ts",
+      "file": "persistence-focus.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "real input survives same-tab recent reopen, correction history, and Undo",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2108,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:13.297Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "6e8ba5437b75b6b8192a-e43ddc58dc181105761f",
+          "file": "persistence-focus.spec.ts",
+          "line": 50,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "preimport-omissions.spec.ts",
+      "file": "preimport-omissions.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "読み込み前の欠落申告を保存し、JSON境界とUndoで状態を保つ",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2635,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:15.424Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "119c1709defdc41b6662-43e03ac2d02ff3921ce2",
+          "file": "preimport-omissions.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "読み込み前のunreportedを空申告と混同せず引き渡す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1097,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:18.073Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "119c1709defdc41b6662-8b0dc614a11e76453bf8",
+          "file": "preimport-omissions.spec.ts",
+          "line": 131,
+          "column": 3
+        },
+        {
+          "title": "読み込み前のreported-emptyを空申告と混同せず引き渡す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1325,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:19.180Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "119c1709defdc41b6662-7960f08dad4d7ee8b59a",
+          "file": "preimport-omissions.spec.ts",
+          "line": 131,
+          "column": 3
+        },
+        {
+          "title": "読み込み前のreset-unreportedを空申告と混同せず引き渡す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1375,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:20.515Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "119c1709defdc41b6662-68b2621432e5b72d542d",
+          "file": "preimport-omissions.spec.ts",
+          "line": 131,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "question-summary-persistence.spec.ts",
+      "file": "question-summary-persistence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "問い改版と撤回の再確認状態・旧版応答を保存復元しUndoで元へ戻す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 662,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:21.903Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "09725b61b169be309a13-4faad3aa1db41f9df438",
+          "file": "question-summary-persistence.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "reasoning.spec.ts",
+      "file": "reasoning.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "マウスとキーボードで、明示選択した発言だけに問いを追加できる",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1214,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:22.580Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "af8ccfa76b50f8052b96-54b1534a2c88520746e7",
+          "file": "reasoning.spec.ts",
+          "line": 12,
+          "column": 1
+        },
+        {
+          "title": "問い改訂は旧版を応答対象として保持し、共通Undoと原文IDへ戻れる",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2165,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:23.806Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "af8ccfa76b50f8052b96-e118c9f2e99ad6876949",
+          "file": "reasoning.spec.ts",
+          "line": 28,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "retained-branches.spec.ts",
+      "file": "retained-branches.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "枝DOMは保持しつつ視覚・AX・focusから除外し、同じ要素と配置で再展開する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2284,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:25.987Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "21fb194d37763e732bc3-b4c9a344fb87ea0b32b1",
+          "file": "retained-branches.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "折り畳み中の派生→本筋→UndoでCSS・inert・AXと枝の座標を復元する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2039,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:28.281Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "21fb194d37763e732bc3-8153d2f70b762059beac",
+          "file": "retained-branches.spec.ts",
+          "line": 132,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "return-correction.spec.ts",
+      "file": "return-correction.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "復帰なしを実保存・同一タブ再開しても旧edgeが残らず、復帰先は不変",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1446,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:30.332Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ff2a422fe75333d1008f-29a451224f093b5fcc50",
+          "file": "return-correction.spec.ts",
+          "line": 68,
+          "column": 1
+        },
+        {
+          "title": "復帰先分類と関係を明示的に扱い、同時変更を一回のUndoで戻す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1532,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:31.791Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ff2a422fe75333d1008f-d7d139a2457fb8d403d9",
+          "file": "return-correction.spec.ts",
+          "line": 95,
+          "column": 1
+        },
+        {
+          "title": "分類を派生へ訂正しても明示選択した復帰線を保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1406,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:33.349Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ff2a422fe75333d1008f-b8b81410eda5c43c3126",
+          "file": "return-correction.spec.ts",
+          "line": 126,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "rich-persistence.spec.ts",
+      "file": "rich-persistence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "rich状態r1/r2が原文版・問い版・旧版応答・履歴・Undoまで永続化される",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5271,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:34.775Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "b772f4fde68058e084e5-f6196bd926150fbecd54",
+          "file": "rich-persistence.spec.ts",
+          "line": 88,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "save-failure-recovery.spec.ts",
+      "file": "save-failure-recovery.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "P5 quota: failed r2 retains exact persisted r1 and drafts; full current JSON restores only as a copy",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4602,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:40.066Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7a0b11e63cc83bbb00a3-ec9d0fb7305b6f469a50",
+          "file": "save-failure-recovery.spec.ts",
+          "line": 275,
+          "column": 3
+        },
+        {
+          "title": "P5 first-save quota: current correction has a full backup without any last-saved ref",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2334,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:44.680Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7a0b11e63cc83bbb00a3-baa9ce6c48d1c343532e",
+          "file": "save-failure-recovery.spec.ts",
+          "line": 404,
+          "column": 3
+        },
+        {
+          "title": "P5 abort: failed r2 retains exact persisted r1 and drafts; full current JSON restores only as a copy",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4593,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:47.026Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7a0b11e63cc83bbb00a3-3a462aa4e55c180df4b2",
+          "file": "save-failure-recovery.spec.ts",
+          "line": 275,
+          "column": 3
+        },
+        {
+          "title": "P5 first-save abort: current correction has a full backup without any last-saved ref",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2318,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:51.628Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7a0b11e63cc83bbb00a3-0ab14257a79a4b197987",
+          "file": "save-failure-recovery.spec.ts",
+          "line": 404,
+          "column": 3
+        },
+        {
+          "title": "P5 autosave failure keeps the focused draft; later successful autosave clears stale failure state",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3228,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:53.956Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "7a0b11e63cc83bbb00a3-19fa3f66f3e3a3e413eb",
+          "file": "save-failure-recovery.spec.ts",
+          "line": 462,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "source-draft-navigation.spec.ts",
+      "file": "source-draft-navigation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "未適用の字幕原文と理由は別の発言を選んで戻っても保持され、Projectへ勝手に適用されない",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30159,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/home/runner/work/rontenseiri/rontenseiri/e2e/source-draft-navigation.spec.ts",
+                        "column": 6,
+                        "line": 113
+                      },
+                      "message": "Error: locator.press: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: '直前の訂正を元に戻す', exact: true })\u001b[22m\n\n\n  111 |   await page\n  112 |     .getByRole(\"button\", { name: \"直前の訂正を元に戻す\", exact: true })\n> 113 |     .press(\"Enter\");\n      |      ^\n  114 |   await page\n  115 |     .getByRole(\"button\", { name: \"議題の流れ\", exact: true })\n  116 |     .press(\"Enter\");\n    at /home/runner/work/rontenseiri/rontenseiri/e2e/source-draft-navigation.spec.ts:113:6"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:46:57.199Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "screenshot",
+                      "contentType": "image/png",
+                      "path": "/home/runner/work/rontenseiri/rontenseiri/test-results/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/test-failed-1.png"
+                    },
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/home/runner/work/rontenseiri/rontenseiri/test-results/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/home/runner/work/rontenseiri/rontenseiri/test-results/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "02ffaf1728b82c1627d7-07abf927209bfa1afe34",
+          "file": "source-draft-navigation.spec.ts",
+          "line": 41,
+          "column": 1
+        },
+        {
+          "title": "複合字幕の各本文draftを独立保持し、明示適用したcueだけを訂正する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1349,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:47:28.056Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "02ffaf1728b82c1627d7-4a76060fa92f4de93682",
+          "file": "source-draft-navigation.spec.ts",
+          "line": 124,
+          "column": 1
+        },
+        {
+          "title": "明示破棄は選んだ字幕本文の原文と理由だけを戻す",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1080,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:47:29.492Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "02ffaf1728b82c1627d7-b14d018715c4e1641e06",
+          "file": "source-draft-navigation.spec.ts",
+          "line": 164,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "split-evidence.spec.ts",
+      "file": "split-evidence.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "発言分割の実選択・保存・復元",
+          "file": "split-evidence.spec.ts",
+          "line": 61,
+          "column": 6,
+          "specs": [
+            {
+              "title": "left 選択を実UIで完了する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/rontenseiri/rontenseiri/e2e/split-evidence.spec.ts",
+                        "line": 61,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2796,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-18T06:47:30.605Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/rontenseiri/rontenseiri/e2e/split-evidence.spec.ts",
+                            "line": 61,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d817a5c758f98a2a59bc-c10e1daaf20ec6492d06",
+              "file": "split-evidence.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "right 選択を実UIで完了する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/rontenseiri/rontenseiri/e2e/split-evidence.spec.ts",
+                        "line": 61,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2685,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-18T06:47:33.412Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/rontenseiri/rontenseiri/e2e/split-evidence.spec.ts",
+                            "line": 61,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d817a5c758f98a2a59bc-e0fb462d4714b011eb2a",
+              "file": "split-evidence.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "both 選択を実UIで完了する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/rontenseiri/rontenseiri/e2e/split-evidence.spec.ts",
+                        "line": 61,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2716,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-18T06:47:36.113Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/rontenseiri/rontenseiri/e2e/split-evidence.spec.ts",
+                            "line": 61,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d817a5c758f98a2a59bc-b8174865400fca418a37",
+              "file": "split-evidence.spec.ts",
+              "line": 69,
+              "column": 5
+            },
+            {
+              "title": "unresolved 選択を実UIで完了する",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "serial",
+                      "location": {
+                        "file": "/home/runner/work/rontenseiri/rontenseiri/e2e/split-evidence.spec.ts",
+                        "line": 61,
+                        "column": 6
+                      }
+                    }
+                  ],
+                  "expectedStatus": "passed",
+                  "projectId": "",
+                  "projectName": "",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2675,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-10-18T06:47:38.842Z",
+                      "annotations": [
+                        {
+                          "type": "serial",
+                          "location": {
+                            "file": "/home/runner/work/rontenseiri/rontenseiri/e2e/split-evidence.spec.ts",
+                            "line": 61,
+                            "column": 6
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d817a5c758f98a2a59bc-efc9226746e2cb0d7835",
+              "file": "split-evidence.spec.ts",
+              "line": 69,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "storage-conflict.spec.ts",
+      "file": "storage-conflict.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "旧保存版の上書きを拒否し、新版・履歴・Undo後の保存版を保持する",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 656,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:47:41.534Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "633dc31e7868ad12c4ca-6b3f2dfdc5f2830b88c1",
+          "file": "storage-conflict.spec.ts",
+          "line": 3,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "undo-escape-regression.spec.ts",
+      "file": "undo-escape-regression.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "last node selection returns focus after Escape",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 946,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:47:42.208Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8192d45284d6f4f2b164-85237595d0afa4796b5c",
+          "file": "undo-escape-regression.spec.ts",
+          "line": 11,
+          "column": 1
+        },
+        {
+          "title": "Escape restores the latest node when the transcript origin was unmounted",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1140,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:47:43.165Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8192d45284d6f4f2b164-98c60b271fe0e1fbfecd",
+          "file": "undo-escape-regression.spec.ts",
+          "line": 26,
+          "column": 1
+        },
+        {
+          "title": "Undo becomes disabled after the only revision is undone",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1305,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-10-18T06:47:44.319Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "8192d45284d6f4f2b164-d93c21662bd9c08ae0ac",
+          "file": "undo-escape-regression.spec.ts",
+          "line": 45,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-10-18T06:44:55.223Z",
+    "duration": 170500.508,
+    "expected": 75,
+    "skipped": 1,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

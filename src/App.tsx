@@ -229,8 +229,16 @@ export default function App() {
   }, [project]);
   const closeDetails = useCallback(() => {
     if (!confirmTransientDrafts("inspector")) return;
+    const focusAtClose = document.activeElement;
     setDetailsOpen(false);
     requestAnimationFrame(() => {
+      // A later keyboard/pointer action owns focus. Do not let this older
+      // recovery frame redirect its Enter key to the formerly selected node.
+      if (
+        document.activeElement !== document.body &&
+        document.activeElement !== focusAtClose
+      )
+        return;
       const focusIfUsable = (element: HTMLElement | null): boolean => {
         if (
           !element?.isConnected ||

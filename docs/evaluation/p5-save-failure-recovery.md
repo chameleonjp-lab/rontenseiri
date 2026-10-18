@@ -70,6 +70,8 @@ npm run test:offline
 
 ローカルの全単体試験は49ファイル・247件が通過し、productionビルド・整形検査・依存監査（指摘0件）・productionのオフライン再起動も通過しました。最終headに対する全ブラウザ・性能試験の結果は、PR本文および以下のCI証跡と照合します。
 
+旧head `417993a`ではPR CI成功とpush CI失敗が併存していました。成功runだけで全体成功とは扱いません。[失敗runの原本・原因・決定的再現と修正](p5-ci-push-failure.md)を別に記録し、修正後の新SHAではpush／PR両方のCIを照合します。
+
 CIはPRのhead SHAをcheckoutし、`artifacts/verified-sha.txt`と単体・ブラウザ結果を保存する既存設定のままです。P5の失敗状態の画像は`test-results/`の`p5-quota-unsaved.png`・`p5-abort-unsaved.png`としてCI artifactに含まれます。旧SHAの成功を新しいheadの検証として流用しません。
 
 P5の基点は、作業開始時に取得したmainの`2861c8e61fd885cdd9d8b2c90a4fc38c2400ee63`です。このmainにはPR #6の`cfa7112e5fb1998ffeb4ee99506d8e81a42b4137`が既に統合されていました。P5を古いfeatureブランチに積んでいません。PR #6の既存証跡やCI閾値・手順は変更しません。

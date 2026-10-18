@@ -1,0 +1,77 @@
+{
+  "run": 39105084865,
+  "event": "push",
+  "url": "https://github.com/chameleonjp-lab/rontenseiri/actions/runs/39105084865",
+  "head": "417993abc687a3385c19ed7c14010a4bfc20b83a",
+  "conclusion": "failure",
+  "originalFilesUnmodified": true,
+  "files": [
+    {
+      "file": "verified-sha.txt",
+      "sha256": "b9181c4c6b9bf02cf40ca4d1ef3fc31c18761a05f8dced815122f6946e217388",
+      "bytes": 41,
+      "role": "original-failed-run",
+      "source": "browser-evidence/artifacts/verified-sha.txt"
+    },
+    {
+      "file": "e2e-results.json",
+      "sha256": "0e100912520a29c03d1ab6c772e67acb69e5a5f8dbcdb430e308a01726a96578",
+      "bytes": 106357,
+      "role": "original-failed-run",
+      "source": "browser-evidence/artifacts/e2e-results.json"
+    },
+    {
+      "file": "trace.zip",
+      "sha256": "10b8b2f2a7cc86d71d7b22be2463d3d842451be9d7649aa9eb24de5ecb65c4fc",
+      "bytes": 1275161,
+      "role": "original-failed-run",
+      "source": "browser-evidence/test-results/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/trace.zip"
+    },
+    {
+      "file": "error-context.md",
+      "sha256": "44f798fe216810000be937b11a059c7691f62c7496998f4206c997d141f04e54",
+      "bytes": 18839,
+      "role": "original-failed-run",
+      "source": "browser-evidence/test-results/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/error-context.md"
+    },
+    {
+      "file": "test-failed-1.png",
+      "sha256": "2273c0c41afef8a4d63f5b6dcf0f281b482c2fbd081d3a5a326e5ff3dcdd505c",
+      "bytes": 175471,
+      "role": "original-failed-run",
+      "source": "browser-evidence/test-results/source-draft-navigation-未適-e81da-で戻っても保持され、Projectへ勝手に適用されない/test-failed-1.png"
+    },
+    {
+      "file": "run.json",
+      "sha256": "5b65b29d777539ed96e88dd7210d2c66d4c149e0935893d3bcb5ec880e87eb27",
+      "bytes": 3553,
+      "role": "original-failed-run",
+      "source": "push-failure-run.json"
+    },
+    {
+      "file": "failed-step.txt",
+      "sha256": "b0da4bab6273fd9fef3178c06c04cb4f04dae49d9d984743bc40544ef22c7a99",
+      "bytes": 21861,
+      "role": "original-failed-run",
+      "source": "push-failure-log.txt"
+    },
+    {
+      "file": "focus-race-baseline.txt",
+      "role": "local-pre-fix-reproduction",
+      "sha256": "42a9554161cdb834a9f0a4ca44de6257dabe6f35b0f4866d9dc9b59a8977d480",
+      "bytes": 2947
+    },
+    {
+      "file": "focus-race-baseline-results.json",
+      "role": "local-pre-fix-reproduction",
+      "sha256": "79eaeda3af10a13ab20083815785fb5a22f882997a45e4511de328c79e1c1085",
+      "bytes": 8825
+    },
+    {
+      "file": "focus-race-fixed-results.json",
+      "role": "local-post-fix-5-repetitions",
+      "sha256": "15e3eee388300b9b7106435c989428e90cfc622a93e1c20dc30ba5e4c519938e",
+      "bytes": 25109
+    }
+  ]
+}
