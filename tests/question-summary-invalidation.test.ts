@@ -56,6 +56,9 @@ async function fixture(text = "費用は？\n100円です") {
     },
     "回答登録",
   );
+  // This suite starts after the initial response's summary has been reviewed.
+  // Undoing a later question edit must restore that reviewed baseline.
+  p.agendas[0].needsReview = false;
   return { p, questionId: q.id, versionId: q.currentVersionId };
 }
 
