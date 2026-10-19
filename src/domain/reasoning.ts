@@ -208,7 +208,7 @@ export function linkResponse(
     g = graph(p),
     x = { ...clone(value), id: id("response") };
   g.responses.push(x);
-  return commit(p, b, g, x.id, "response-linked", reason);
+  return commit(p, b, g, x.id, "response-linked", reason, [], x.utteranceIds);
 }
 
 /** A patch never follows currentVersionId or derives fulfillment from kind. */
