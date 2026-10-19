@@ -288,3 +288,127 @@ describe.each(["source", "speaker"] as const)(
     );
   },
 );
+
+describe("R15 new correction after partial Undo", () => {
+  it.each(["source", "speaker"] as const)(
+    "%s correction creates a fresh effective history without reviving abandoned edits",
+    async (operation) => {
+      const initial = await fixture();
+      const [a, b] = initial.utterances;
+      const first = reviseSource(initial, a.id, "採用しない", "Aの最初の訂正");
+      const second = reviseProject(
+        first,
+        b.id,
+        { speaker: "放棄する話者B" },
+        "Bの旧訂正",
+      );
+      const third = reviseSource(
+        second,
+        a.id,
+        "放棄するAの再訂正",
+        "Aの旧再訂正",
+      );
+      const originals = structuredClone(third.revisions);
+      let current = roundTrip(undoLastRevision(roundTrip(third)));
+      expectMeaning(current, second);
+      current = roundTrip(undoLastRevision(current));
+      expectMeaning(current, first);
+      expect(current.agendas.map((agenda) => agenda.needsReview)).toEqual(
+        aOnlyFlags,
+      );
+      const beforeBranch = structuredClone(current);
+      const branch =
+        operation === "source"
+          ? reviseSource(current, b.id, "新しい別件の否定", "Bの新規訂正")
+          : reviseProject(
+              current,
+              b.id,
+              { speaker: "新規話者B" },
+              "Bの新規訂正",
+            );
+      expect(current).toEqual(beforeBranch);
+      expect(branch.revisions.slice(0, -1)).toEqual(beforeBranch.revisions);
+      const branchRevision = branch.revisions.at(-1)!;
+      expect(originals.map((r) => r.id)).not.toContain(branchRevision.id);
+      expect(branchRevision).toMatchObject({
+        targetId: b.id,
+        kind: operation === "source" ? "source-revision" : "user-revision",
+        reason: "Bの新規訂正",
+      });
+      expect(branch.agendas).toEqual(
+        initial.agendas.map((agenda, index) => ({
+          ...agenda,
+          needsReview: bothFlags[index],
+        })),
+      );
+      expect(branch.relations).toEqual(initial.relations);
+      expect(branch.reasoning).toEqual(initial.reasoning);
+      if (operation === "source") {
+        const delta =
+          "新しい別件の否定".length - current.utterances[1].quote.length;
+        expect(branch.utterances).toEqual(
+          current.utterances.map((u, index) => ({
+            ...u,
+            sourceVersionId: branch.sources.at(-1)!.versionId,
+            start: u.start + (index > 1 ? delta : 0),
+            end: u.end + (index >= 1 ? delta : 0),
+            ...(index === 1
+              ? { quote: "新しい別件の否定", coverage: "failed" }
+              : {}),
+          })),
+        );
+        expect(branch.sources.slice(0, -1)).toEqual(current.sources);
+        expect(branch.sources).toHaveLength(current.sources.length + 1);
+      } else {
+        expect(branch.utterances).toEqual(
+          current.utterances.map((u, index) =>
+            index === 1 ? { ...u, speaker: "新規話者B" } : u,
+          ),
+        );
+        expect(branch.sources).toEqual(current.sources);
+      }
+      expectReferences(branch);
+      const retainedCatalog = structuredClone(sourceCatalog(branch));
+      current = roundTrip(branch);
+      for (const [target, expected, flags, available] of [
+        [branchRevision, first, aOnlyFlags, true],
+        [originals[0], initial, initialFlags, false],
+      ] as const) {
+        const beforeUndo = structuredClone(current);
+        const undone = undoLastRevision(current);
+        expect(current).toEqual(beforeUndo);
+        expectMeaning(undone, expected);
+        expect(undone.agendas.map((agenda) => agenda.needsReview)).toEqual(
+          flags,
+        );
+        expect(sourceCatalog(undone)).toEqual(retainedCatalog);
+        expect(undone.revisions.slice(0, -1)).toEqual(beforeUndo.revisions);
+        expect(undone.revisions.at(-1)).toMatchObject({
+          kind: "undo",
+          targetId: target.targetId,
+          after: { targetRevisionId: target.id },
+        });
+        expectReferences(undone);
+        expect(canUndo(undone)).toBe(available);
+        current = roundTrip(undone);
+      }
+      expect(current.revisions).toHaveLength(8);
+      expect(current.revisions.slice(0, 3)).toEqual(originals);
+      expect(
+        current.revisions
+          .filter((r) => r.kind === "undo")
+          .map(
+            (r) => (r.after as { targetRevisionId: string }).targetRevisionId,
+          ),
+      ).toEqual([
+        originals[2].id,
+        originals[1].id,
+        branchRevision.id,
+        originals[0].id,
+      ]);
+      const exhausted = structuredClone(current);
+      expect(() => undoLastRevision(current)).toThrow("no revision to undo");
+      expect(current).toEqual(exhausted);
+    },
+  );
+});
