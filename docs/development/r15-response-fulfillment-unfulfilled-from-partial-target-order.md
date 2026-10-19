@@ -12,7 +12,7 @@ Aは所属U01/U02・依存U02、Bは所属/依存U03。問い版sourceはU01/U03
 
 ## 保存・再開・Undo
 
-通常完全復元→初回明示保存→理由付きUI単一フィールド訂正→autosave→native readonly IndexedDB→reload/最近の作業→UI/警告/完全JSON→通常UI Undo→autosave→2回目reload。共有履歴before/after全graph/まとめ、理由/ID参照/時刻、保存世代、Undo元graph/監査prefix/targetを比較する。Undoは対象を部分充足へ戻す。全体30秒/10秒poll、preview前DB選択議題/履歴件数/保存済み待機は維持し、状態注入しない。
+通常完全復元→初回明示保存→理由付きUI単一フィールド訂正→autosave→native readonly IndexedDB→reload/最近の作業→UI/警告/完全JSON→通常UI Undo→autosave→2回目reload。訂正イベントは共有履歴before/after全graph/まとめ、理由/ID参照/時刻を比較する。Undo後の現在graph/まとめがbaselineへ復元すること、共有履歴の先頭の訂正1件がrevisedの同イベントと完全一致すること、Undoイベントのkindとafter.targetRevisionIdを比較し、保存世代の増加を検査する。Undoイベント自身のbefore/after全payload・ID/理由/時刻の整合性は検査しない。Undoは対象を部分充足へ戻す。全体30秒/10秒poll、preview前DB選択議題/履歴件数/保存済み待機は維持し、状態注入しない。
 
 ## 証拠と限界
 
