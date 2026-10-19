@@ -12,10 +12,12 @@ import type { Project } from "./types";
 export function invalidateDependents(
   project: Project,
   changedUtteranceIds: readonly string[],
+  changedEvidenceIds: readonly string[] = [],
 ): Project {
   const out = structuredClone(project);
   const changed = new Set(changedUtteranceIds);
-  if (!changed.size) return out;
+  const explicitEvidence = new Set(changedEvidenceIds);
+  if (!changed.size && !explicitEvidence.size) return out;
 
   const affectedUtterances = new Set(changed);
   let previousSize = -1;
@@ -29,7 +31,7 @@ export function invalidateDependents(
       )
         affectedUtterances.add(relation.to);
     }
-    propagateReasoning(out, affectedUtterances);
+    propagateReasoning(out, affectedUtterances, new Set(), explicitEvidence);
   }
 
   for (const agenda of out.agendas) {
@@ -65,16 +67,17 @@ function propagateReasoning(
   project: Project,
   affectedUtterances: Set<string>,
   initialVersions: Set<string> = new Set(),
+  initialEvidence: Set<string> = new Set(),
 ): void {
   const reasoning = project.reasoning;
   if (!reasoning) return;
 
   const evidenceById = new Map(reasoning.evidence.map((x) => [x.id, x]));
-  const changedEvidence = new Set(
-    reasoning.evidence
-      .filter((x) => x.utteranceIds.some((id) => affectedUtterances.has(id)))
-      .map((x) => x.id),
-  );
+  const changedEvidence = new Set(initialEvidence);
+  for (const id of reasoning.evidence
+    .filter((x) => x.utteranceIds.some((id) => affectedUtterances.has(id)))
+    .map((x) => x.id))
+    changedEvidence.add(id);
   const affectedQuestions = new Set<string>();
   const affectedVersions = new Set(initialVersions);
   const affectedResponses = new Set<string>();
@@ -130,7 +133,11 @@ function propagateReasoning(
       if (
         affectedVersions.has(response.questionVersionId) ||
         response.utteranceIds.some((id) => affectedUtterances.has(id)) ||
-        response.evidenceIds.some((id) => changedEvidence.has(id))
+        response.evidenceIds.some((id) => changedEvidence.has(id)) ||
+        (initialEvidence.size > 0 &&
+          response.counterargumentToClaimIds.some((id) =>
+            affectedItems.has(id),
+          ))
       ) {
         if (!affectedResponses.has(response.id)) {
           affectedResponses.add(response.id);
@@ -154,6 +161,21 @@ function propagateReasoning(
         }
         if (addUtterances(item.utteranceIds)) changed = true;
         if (addEvidence(item.evidenceIds)) changed = true;
+      }
+    }
+    for (const positionChange of reasoning.positionChanges) {
+      if (
+        initialEvidence.size > 0 &&
+        positionChange.triggerEvidenceIds.some((id) => changedEvidence.has(id))
+      ) {
+        if (!affectedItems.has(positionChange.beforeItemId)) {
+          affectedItems.add(positionChange.beforeItemId);
+          changed = true;
+        }
+        if (!affectedItems.has(positionChange.afterItemId)) {
+          affectedItems.add(positionChange.afterItemId);
+          changed = true;
+        }
       }
     }
     for (const interpretation of reasoning.interpretations) {

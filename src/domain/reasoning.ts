@@ -54,12 +54,17 @@ function commit(
   reason: string,
   changedQuestionVersionIds: readonly string[] = [],
   changedResponseUtteranceIds: readonly string[] = [],
+  changedEvidenceIds: readonly string[] = [],
 ): ReasoningProject {
   requireText(reason, "reason");
   let out = clone(p);
   out.reasoning = after;
-  if (changedResponseUtteranceIds.length)
-    out = invalidateDependents(out, changedResponseUtteranceIds);
+  if (changedResponseUtteranceIds.length || changedEvidenceIds.length)
+    out = invalidateDependents(
+      out,
+      changedResponseUtteranceIds,
+      changedEvidenceIds,
+    );
   if (changedQuestionVersionIds.length)
     out = invalidateReasoningDependents(
       out,
@@ -185,6 +190,67 @@ export function addEvidence(
     x = { ...clone(value), id: id("evidence") };
   g.evidence.push(x);
   return commit(p, b, g, x.id, "evidence-created", reason);
+}
+
+/** Update only an evidence record's selected utterances and note. */
+export function updateEvidence(
+  project: ReasoningProject,
+  evidenceId: string,
+  patch: Partial<
+    Pick<ReasoningGraph["evidence"][number], "utteranceIds" | "note">
+  >,
+  reason: string,
+): ReasoningProject {
+  const p = checked(project);
+  requireText(reason, "reason");
+  const before = graph(p);
+  const after = graph(p);
+  const evidence = after.evidence.find((x) => x.id === evidenceId);
+  if (!evidence) throw new Error("evidence not found");
+
+  const utterancesById = new Map(p.utterances.map((x) => [x.id, x]));
+  let selected = evidence.utteranceIds;
+  if (Object.prototype.hasOwnProperty.call(patch, "utteranceIds")) {
+    if (!Array.isArray(patch.utteranceIds))
+      throw new Error("invalid evidence utterances");
+    selected = patch.utteranceIds as string[];
+  }
+  if (
+    !selected.length ||
+    !selected.every((x) => typeof x === "string" && utterancesById.has(x)) ||
+    new Set(selected).size !== selected.length
+  )
+    throw new Error("invalid evidence utterances");
+  if (
+    Object.prototype.hasOwnProperty.call(patch, "note") &&
+    patch.note !== undefined &&
+    typeof patch.note !== "string"
+  )
+    throw new Error("invalid evidence note");
+
+  evidence.utteranceIds = clone(selected);
+  evidence.sourceIds = [
+    ...new Set(selected.map((id) => utterancesById.get(id)!.sourceId)),
+  ];
+  if (Object.prototype.hasOwnProperty.call(patch, "note"))
+    evidence.note = clone(patch.note);
+
+  return commit(
+    p,
+    before,
+    after,
+    evidenceId,
+    "evidence-updated",
+    reason,
+    [],
+    [
+      ...new Set([
+        ...before.evidence.find((x) => x.id === evidenceId)!.utteranceIds,
+        ...selected,
+      ]),
+    ],
+    [evidenceId],
+  );
 }
 export function addSemanticItem(
   project: ReasoningProject,
