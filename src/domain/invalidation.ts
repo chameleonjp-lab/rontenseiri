@@ -12,10 +12,11 @@ import type { Project } from "./types";
 export function invalidateDependents(
   project: Project,
   changedUtteranceIds: readonly string[],
+  changedSemanticItemIds: readonly string[] = [],
 ): Project {
   const out = structuredClone(project);
   const changed = new Set(changedUtteranceIds);
-  if (!changed.size) return out;
+  if (!changed.size && !changedSemanticItemIds.length) return out;
 
   const affectedUtterances = new Set(changed);
   let previousSize = -1;
@@ -29,7 +30,14 @@ export function invalidateDependents(
       )
         affectedUtterances.add(relation.to);
     }
-    propagateReasoning(out, affectedUtterances);
+    // Keep semantic-edit mode in every pass: an utterance edge can reach a
+    // new item whose explicit rebuttal has no other shared-source path.
+    propagateReasoning(
+      out,
+      affectedUtterances,
+      new Set(),
+      new Set(changedSemanticItemIds),
+    );
   }
 
   for (const agenda of out.agendas) {
@@ -61,10 +69,21 @@ export function invalidateReasoningDependents(
   return invalidateDependents(out, [...affectedUtterances]);
 }
 
+/** A semantic edit also affects explicit rebuttals, even without a shared source. */
+export function invalidateSemanticItemDependents(
+  project: Project,
+  changedItemIds: readonly string[],
+): Project {
+  const out = structuredClone(project);
+  if (!changedItemIds.length || !out.reasoning) return out;
+  return invalidateDependents(out, [], changedItemIds);
+}
+
 function propagateReasoning(
   project: Project,
   affectedUtterances: Set<string>,
   initialVersions: Set<string> = new Set(),
+  initialItems: Set<string> = new Set(),
 ): void {
   const reasoning = project.reasoning;
   if (!reasoning) return;
@@ -78,7 +97,7 @@ function propagateReasoning(
   const affectedQuestions = new Set<string>();
   const affectedVersions = new Set(initialVersions);
   const affectedResponses = new Set<string>();
-  const affectedItems = new Set<string>();
+  const affectedItems = new Set(initialItems);
   const affectedInterpretations = new Set<string>();
 
   const addUtterances = (ids: readonly string[]) => {
@@ -130,7 +149,11 @@ function propagateReasoning(
       if (
         affectedVersions.has(response.questionVersionId) ||
         response.utteranceIds.some((id) => affectedUtterances.has(id)) ||
-        response.evidenceIds.some((id) => changedEvidence.has(id))
+        response.evidenceIds.some((id) => changedEvidence.has(id)) ||
+        (initialItems.size > 0 &&
+          response.counterargumentToClaimIds.some((id) =>
+            affectedItems.has(id),
+          ))
       ) {
         if (!affectedResponses.has(response.id)) {
           affectedResponses.add(response.id);

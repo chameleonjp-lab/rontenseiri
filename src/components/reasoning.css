@@ -158,6 +158,14 @@
   padding: 10px;
   font-size: 0.8rem;
 }
+.reasoning-semantic-items {
+  display: grid;
+  gap: 8px;
+}
+.reasoning-semantic-items .reasoning-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 .reasoning-version {
   display: flex;
   justify-content: space-between;
