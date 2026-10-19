@@ -12,10 +12,9 @@ Aは所属U01/U02・依存U02、Bは所属/依存U03。問い版sourceはU01/U03
 
 ## 保存・再開・Undo
 
-通常完全復元→初回明示保存→理由付きUI単一フィールド訂正→autosave→native readonly IndexedDB→reload/最近の作業→UI/警告/完全JSON→通常UI Undo→autosave→2回目reload。訂正イベントは共有履歴のbefore/after全graph/まとめ、理由/ID参照/時刻、保存世代を比較する。Undo後の現在graph/まとめがbaselineへ復元すること、共有履歴先頭の訂正1件がrevisedの同イベントと完全一致すること、Undoイベントのkindと `after.targetRevisionId` を比較し、保存世代の増加を検査する。Undoイベント自身のbefore/after full payload・ID・理由・時刻の整合性は検査しないため、完全なUndo監査イベント検証は主張しない。全体30秒/10秒poll、preview前DB選択議題/履歴件数/保存済み待機は維持し、状態注入しない。
-
+通常完全復元→初回明示保存→理由付きUI単一フィールド訂正→autosave→native readonly IndexedDB→reload/最近の作業→UI/警告/完全JSON→通常UI Undo→autosave→2回目reload。訂正イベントは共有履歴のbefore/after全graph/まとめ、理由/ID参照/時刻、保存世代を比較する。Undo後の現在graph/まとめがbaselineへ復元すること、共有履歴先頭の訂正1件がrevisedの同イベントと完全一致することを検査する。Undoイベントについても、全before/after semantic payload、targetId、独自ID、`kind: undo`、`reason: Undo: <訂正理由>`、`after.targetRevisionId`、ISO形式として解釈できる生成時刻、先行訂正イベントの不変性を検査する。生成時刻はDate.now()のwall clockに依存するため、形式のみを検査し、strictな単調性・前後関係は検証しない。JSON出力は通常UIでfull/history付きpreviewを作り、supportedな「JSONから復元」で別copyへimportする。fixture作成直後のbaselineとimport前に保持したoriginalを、project ID・更新時刻・saved・storageRevision以外の全フィールドで比較し、最終別copyも同じ契約で比較する。これはproductionのcreateProject/parseInputs等を使う限定fixtureの全比較であり、全生成処理から独立したoracleを主張しない。全体30秒/10秒poll、preview前DB選択議題/履歴件数/保存済み待機は維持し、状態注入しない。
 ## 証拠と限界
 
 #51/#54の初回preview失敗と再実行成功は原因未確定で、実行間の不安定さは未解消である。再実行成功で初回失敗を消さず、今回の新規テスト結果とも混同しない。#55/#56の既存ローカル結果でも不安定さの解消は主張できない。失敗は一意pathへ保持する。新headのテスト生ログ・終了コード・JSONと独立静的レビューは実装担当の作業と分離し、統合後のPR本文に実績を記録する。通常pushのみ、self-merge/ready/rebase/force-pushは行わない。
 
-復元後baseline比較は共有履歴before/afterのgraphとまとめを比較するが、監査snapshot全フィールドは比較していない。インポート前独立完全fixture oracle/最終JSON再インポート、作成UI、非空根拠/反論先、複雑/混合依存、既存履歴/多段Undo・Undo full payload、保存失敗/競合、意味品質、性能、実機、UI全フィールド個別表示、CI artifact内部は未検証。R08/R15/G5/G0–G8全受入、CI合格、独立レビュー完了、実マージを主張しない。
+Undoの全payloadと監査ID/理由/時刻形式、UI経由のfull JSON別copy往復、semantic stateと履歴IDの保持を検証する。時刻は形式のみで、Date.now()のwall clockによるstrictな単調性・前後関係は検証しない。importではproject ID・更新時刻・saved・storageRevisionだけを契約上の比較対象外とする。fixtureはproductionのcreateProject/parseInputs等を利用するため、今回の限定fixtureでimport前originalとbaselineを全比較するが、全生成処理から独立した完全fixture oracleとは主張しない。作成UI、非空根拠/反論先、複雑/混合依存、保存失敗/競合、多段Undo、意味品質、性能、実機、UI全フィールド個別表示、CI artifact内部は未検証。R08/R15/G5/G0–G8全受入、CI合格、独立レビュー完了、実マージを主張しない。

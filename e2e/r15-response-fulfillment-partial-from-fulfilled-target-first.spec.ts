@@ -178,6 +178,46 @@ async function stored(page: Page, id: string): Promise<Project | null> {
   }, id);
 }
 
+function roundTripComparable(p: Project) {
+  const {
+    id: _id,
+    updatedAt: _updated,
+    saved: _saved,
+    storageRevision: _storage,
+    ...rest
+  } = p;
+  return rest;
+}
+function assertUndoAudit(undone: Project, revised: Project, baseline: Project) {
+  const target = revised.revisions[0];
+  const undo = undone.revisions[1];
+  expect(undo.id).toEqual(expect.stringMatching(/^revision-.+/));
+  expect(undo.id).not.toBe(target.id);
+  // Date.now() is wall-clock based; verify ISO-parseable form only, not strict chronology.
+  expect(new Date(undo.at).toString()).not.toBe("Invalid Date");
+  expect(undo.targetId).toBe(target.targetId);
+  expect(undo.kind).toBe("undo");
+  expect(undo.reason).toBe(`Undo: ${target.reason}`);
+  expect((undo.after as { targetRevisionId?: unknown }).targetRevisionId).toBe(
+    target.id,
+  );
+  // Undo stores full semantic before/after payloads. Compare every field rather
+  // than treating the propagation/snapshot implementation as an oracle.
+  const semantic = (p: Project) => ({
+    utterances: p.utterances,
+    agendas: p.agendas,
+    relations: p.relations,
+    selectedAgendaId: p.selectedAgendaId,
+    reasoning: p.reasoning,
+    ...(p.lineage === undefined ? {} : { lineage: p.lineage }),
+  });
+  expect(undo.before).toEqual(semantic(revised));
+  expect(undo.after).toEqual({
+    ...semantic(baseline),
+    targetRevisionId: target.id,
+  });
+  expect(undone.revisions.slice(0, 1)).toEqual(revised.revisions);
+}
 function content(p: Project) {
   const {
     selectedAgendaId: _selection,
@@ -454,13 +494,16 @@ test("R15: 配列先頭の充足から部分充足へのUI訂正は2番目の独
   page,
 }) => {
   await page.goto("/");
+  const original = await fixture();
   await page.locator("input[type=file]").setInputFiles({
     name: "r15-response-fulfillment-partial-from-fulfilled-target-first-fixture.json",
     mimeType: "application/json",
-    buffer: Buffer.from(exportProject(await fixture(), "json")),
+    buffer: Buffer.from(exportProject(original, "json")),
   });
   await expect(page.getByRole("status")).toContainText("別コピーとして復元");
   const baseline = (await preview(page)).project;
+  // Import is expected to preserve every field except its documented identity/lifecycle metadata.
+  expect(roundTripComparable(baseline)).toEqual(roundTripComparable(original));
   // Assert the intended graph, including identity/order and absent bypasses.
   expect(baseline.reasoning!.questions).toEqual([
     {
@@ -629,10 +672,7 @@ test("R15: 配列先頭の充足から部分充足へのUI訂正は2番目の独
   expect(undone.utterances).toEqual(baseline.utterances);
   expect(undone.relations).toEqual(baseline.relations);
   expect(undone.revisions[0]).toEqual(revised.revisions[0]);
-  expect(undone.revisions[1]).toMatchObject({
-    kind: "undo",
-    after: { targetRevisionId: revised.revisions[0].id },
-  });
+  assertUndoAudit(undone, revised, baseline);
   expect(undone.storageRevision).toBeGreaterThan(revised.storageRevision!);
   await attach(
     `r15-response-fulfillment-partial-from-fulfilled-target-first-undone-stored.json`,
@@ -644,6 +684,22 @@ test("R15: 配列先頭の充足から部分充足へのUI訂正は2番目の独
   await responseUI(page, false);
   const final = await preview(page, { id: baseline.id, revisionCount: 2 });
   expect(content(final.project)).toEqual(content(undone));
+  // Export through the normal UI, then import that complete envelope through
+  // the supported JSON restore control as a separate copy.
+  await page.getByRole("button", { name: "論点整理.", exact: true }).click();
+  await page.locator("input[type=file]").setInputFiles({
+    name: "r15-roundtrip.rontenseiri.json",
+    mimeType: "application/json",
+    buffer: Buffer.from(JSON.stringify(final)),
+  });
+  await expect(page.getByRole("status")).toContainText("別コピーとして復元");
+  const imported = await preview(page);
+  expect(imported.project.id).not.toBe(undone.id);
+  expect(roundTripComparable(imported.project)).toEqual(
+    roundTripComparable(undone),
+  );
+  await summaries(page, false);
+  await responseUI(page, false);
   await page.getByRole("button", { name: "訂正履歴", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "直前の訂正を元に戻す", exact: true }),
