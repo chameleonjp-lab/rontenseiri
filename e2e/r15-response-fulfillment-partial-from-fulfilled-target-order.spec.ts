@@ -193,8 +193,10 @@ function assertUndoAudit(undone: Project, revised: Project, baseline: Project) {
   const undo = undone.revisions[1];
   expect(undo.id).toEqual(expect.stringMatching(/^revision-.+/));
   expect(undo.id).not.toBe(target.id);
-  // Date.now() is wall-clock based; verify ISO-parseable form only, not strict chronology.
+  // Date.now() is wall-clock based; verify ISO UTC form, not strict chronology.
+  expect(undo.at).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/);
   expect(new Date(undo.at).toString()).not.toBe("Invalid Date");
+  expect(new Date(undo.at).toISOString()).toBe(undo.at);
   expect(undo.targetId).toBe(target.targetId);
   expect(undo.kind).toBe("undo");
   expect(undo.reason).toBe(`Undo: ${target.reason}`);
