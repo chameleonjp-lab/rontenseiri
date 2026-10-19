@@ -1,9 +1,10 @@
-import { useMemo, useRef, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import type { Project } from "../domain/types";
 import { useDraftGuard } from "./draft-guard";
 import ManualInterpretations from "./ManualInterpretations";
 import {
   addEvidence,
+  updateEvidence,
   addQuestion,
   addSemanticItem,
   updateSemanticItem,
@@ -152,6 +153,21 @@ export default function ReasoningPanel({
   const itemTextRef = useRef<HTMLTextAreaElement>(null);
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [itemMessage, setItemMessage] = useState("");
+  const [editingEvidenceId, setEditingEvidenceId] = useState<string | null>(
+    null,
+  );
+  const [evidenceEdit, setEvidenceEdit] = useState({
+    note: "",
+    reason: "",
+    ids: [] as string[],
+  });
+  const evidenceEditNoteRef = useRef<HTMLInputElement>(null);
+  const evidenceEditReturnRef = useRef<HTMLButtonElement | null>(null);
+  const [evidenceMessage, setEvidenceMessage] = useState("");
+  useEffect(() => {
+    if (editingEvidenceId) evidenceEditNoteRef.current?.focus();
+    else evidenceEditReturnRef.current?.focus();
+  }, [editingEvidenceId]);
   const [item, setItem] = useState({
     text: "",
     kind: "claim" as ClaimKind,
@@ -172,6 +188,10 @@ export default function ReasoningPanel({
       evidence.reason !== "" ||
       evidence.ids.length > 0 ||
       editingItemId !== null ||
+      editingEvidenceId !== null ||
+      evidenceEdit.note !== "" ||
+      evidenceEdit.reason !== "" ||
+      evidenceEdit.ids.length > 0 ||
       item.text !== "" ||
       item.reason !== "" ||
       item.ids.length > 0 ||
@@ -277,6 +297,28 @@ export default function ReasoningPanel({
       });
     }
   }
+  function submitEvidenceEdit(e: FormEvent) {
+    e.preventDefault();
+    if (!editingEvidenceId) return;
+    if (!evidenceEdit.ids.length)
+      return onError("根拠となる発言を明示選択してください");
+    if (!evidenceEdit.reason.trim())
+      return onError("修正理由を入力してください");
+    const ok = run(() =>
+      updateEvidence(
+        project,
+        editingEvidenceId,
+        { note: evidenceEdit.note, utteranceIds: evidenceEdit.ids },
+        evidenceEdit.reason,
+      ),
+    );
+    if (ok) {
+      onError("");
+      setEvidenceMessage(`根拠 ${editingEvidenceId} を修正しました`);
+      setEditingEvidenceId(null);
+      setEvidenceEdit({ note: "", reason: "", ids: [] });
+    }
+  }
   function submitEvidence(e: FormEvent) {
     e.preventDefault();
     if (!evidence.ids.length)
@@ -288,7 +330,7 @@ export default function ReasoningPanel({
           .filter((id): id is string => Boolean(id)),
       ),
     ];
-    run(() =>
+    const ok = run(() =>
       addEvidence(
         project as ReasoningProject,
         {
@@ -305,7 +347,10 @@ export default function ReasoningPanel({
         evidence.reason,
       ),
     );
-    setEvidence({ note: "", certainty: "uncertain", reason: "", ids: [] });
+    if (ok) {
+      setEvidence({ note: "", certainty: "uncertain", reason: "", ids: [] });
+      setEvidenceMessage("根拠を登録しました");
+    }
   }
   function submitItem(e: FormEvent) {
     e.preventDefault();
@@ -779,6 +824,62 @@ export default function ReasoningPanel({
           </section>
           <section className="reasoning-section">
             <h3>明示根拠と意味項目</h3>
+            <p aria-live="polite">{evidenceMessage}</p>
+            {editingEvidenceId && (
+              <form
+                className="reasoning-form reasoning-inline"
+                aria-label="根拠の修正"
+                onSubmit={submitEvidenceEdit}
+              >
+                <h4>根拠 {editingEvidenceId} を修正</h4>
+                <p className="reasoning-muted">
+                  ID・登録者・確度・対象時点・登録時点は変更できません。
+                </p>
+                <Checks
+                  utterances={[...project.utterances].sort(
+                    (a, b) => a.order - b.order,
+                  )}
+                  ids={evidenceEdit.ids}
+                  setIds={(ids) => setEvidenceEdit({ ...evidenceEdit, ids })}
+                  label="訂正後の根拠発言（全発言から明示選択）"
+                />
+                <label>
+                  注記
+                  <input
+                    ref={evidenceEditNoteRef}
+                    value={evidenceEdit.note}
+                    onChange={(e) =>
+                      setEvidenceEdit({ ...evidenceEdit, note: e.target.value })
+                    }
+                  />
+                </label>
+                <label>
+                  訂正理由
+                  <input
+                    value={evidenceEdit.reason}
+                    onChange={(e) =>
+                      setEvidenceEdit({
+                        ...evidenceEdit,
+                        reason: e.target.value,
+                      })
+                    }
+                    required
+                  />
+                </label>
+                <button className="primary" type="submit">
+                  根拠の修正を保存
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingEvidenceId(null);
+                    setEvidenceEdit({ note: "", reason: "", ids: [] });
+                  }}
+                >
+                  根拠の修正をキャンセル
+                </button>
+              </form>
+            )}
             <form className="reasoning-form" onSubmit={submitEvidence}>
               <h4>根拠を登録</h4>
               <Checks
@@ -830,6 +931,41 @@ export default function ReasoningPanel({
                 根拠を登録
               </button>
             </form>
+            {evidenceList.length === 0 ? (
+              <p className="reasoning-empty">根拠未記録</p>
+            ) : (
+              <div className="reasoning-cards">
+                {evidenceList.map((e) => (
+                  <article className="reasoning-card" key={e.id}>
+                    <strong>{e.id}</strong>
+                    <p>{e.note || "注記なし"}</p>
+                    <p>発言 {e.utteranceIds.join(", ")}</p>
+                    <div className="reasoning-tags">
+                      <span>登録者：{e.actor}</span>
+                      <span>確度：{certaintyLabel[e.certainty]}</span>
+                    </div>
+                    <small>
+                      対象時点 {e.time.asOf} / 登録時点 {e.time.recordedAt}
+                    </small>
+                    <button
+                      type="button"
+                      disabled={editingEvidenceId !== null}
+                      onClick={(event) => {
+                        evidenceEditReturnRef.current = event.currentTarget;
+                        setEditingEvidenceId(e.id);
+                        setEvidenceEdit({
+                          note: e.note ?? "",
+                          reason: "",
+                          ids: [...e.utteranceIds],
+                        });
+                      }}
+                    >
+                      根拠 {e.id} を修正
+                    </button>
+                  </article>
+                ))}
+              </div>
+            )}
             <p aria-live="polite">{itemMessage}</p>
             <form
               className="reasoning-form"

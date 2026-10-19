@@ -13,10 +13,13 @@ export function invalidateDependents(
   project: Project,
   changedUtteranceIds: readonly string[],
   changedSemanticItemIds: readonly string[] = [],
+  changedEvidenceIds: readonly string[] = [],
 ): Project {
   const out = structuredClone(project);
   const changed = new Set(changedUtteranceIds);
-  if (!changed.size && !changedSemanticItemIds.length) return out;
+  const explicitEvidence = new Set(changedEvidenceIds);
+  if (!changed.size && !changedSemanticItemIds.length && !explicitEvidence.size)
+    return out;
 
   const affectedUtterances = new Set(changed);
   let previousSize = -1;
@@ -30,13 +33,13 @@ export function invalidateDependents(
       )
         affectedUtterances.add(relation.to);
     }
-    // Keep semantic-edit mode in every pass: an utterance edge can reach a
-    // new item whose explicit rebuttal has no other shared-source path.
+    // Keep both semantic-edit and evidence-edit modes in every fixed-point pass.
     propagateReasoning(
       out,
       affectedUtterances,
       new Set(),
       new Set(changedSemanticItemIds),
+      explicitEvidence,
     );
   }
 
@@ -84,16 +87,17 @@ function propagateReasoning(
   affectedUtterances: Set<string>,
   initialVersions: Set<string> = new Set(),
   initialItems: Set<string> = new Set(),
+  initialEvidence: Set<string> = new Set(),
 ): void {
   const reasoning = project.reasoning;
   if (!reasoning) return;
 
   const evidenceById = new Map(reasoning.evidence.map((x) => [x.id, x]));
-  const changedEvidence = new Set(
-    reasoning.evidence
-      .filter((x) => x.utteranceIds.some((id) => affectedUtterances.has(id)))
-      .map((x) => x.id),
-  );
+  const changedEvidence = new Set(initialEvidence);
+  for (const id of reasoning.evidence
+    .filter((x) => x.utteranceIds.some((id) => affectedUtterances.has(id)))
+    .map((x) => x.id))
+    changedEvidence.add(id);
   const affectedQuestions = new Set<string>();
   const affectedVersions = new Set(initialVersions);
   const affectedResponses = new Set<string>();
@@ -150,7 +154,7 @@ function propagateReasoning(
         affectedVersions.has(response.questionVersionId) ||
         response.utteranceIds.some((id) => affectedUtterances.has(id)) ||
         response.evidenceIds.some((id) => changedEvidence.has(id)) ||
-        (initialItems.size > 0 &&
+        ((initialItems.size > 0 || initialEvidence.size > 0) &&
           response.counterargumentToClaimIds.some((id) =>
             affectedItems.has(id),
           ))
@@ -177,6 +181,21 @@ function propagateReasoning(
         }
         if (addUtterances(item.utteranceIds)) changed = true;
         if (addEvidence(item.evidenceIds)) changed = true;
+      }
+    }
+    for (const positionChange of reasoning.positionChanges) {
+      if (
+        initialEvidence.size > 0 &&
+        positionChange.triggerEvidenceIds.some((id) => changedEvidence.has(id))
+      ) {
+        if (!affectedItems.has(positionChange.beforeItemId)) {
+          affectedItems.add(positionChange.beforeItemId);
+          changed = true;
+        }
+        if (!affectedItems.has(positionChange.afterItemId)) {
+          affectedItems.add(positionChange.afterItemId);
+          changed = true;
+        }
       }
     }
     for (const interpretation of reasoning.interpretations) {

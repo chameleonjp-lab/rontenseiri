@@ -529,9 +529,6 @@ export function removeManualExclusiveCandidate(
   );
 }
 
-export const createManualInterpretationPair = createManualExclusivePair;
-export const updateManualInterpretationPair = updateManualExclusivePair;
-
 export interface ManualInterpretationPairForm {
   groupId?: string;
   questionVersionId: string;
@@ -644,6 +641,3 @@ export function retractManualInterpretationCandidate(
     interpretationOrReason,
   );
 }
-
-export const retractManualExclusiveCandidate =
-  retractManualInterpretationCandidate;
