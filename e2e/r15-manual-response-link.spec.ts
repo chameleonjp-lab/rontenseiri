@@ -51,11 +51,9 @@ async function nav(page: Page, name: string) {
   await target.click();
 }
 async function agenda(page: Page, p: Project, id: string) {
-  const target = page
-    .locator(".sidebar-agendas")
-    .getByRole("button", {
-      name: new RegExp(p.agendas.find((a) => a.id === id)!.title),
-    });
+  const target = page.locator(".sidebar-agendas").getByRole("button", {
+    name: new RegExp(p.agendas.find((a) => a.id === id)!.title),
+  });
   if (!(await target.isVisible()))
     await page.getByRole("button", { name: "メニュー", exact: true }).click();
   await target.click();
@@ -96,12 +94,10 @@ const graphWithoutAudit = (p: Project) => {
   return graph;
 };
 async function attach(name: string, value: unknown) {
-  await test
-    .info()
-    .attach(name, {
-      body: JSON.stringify(value, null, 2),
-      contentType: "application/json",
-    });
+  await test.info().attach(name, {
+    body: JSON.stringify(value, null, 2),
+    contentType: "application/json",
+  });
 }
 function assertAdded(p: Project, before: Project) {
   expect(p.sources).toEqual(before.sources);
@@ -148,14 +144,12 @@ function assertAdded(p: Project, before: Project) {
 async function visibleStates(page: Page, p: Project, changed: boolean) {
   await nav(page, "議題の流れ");
   for (const a of p.agendas) {
-    const frame = page
-      .locator(".agenda-frame")
-      .filter({
-        has: page.getByRole("button", {
-          name: `${a.id} ${a.title} 議題を選択`,
-          exact: true,
-        }),
-      });
+    const frame = page.locator(".agenda-frame").filter({
+      has: page.getByRole("button", {
+        name: `${a.id} ${a.title} 議題を選択`,
+        exact: true,
+      }),
+    });
     await expect(frame).toHaveCount(1);
     await expect(frame.locator(".agenda-arrival")).toHaveText(
       changed && ["A", "C"].includes(a.id) ? "訂正の影響：要再確認" : a.arrival,
@@ -255,13 +249,11 @@ for (const route of ["direct", "evidence"] as const) {
       await page.setViewportSize({ width, height: 980 });
       const fixture = await manualResponseLinkFixture(route);
       await page.goto("/");
-      await page
-        .locator("input[type=file]")
-        .setInputFiles({
-          name: "missing-response.json",
-          mimeType: "application/json",
-          buffer: Buffer.from(exportProject(fixture, "json", undefined, false)),
-        });
+      await page.locator("input[type=file]").setInputFiles({
+        name: "missing-response.json",
+        mimeType: "application/json",
+        buffer: Buffer.from(exportProject(fixture, "json", undefined, false)),
+      });
       await expect(page.getByRole("status")).toContainText(
         "別コピーとして復元",
       );
