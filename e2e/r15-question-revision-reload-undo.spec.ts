@@ -145,7 +145,26 @@ async function attach(name: string, value: unknown) {
   });
 }
 
-async function preview(page: Page): Promise<Envelope> {
+async function preview(
+  page: Page,
+  saved?: { id: string; revisionCount: number },
+): Promise<Envelope> {
+  if (saved) {
+    // Agenda navigation autosaves too; initial unsaved previews omit this contract.
+    await expect
+      .poll(
+        async () => {
+          const p = await stored(page, saved.id);
+          return {
+            agenda: p?.selectedAgendaId,
+            revisionCount: p?.revisions.length,
+          };
+        },
+        { timeout: 10_000 },
+      )
+      .toEqual({ agenda: "R", revisionCount: saved.revisionCount });
+    await expect(page.locator(".save-state")).toContainText("現在版は保存済み");
+  }
   await page.getByRole("button", { name: "出力", exact: true }).click();
   const dialog = page.getByRole("dialog");
   await dialog.getByLabel("出力範囲").selectOption("all");
@@ -330,7 +349,7 @@ test("R15: 通常UIの問い改版は旧版応答と依存まとめを保存し�
   await reloadAndOpen(page, revised);
   await summaries(page, true);
   await questionUI(page, true);
-  const reloaded = await preview(page);
+  const reloaded = await preview(page, { id: baseline.id, revisionCount: 1 });
   assertRevision(reloaded.project, baseline);
   expect(content(reloaded.project)).toEqual(content(revised));
   await attach("r15-question-reloaded-full-output.json", reloaded);
@@ -356,7 +375,7 @@ test("R15: 通常UIの問い改版は旧版応答と依存まとめを保存し�
   await reloadAndOpen(page, undone);
   await summaries(page, false);
   await questionUI(page, false);
-  const final = await preview(page);
+  const final = await preview(page, { id: baseline.id, revisionCount: 2 });
   expect(content(final.project)).toEqual(content(undone));
   await page.getByRole("button", { name: "訂正履歴", exact: true }).click();
   await expect(
