@@ -55,6 +55,10 @@ test("問い改版と撤回の再確認状態・旧版応答を保存復元しUn
         },
         "回答登録",
       );
+      const linkReview = p.agendas[0].needsReview;
+      // The later question-edit scenario starts after reviewing the newly
+      // registered response; registration itself now invalidates the summary.
+      p.agendas[0].needsReview = false;
       const originalResponse = JSON.stringify(p.reasoning.responses);
       const beforeReview = p.agendas[0].needsReview;
       p = await saveProject({ ...p, saved: true });
@@ -68,6 +72,7 @@ test("問い改版と撤回の再確認状態・旧版応答を保存復元しUn
       const undo = await loadProject(p.id);
       rows.push({
         action,
+        linkReview,
         beforeReview,
         review: restored.agendas[0].needsReview,
         arrival: restored.agendas[0].arrival,
@@ -90,6 +95,7 @@ test("問い改版と撤回の再確認状態・旧版応答を保存復元しUn
   });
   expect(results).toHaveLength(2);
   for (const row of results) {
+    expect(row.linkReview).toBe(true);
     expect(row.beforeReview).toBe(false);
     expect(row.review).toBe(true);
     expect(row.arrival).toBe("元の問いに対する回答要約");
