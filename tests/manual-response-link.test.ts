@@ -6,15 +6,35 @@ import {
 import { linkResponse } from "../src/domain/reasoning";
 import { undoLastRevision } from "../src/domain/revisions";
 import { semanticSnapshot } from "../src/domain/snapshot";
+import { reviseProject } from "../src/domain/project";
+
+async function reviewedFixture(route: "direct" | "evidence") {
+  let p = await manualResponseLinkFixture(route);
+  expect(p.agendas.find((a) => a.id === "B")!.needsReview).toBe(true);
+  for (const id of ["A", "C", "B"]) {
+    const agenda = p.agendas.find((a) => a.id === id)!;
+    p = reviseProject(
+      p,
+      id,
+      {
+        needsReview: false,
+        summaryDependencies: agenda.summaryDependencies ?? agenda.utteranceIds,
+      },
+      `追加前に${id}の整理内容を確認`,
+    );
+  }
+  expect(p.agendas.every((a) => !a.needsReview)).toBe(true);
+  return p;
+}
 
 describe("missing manual response link invalidation", () => {
   it.each(["direct", "evidence"] as const)(
     "%s route invalidates A and downstream C without touching S/B",
     async (route) => {
-      const before = await manualResponseLinkFixture(route);
+      const before = await reviewedFixture(route);
       const frozen = structuredClone(before);
       const value = linkValue(before);
-      expect(before.revisions).toHaveLength(1);
+      expect(before.revisions).toHaveLength(4);
       expect(before.reasoning!.revisions).toHaveLength(1);
       expect(before.reasoning!.evidence.map((e) => e.id)).toEqual(["E1", "E2"]);
       expect(
@@ -28,7 +48,7 @@ describe("missing manual response link invalidation", () => {
         { id: "S", ids: ["U01", "U02", "U04"], deps: [], review: false },
         { id: "A", ids: ["U03"], deps: ["U02"], review: false },
         { id: "C", ids: ["U06"], deps: ["U04"], review: false },
-        { id: "B", ids: ["U05"], deps: undefined, review: false },
+        { id: "B", ids: ["U05"], deps: ["U05"], review: false },
       ]);
       expect(before.reasoning!.items[0].evidenceIds).toEqual(
         route === "evidence" ? ["E1"] : [],
@@ -115,7 +135,7 @@ describe("missing manual response link invalidation", () => {
   it.each(["direct", "evidence"] as const)(
     "%s route stops before C when the final explicit dependency is absent",
     async (route) => {
-      const before = await manualResponseLinkFixture(route);
+      const before = await reviewedFixture(route);
       before.relations = before.relations.filter((r) => r.to !== "U04");
       const linked = linkResponse(
         before,

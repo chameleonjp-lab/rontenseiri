@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { parseInputs } from "../src/input/parse";
-import { createProject, validateProject } from "../src/domain/project";
+import {
+  createProject,
+  reviseProject,
+  validateProject,
+} from "../src/domain/project";
 import {
   addQuestion,
   linkResponse,
@@ -56,9 +60,17 @@ async function fixture(text = "費用は？\n100円です") {
     },
     "回答登録",
   );
-  // This suite starts after the initial response's summary has been reviewed.
-  // Undoing a later question edit must restore that reviewed baseline.
-  p.agendas[0].needsReview = false;
+  // Linking a response invalidates the dependent summary. Establish the clean
+  // baseline through the same bounded project-revision command as the UI's
+  // "確認した整理内容を保存" flow, rather than injecting the flag directly.
+  expect(p.agendas[0].needsReview).toBe(true);
+  p = reviseProject(
+    p,
+    p.agendas[0].id,
+    { needsReview: false },
+    "初回リンク後の要約を通常確認",
+  );
+  expect(p.agendas[0].needsReview).toBe(false);
   return { p, questionId: q.id, versionId: q.currentVersionId };
 }
 

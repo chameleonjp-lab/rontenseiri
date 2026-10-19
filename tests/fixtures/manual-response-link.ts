@@ -179,9 +179,6 @@ export async function manualResponseLinkFixture(
     },
     "既存応答を履歴へ登録",
   );
-  p.agendas.forEach((agenda) => {
-    agenda.needsReview = false;
-  });
   p.relations =
     route === "direct"
       ? [

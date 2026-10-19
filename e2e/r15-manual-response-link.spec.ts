@@ -99,6 +99,67 @@ async function attach(name: string, value: unknown) {
     contentType: "application/json",
   });
 }
+
+async function confirmSummaries(page: Page, initial: Project) {
+  await nav(page, "振り返り");
+  for (const id of ["A", "C", "B"]) {
+    await agenda(page, initial, id);
+    await nav(page, "振り返り");
+    const summary = page.locator(".summary-view");
+    const warning = summary.getByText(WARNING, { exact: true });
+    if (id === "B") await expect(warning).toBeVisible();
+    else await expect(warning).toHaveCount(0);
+    await summary
+      .getByRole("button", { name: "まとめを編集", exact: true })
+      .click();
+    await summary
+      .getByLabel("訂正理由", { exact: true })
+      .fill(`追加前に${id}の整理内容を確認`);
+    await summary
+      .getByRole("button", { name: "確認した整理内容を保存", exact: true })
+      .click();
+    await expect(warning).toHaveCount(0);
+  }
+  await responseState(page, initial);
+  const confirmed = await durable(
+    page,
+    initial.id,
+    initial.revisions.length + 3,
+  );
+  expect(confirmed.agendas.every((a) => !a.needsReview)).toBe(true);
+  expect(confirmed.agendas).toEqual(
+    initial.agendas.map((a) =>
+      ["A", "C", "B"].includes(a.id)
+        ? {
+            ...a,
+            needsReview: false,
+            summaryDependencies: a.summaryDependencies ?? a.utteranceIds,
+          }
+        : a,
+    ),
+  );
+  expect(confirmed.revisions.slice(0, initial.revisions.length)).toEqual(
+    initial.revisions,
+  );
+  expect(
+    confirmed.revisions
+      .slice(-3)
+      .map((r) => ({ target: r.targetId, kind: r.kind, reason: r.reason })),
+  ).toEqual(
+    ["A", "C", "B"].map((id) => ({
+      target: id,
+      kind: "user-revision",
+      reason: `追加前に${id}の整理内容を確認`,
+    })),
+  );
+  expect(confirmed.reasoning).toEqual(initial.reasoning);
+  expect(confirmed.sources).toEqual(initial.sources);
+  expect(confirmed.utterances).toEqual(initial.utterances);
+  expect(confirmed.relations).toEqual(initial.relations);
+  await attach("normally-confirmed-clean-baseline.json", confirmed);
+  return confirmed;
+}
+
 function assertAdded(p: Project, before: Project) {
   expect(p.sources).toEqual(before.sources);
   expect(p.utterances).toEqual(before.utterances);
@@ -257,14 +318,16 @@ for (const route of ["direct", "evidence"] as const) {
       await expect(page.getByRole("status")).toContainText(
         "別コピーとして復元",
       );
-      const baseline = (await preview(page)).project;
-      expect(baseline.agendas).toEqual(fixture.agendas);
-      expect(baseline.reasoning).toEqual(fixture.reasoning);
-      expect(baseline.revisions).toEqual(fixture.revisions);
-      expect(baseline.agendas.every((a) => !a.needsReview)).toBe(true);
+      const initial = (await preview(page)).project;
+      expect(initial.agendas).toEqual(fixture.agendas);
+      expect(initial.reasoning).toEqual(fixture.reasoning);
+      expect(initial.revisions).toEqual(fixture.revisions);
+      expect(initial.agendas.find((a) => a.id === "B")!.needsReview).toBe(true);
       await page
         .getByRole("button", { name: "この端末に保存", exact: true })
         .click();
+      await durable(page, initial.id, initial.revisions.length);
+      const baseline = await confirmSummaries(page, initial);
       const count = baseline.revisions.length;
       await durable(page, baseline.id, count);
       await visibleStates(page, baseline, false);
