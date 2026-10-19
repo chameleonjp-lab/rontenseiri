@@ -97,6 +97,56 @@ describe("R17 bounded semantic-item correction", () => {
     expect(item(out).utteranceIds).toEqual(["U02"]);
   });
 
+  it("keeps semantic rebuttal tracking across utterance dependencies to a newly reached item", async () => {
+    const before = await reviewedSemanticItemFixture();
+    before.relations = [
+      {
+        id: "old-to-intermediate",
+        from: "U02",
+        to: "U03",
+        kind: "derived",
+        dependency: true,
+        evidenceIds: [],
+      },
+    ];
+    before.reasoning!.items.push({
+      ...structuredClone(item(before)),
+      id: "I2",
+      text: "中間の判断",
+      utteranceIds: ["U03"],
+      evidenceIds: [],
+    });
+    const response = before.reasoning!.responses[0];
+    response.counterargumentToClaimIds = ["I2"];
+    response.evidenceIds = [];
+    expect(before.agendas.every((a) => !a.needsReview)).toBe(true);
+    const frozen = structuredClone(before);
+    const out = reasoning.updateSemanticItem(
+      before,
+      "I1",
+      { text: "起点の判断を訂正" },
+      "発言依存の先にある主張への反論も再確認",
+    );
+    expect(out.agendas).toEqual(
+      before.agendas.map((a) =>
+        ["A", "N", "C"].includes(a.id) ? { ...a, needsReview: true } : a,
+      ),
+    );
+    expect(before).toEqual(frozen);
+    expect(out.reasoning!.responses).toEqual(before.reasoning!.responses);
+    expect(out.relations).toEqual(before.relations);
+    expect(out.reasoning!.items.find((x) => x.id === "I2")).toEqual(
+      before.reasoning!.items.find((x) => x.id === "I2"),
+    );
+    const restored = importProject(
+      exportProject(out, "json", undefined, false),
+    );
+    expect(semanticSnapshot(restored)).toEqual(semanticSnapshot(out));
+    expect(semanticSnapshot(undoLastRevision(restored))).toEqual(
+      semanticSnapshot(before),
+    );
+  });
+
   it("preserves identity, certainty, registration time, origin and optional metadata even against runtime patch injection", async () => {
     const before = await reviewedSemanticItemFixture();
     const hostile = {

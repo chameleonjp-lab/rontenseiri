@@ -12,10 +12,11 @@ import type { Project } from "./types";
 export function invalidateDependents(
   project: Project,
   changedUtteranceIds: readonly string[],
+  changedSemanticItemIds: readonly string[] = [],
 ): Project {
   const out = structuredClone(project);
   const changed = new Set(changedUtteranceIds);
-  if (!changed.size) return out;
+  if (!changed.size && !changedSemanticItemIds.length) return out;
 
   const affectedUtterances = new Set(changed);
   let previousSize = -1;
@@ -29,7 +30,14 @@ export function invalidateDependents(
       )
         affectedUtterances.add(relation.to);
     }
-    propagateReasoning(out, affectedUtterances);
+    // Keep semantic-edit mode in every pass: an utterance edge can reach a
+    // new item whose explicit rebuttal has no other shared-source path.
+    propagateReasoning(
+      out,
+      affectedUtterances,
+      new Set(),
+      new Set(changedSemanticItemIds),
+    );
   }
 
   for (const agenda of out.agendas) {
@@ -68,14 +76,7 @@ export function invalidateSemanticItemDependents(
 ): Project {
   const out = structuredClone(project);
   if (!changedItemIds.length || !out.reasoning) return out;
-  const affectedUtterances = new Set<string>();
-  propagateReasoning(
-    out,
-    affectedUtterances,
-    new Set(),
-    new Set(changedItemIds),
-  );
-  return invalidateDependents(out, [...affectedUtterances]);
+  return invalidateDependents(out, [], changedItemIds);
 }
 
 function propagateReasoning(
