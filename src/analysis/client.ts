@@ -179,11 +179,6 @@ export async function analyzeLocally(
         new URL("../workers/analysis.worker.ts", import.meta.url),
         { type: "module" },
       );
-      const chunks = chunkProject(project);
-      if (chunks.length === 0) {
-        worker.terminate();
-        throw new Error("解析対象の発言がありません");
-      }
       return new Promise<ModelSuggestion>((resolve, reject) => {
         let settled = false;
         const finish = (fn: () => void) => {
@@ -220,12 +215,19 @@ export async function analyzeLocally(
               new Error(event.message || "ローカルWorkerで解析に失敗しました"),
             ),
           );
-        worker.postMessage({
-          type: "analyze",
-          modelId,
-          project: { utterances: project.utterances },
-          chunks,
-        });
+        try {
+          const chunks = chunkProject(project);
+          if (chunks.length === 0)
+            throw new Error("解析対象の発言がありません");
+          worker.postMessage({
+            type: "analyze",
+            modelId,
+            project: { utterances: project.utterances },
+            chunks,
+          });
+        } catch (error) {
+          finish(() => reject(error));
+        }
       });
     },
     { ...ownership, signal },

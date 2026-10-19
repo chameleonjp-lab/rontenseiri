@@ -11,6 +11,7 @@ const project = (): Project => sampleProject();
 
 afterEach(() => {
   vi.restoreAllMocks();
+  vi.unstubAllGlobals();
 });
 
 describe("local analysis adapter safety boundaries", () => {
@@ -93,6 +94,128 @@ describe("local analysis adapter safety boundaries", () => {
     );
     controller.abort();
     await expect(pending).rejects.toMatchObject({ name: "AbortError" });
+  });
+
+  it.each(["oversized", "empty"] as const)(
+    "preserves constructor error priority and identity for %s input",
+    async (input) => {
+      const invalidProject = project();
+      invalidProject.utterances =
+        input === "empty"
+          ? []
+          : [
+              {
+                ...invalidProject.utterances[0],
+                quote: "長い発言".repeat(1_000),
+              },
+            ];
+      const constructorError = new Error("Worker constructor failed");
+      const worker = vi.fn(function () {
+        throw constructorError;
+      });
+      vi.stubGlobal("Worker", worker);
+
+      await expect(
+        analyzeLocally(
+          invalidProject,
+          MODEL_OPTIONS[0].id,
+          vi.fn(),
+          new AbortController().signal,
+        ),
+      ).rejects.toBe(constructorError);
+      expect(worker).toHaveBeenCalledOnce();
+    },
+  );
+
+  it.each([
+    ["oversized", "モデル入力上限"],
+    ["empty", "解析対象の発言がありません"],
+  ] as const)(
+    "terminates a worker when %s input validation fails",
+    async (input, message) => {
+      const invalidProject = project();
+      invalidProject.utterances =
+        input === "empty"
+          ? []
+          : [
+              {
+                ...invalidProject.utterances[0],
+                quote: "長い発言".repeat(1_000),
+              },
+            ];
+      const terminate = vi.fn();
+      const postMessage = vi.fn();
+      const worker = vi.fn(function () {
+        return { terminate, postMessage };
+      });
+      vi.stubGlobal("Worker", worker);
+
+      await expect(
+        analyzeLocally(
+          invalidProject,
+          MODEL_OPTIONS[0].id,
+          vi.fn(),
+          new AbortController().signal,
+        ),
+      ).rejects.toThrow(message);
+      expect(worker).toHaveBeenCalledOnce();
+      expect(terminate).toHaveBeenCalledOnce();
+      expect(postMessage).not.toHaveBeenCalled();
+    },
+  );
+
+  it("preserves the original chunking error identity while terminating the worker", async () => {
+    const invalidProject = project();
+    const validationError = new Error("original chunking error");
+    Object.defineProperty(invalidProject.utterances[0], "quote", {
+      get() {
+        throw validationError;
+      },
+    });
+    const terminate = vi.fn();
+    const postMessage = vi.fn();
+    vi.stubGlobal(
+      "Worker",
+      vi.fn(function () {
+        return { terminate, postMessage };
+      }),
+    );
+
+    await expect(
+      analyzeLocally(
+        invalidProject,
+        MODEL_OPTIONS[0].id,
+        vi.fn(),
+        new AbortController().signal,
+      ),
+    ).rejects.toBe(validationError);
+    expect(terminate).toHaveBeenCalledOnce();
+    expect(postMessage).not.toHaveBeenCalled();
+  });
+
+  it("terminates a worker when postMessage throws synchronously", async () => {
+    let instance: { terminate: ReturnType<typeof vi.fn> };
+    const postMessageError = new Error("postMessage failed");
+    class FakeWorker {
+      terminate = vi.fn();
+      postMessage = vi.fn(() => {
+        throw postMessageError;
+      });
+      constructor() {
+        instance = this;
+      }
+    }
+    vi.stubGlobal("Worker", FakeWorker);
+
+    await expect(
+      analyzeLocally(
+        project(),
+        MODEL_OPTIONS[0].id,
+        vi.fn(),
+        new AbortController().signal,
+      ),
+    ).rejects.toBe(postMessageError);
+    expect(instance!.terminate).toHaveBeenCalledOnce();
   });
 
   it("does not call fetch from the UI adapter (only the worker may fetch model artifacts)", async () => {

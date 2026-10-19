@@ -709,7 +709,6 @@ export function resolveLineageTransfer(
   p.updatedAt = now();
   return checked(p);
 }
-export const resolveLineageReference = resolveLineageTransfer;
 
 export function lineageTargetIds(project: Project, recordId: string): string[] {
   const record = project.lineage?.records.find((r) => r.id === recordId);
