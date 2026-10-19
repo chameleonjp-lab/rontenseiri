@@ -6,6 +6,8 @@ import {
   addEvidence,
   addQuestion,
   addSemanticItem,
+  updateSemanticItem,
+  isExclusiveInterpretationItem,
   linkResponse,
   updateResponse,
   removeResponse,
@@ -147,6 +149,9 @@ export default function ReasoningPanel({
     reason: "",
     ids: [] as string[],
   });
+  const itemTextRef = useRef<HTMLTextAreaElement>(null);
+  const [editingItemId, setEditingItemId] = useState<string | null>(null);
+  const [itemMessage, setItemMessage] = useState("");
   const [item, setItem] = useState({
     text: "",
     kind: "claim" as ClaimKind,
@@ -166,6 +171,7 @@ export default function ReasoningPanel({
       evidence.note !== "" ||
       evidence.reason !== "" ||
       evidence.ids.length > 0 ||
+      editingItemId !== null ||
       item.text !== "" ||
       item.reason !== "" ||
       item.ids.length > 0 ||
@@ -305,24 +311,39 @@ export default function ReasoningPanel({
     e.preventDefault();
     if (!item.ids.length)
       return onError("意味項目の発言根拠を明示選択してください");
-    run(() =>
-      addSemanticItem(
-        project as ReasoningProject,
-        {
-          kind: item.kind,
-          text: item.text,
-          utteranceIds: item.ids,
-          evidenceIds: item.evidenceIds,
-          actor: "manual",
-          certainty: item.certainty,
-          time: {
-            asOf: new Date().toISOString(),
-            recordedAt: new Date().toISOString(),
-          },
-        },
-        item.reason,
-      ),
+    const value = {
+      kind: item.kind,
+      text: item.text,
+      utteranceIds: item.ids,
+      evidenceIds: item.evidenceIds,
+    };
+    const ok = run(() =>
+      editingItemId
+        ? updateSemanticItem(project, editingItemId, value, item.reason)
+        : addSemanticItem(
+            project,
+            {
+              ...value,
+              actor: "manual",
+              certainty: item.certainty,
+              time: {
+                asOf: new Date().toISOString(),
+                recordedAt: new Date().toISOString(),
+              },
+            },
+            item.reason,
+          ),
     );
+    if (!ok) return;
+    setItemMessage(
+      editingItemId
+        ? "意味項目を修正しました。依存する振り返りは要再確認です"
+        : "意味項目を登録しました",
+    );
+    resetItem();
+  }
+  function resetItem() {
+    setEditingItemId(null);
     setItem({
       text: "",
       kind: "claim",
@@ -809,11 +830,26 @@ export default function ReasoningPanel({
                 根拠を登録
               </button>
             </form>
-            <form className="reasoning-form" onSubmit={submitItem}>
-              <h4>意味項目を登録</h4>
+            <p aria-live="polite">{itemMessage}</p>
+            <form
+              className="reasoning-form"
+              aria-label="意味項目の編集"
+              onSubmit={submitItem}
+            >
+              <h4>
+                {editingItemId
+                  ? `意味項目を修正：${editingItemId}`
+                  : "意味項目を登録"}
+              </h4>
+              {editingItemId && (
+                <p className="reasoning-muted">
+                  ID・出所・登録時点・確度は保持します。訂正によって本人確認や外部検証が済んだことにはなりません。
+                </p>
+              )}
               <label>
                 内容
                 <textarea
+                  ref={itemTextRef}
                   value={item.text}
                   onChange={(e) => setItem({ ...item, text: e.target.value })}
                   required
@@ -839,6 +875,7 @@ export default function ReasoningPanel({
                   確度
                   <select
                     value={item.certainty}
+                    disabled={editingItemId !== null}
                     onChange={(e) =>
                       setItem({
                         ...item,
@@ -855,7 +892,11 @@ export default function ReasoningPanel({
                 </label>
               </div>
               <Checks
-                utterances={utterances}
+                utterances={
+                  editingItemId
+                    ? [...project.utterances].sort((a, b) => a.order - b.order)
+                    : utterances
+                }
                 ids={item.ids}
                 setIds={(ids) => setItem({ ...item, ids })}
                 label="意味項目の発言根拠（明示選択）"
@@ -887,19 +928,95 @@ export default function ReasoningPanel({
                 />
               </label>
               <button className="primary" type="submit">
-                意味項目を登録
+                {editingItemId ? "意味項目の修正を保存" : "意味項目を登録"}
               </button>
+              {editingItemId && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    resetItem();
+                    itemTextRef.current?.focus();
+                  }}
+                >
+                  意味項目の修正をキャンセル
+                </button>
+              )}
             </form>
             {items.length === 0 ? (
               <p className="reasoning-empty">意味項目未記録</p>
             ) : (
-              <div className="reasoning-items">
+              <div className="reasoning-semantic-items">
                 {items.map((x) => (
-                  <span key={x.id} className={`certainty-${x.certainty}`}>
-                    {claimLabel[x.kind]}：{x.text} · 根拠{" "}
-                    {x.evidenceIds.join(", ") || "未特定"} ·{" "}
-                    {certaintyLabel[x.certainty]}
-                  </span>
+                  <article
+                    key={x.id}
+                    className="reasoning-card"
+                    aria-label={`意味項目 ${x.id}`}
+                  >
+                    <strong>
+                      {claimLabel[x.kind]}：{x.text}
+                    </strong>
+                    <p>
+                      根拠{" "}
+                      {x.evidenceIds.join(", ") ||
+                        "関連未記録（根拠なしとは断定しません）"}
+                    </p>
+                    <div className="reasoning-tags">
+                      <span className={`certainty-${x.certainty}`}>
+                        {certaintyLabel[x.certainty]}
+                      </span>
+                    </div>
+                    <small>
+                      出所：
+                      {x.actor === "manual"
+                        ? "手動登録"
+                        : "利用者登録（身元未検証）"}{" "}
+                      / 登録時点 {x.time.recordedAt} / 対象時点 {x.time.asOf}
+                    </small>
+                    {x.utteranceIds.map((id) => (
+                      <button
+                        key={id}
+                        type="button"
+                        onClick={() => onSelect(id)}
+                      >
+                        発言 {id} の原文へ
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      disabled={isExclusiveInterpretationItem(project, x.id)}
+                      onClick={() => {
+                        if (
+                          (editingItemId !== null ||
+                            item.text ||
+                            item.reason ||
+                            item.ids.length ||
+                            item.evidenceIds.length) &&
+                          !window.confirm(
+                            "未適用の意味項目の下書きを破棄して修正対象を切り替えますか？",
+                          )
+                        )
+                          return;
+                        setEditingItemId(x.id);
+                        setItemMessage("");
+                        setItem({
+                          text: x.text,
+                          kind: x.kind,
+                          certainty: x.certainty,
+                          reason: "",
+                          ids: [...x.utteranceIds],
+                          evidenceIds: [...x.evidenceIds],
+                        });
+                        itemTextRef.current?.focus();
+                      }}
+                    >
+                      意味項目 {x.id} を修正
+                    </button>
+                    {isExclusiveInterpretationItem(project, x.id) && (
+                      <small>
+                        排他的解釈の前提・結論は解釈候補の専用編集を使ってください。
+                      </small>
+                    )}
+                  </article>
                 ))}
               </div>
             )}

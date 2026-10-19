@@ -4,6 +4,7 @@ import { validateReasoning } from "./reasoning-validation";
 import {
   invalidateDependents,
   invalidateReasoningDependents,
+  invalidateSemanticItemDependents,
 } from "./invalidation";
 import type {
   ReasoningGraph,
@@ -54,6 +55,7 @@ function commit(
   reason: string,
   changedQuestionVersionIds: readonly string[] = [],
   changedResponseUtteranceIds: readonly string[] = [],
+  changedSemanticItemIds: readonly string[] = [],
 ): ReasoningProject {
   requireText(reason, "reason");
   let out = clone(p);
@@ -65,6 +67,8 @@ function commit(
       out,
       changedQuestionVersionIds,
     ) as ReasoningProject;
+  if (changedSemanticItemIds.length)
+    out = invalidateSemanticItemDependents(out, changedSemanticItemIds);
   const revision: Revision = {
     id: id("revision"),
     at: now(),
@@ -198,6 +202,67 @@ export function addSemanticItem(
   g.items.push(x);
   return commit(p, b, g, x.id, "semantic-item-created", reason);
 }
+
+/** Atomic A/B interpretation items must remain on their dedicated editor. */
+export function isExclusiveInterpretationItem(
+  project: Project,
+  itemId: string,
+): boolean {
+  return (
+    project.reasoning?.interpretations.some(
+      (i) =>
+        i.manualExclusive === true &&
+        [...i.premiseItemIds, ...i.conclusionItemIds].includes(itemId),
+    ) ?? false
+  );
+}
+
+/** Correct content/grounding without changing identity, origin, time or certainty. */
+export function updateSemanticItem(
+  project: ReasoningProject,
+  itemId: string,
+  patch: Partial<
+    Pick<
+      ReasoningGraph["items"][number],
+      "kind" | "text" | "utteranceIds" | "evidenceIds"
+    >
+  >,
+  reason: string,
+): ReasoningProject {
+  const p = checked(project),
+    before = graph(p),
+    after = graph(p);
+  const item = after.items.find((x) => x.id === itemId);
+  if (!item) throw new Error("semantic item not found");
+  if (isExclusiveInterpretationItem(p, itemId))
+    throw new Error(
+      "排他的解釈の前提・結論は解釈候補の専用編集を使ってください",
+    );
+  const oldIds = [...item.utteranceIds];
+  for (const key of ["kind", "text", "utteranceIds", "evidenceIds"] as const) {
+    if (Object.prototype.hasOwnProperty.call(patch, key))
+      Object.assign(item, {
+        [key]:
+          key === "text"
+            ? requireText(patch.text!, "item text")
+            : clone(patch[key]),
+      });
+  }
+  if (!item.utteranceIds?.length)
+    throw new Error("semantic item utterance required");
+  return commit(
+    p,
+    before,
+    after,
+    itemId,
+    "semantic-item-updated",
+    reason,
+    [],
+    [...new Set([...oldIds, ...item.utteranceIds])],
+    [itemId],
+  );
+}
+
 export function linkResponse(
   project: ReasoningProject,
   value: Omit<ReasoningGraph["responses"][number], "id">,

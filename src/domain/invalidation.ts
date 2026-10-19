@@ -61,10 +61,28 @@ export function invalidateReasoningDependents(
   return invalidateDependents(out, [...affectedUtterances]);
 }
 
+/** A semantic edit also affects explicit rebuttals, even without a shared source. */
+export function invalidateSemanticItemDependents(
+  project: Project,
+  changedItemIds: readonly string[],
+): Project {
+  const out = structuredClone(project);
+  if (!changedItemIds.length || !out.reasoning) return out;
+  const affectedUtterances = new Set<string>();
+  propagateReasoning(
+    out,
+    affectedUtterances,
+    new Set(),
+    new Set(changedItemIds),
+  );
+  return invalidateDependents(out, [...affectedUtterances]);
+}
+
 function propagateReasoning(
   project: Project,
   affectedUtterances: Set<string>,
   initialVersions: Set<string> = new Set(),
+  initialItems: Set<string> = new Set(),
 ): void {
   const reasoning = project.reasoning;
   if (!reasoning) return;
@@ -78,7 +96,7 @@ function propagateReasoning(
   const affectedQuestions = new Set<string>();
   const affectedVersions = new Set(initialVersions);
   const affectedResponses = new Set<string>();
-  const affectedItems = new Set<string>();
+  const affectedItems = new Set(initialItems);
   const affectedInterpretations = new Set<string>();
 
   const addUtterances = (ids: readonly string[]) => {
@@ -130,7 +148,11 @@ function propagateReasoning(
       if (
         affectedVersions.has(response.questionVersionId) ||
         response.utteranceIds.some((id) => affectedUtterances.has(id)) ||
-        response.evidenceIds.some((id) => changedEvidence.has(id))
+        response.evidenceIds.some((id) => changedEvidence.has(id)) ||
+        (initialItems.size > 0 &&
+          response.counterargumentToClaimIds.some((id) =>
+            affectedItems.has(id),
+          ))
       ) {
         if (!affectedResponses.has(response.id)) {
           affectedResponses.add(response.id);
