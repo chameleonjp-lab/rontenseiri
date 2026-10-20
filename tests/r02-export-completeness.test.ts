@@ -101,4 +101,33 @@ describe("R02 exported record scope", () => {
     expect(height).toBeGreaterThan(shift + 300);
     expect(svg).toMatch(/<g transform="translate\(0,\d+\)">/);
   });
+  it("SVG displays XML-forbidden characters explicitly without changing JSON or input", () => {
+    const project = sampleProject();
+    project.omissions = [
+      {
+        id: "gap",
+        description: "前\u0000後😀",
+        reason: "理由\u000b続き",
+        location: "位置\ud800\ufffe\uffff",
+      },
+    ];
+    const before = JSON.stringify(project);
+    const jsonBefore = exportProject(project, "json");
+    const svg = exportProject(project, "svg");
+    for (const marker of [
+      "[U+0000]",
+      "[U+000B]",
+      "[U+D800]",
+      "[U+FFFE]",
+      "[U+FFFF]",
+    ])
+      expect(svg).toContain(marker);
+    expect(svg).not.toMatch(
+      /[\u0000-\u0008\u000b\u000c\u000e-\u001f\ud800-\udfff\ufffe\uffff]/u,
+    );
+    expect(svg).toContain("😀");
+    expect(svg).toContain("制御文字などは[U+XXXX]表記");
+    expect(exportProject(project, "json")).toBe(jsonBefore);
+    expect(JSON.stringify(project)).toBe(before);
+  });
 });
