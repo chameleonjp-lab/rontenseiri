@@ -43,7 +43,7 @@ jobs:
           persist-credentials: false
       - name: Distribution review gate (no manual bypass)
         run: |
-          echo '::error::Release-specific embedded native/WASM attribution is not yet verified. This workflow is intentionally blocked. Resolve and review the notices and this gate in a follow-up PR before deployment.'
+          echo '::error::Application source, asset provenance and commercial-use rights review is pending. The native/runtime notice addendum does not constitute full-app clearance. This workflow remains intentionally blocked until the distribution review and this gate are explicitly reviewed before deployment.'
           exit 1
       - uses: actions/setup-node@v4
         with:
