@@ -17,10 +17,12 @@ function prf(gold: any[], prediction: any[]) {
   const expected = set(gold);
   const actual = set(prediction);
   const tp = [...actual].filter((item) => expected.has(item)).length;
-  const precision = actual.size ? tp / actual.size : expected.size ? 0 : 1;
-  const recall = expected.size ? tp / expected.size : actual.size ? 0 : 1;
+  const precision = actual.size ? tp / actual.size : expected.size ? 0 : null;
+  const recall = expected.size ? tp / expected.size : actual.size ? 0 : null;
   const f1 =
-    precision + recall ? (2 * precision * recall) / (precision + recall) : 1;
+    expected.size + actual.size
+      ? (2 * tp) / (expected.size + actual.size)
+      : null;
   return {
     precision: finite(precision),
     recall: finite(recall),
@@ -29,6 +31,10 @@ function prf(gold: any[], prediction: any[]) {
     expected: expected.size,
     predicted: actual.size,
   };
+}
+
+function setMetric(score: ReturnType<typeof prf>) {
+  return metric(score.f1 === null ? "not-run" : "measured", score);
 }
 
 function answerSet(value: any): any[] {
@@ -73,14 +79,17 @@ function sourceRetention(caseGold: any, prediction: any) {
   };
 }
 
-function meaningReflection(caseGold: any, prediction: any) {
+function meaningGoldRecall(caseGold: any, prediction: any) {
   const expected = arr(caseGold?.summaryMeaning);
   const actual = arr(prediction?.summaryMeaning ?? prediction?.meaningUnits);
   const score = prf(expected, actual);
   return {
     ...score,
-    goldUnits: expected.length,
-    predictionUnits: actual.length,
+    recall: score.expected ? score.recall : null,
+    goldUnits: score.expected,
+    predictionUnits: score.predicted,
+    basis: "gold-string-set-recall-proxy",
+    officialR27: false,
   };
 }
 
@@ -187,19 +196,17 @@ export function evaluateCase(caseData: any, prediction?: any) {
   const gold = caseData.gold;
   const features: any = {};
   if (observed(prediction, "questions"))
-    features.questions = metric(
-      "measured",
+    features.questions = setMetric(
       prf(caseData.questions, prediction.questions),
     );
   else features.questions = metric("not-run");
   if (observed(prediction, "answers"))
-    features.answers = metric(
-      "measured",
+    features.answers = setMetric(
       prf(answerSet(gold.answers), answerSet(prediction.answers)),
     );
   else features.answers = metric("not-run");
   if (observed(prediction, "evidenceRefs"))
-    features.evidence = metric("measured", evidence(gold, prediction));
+    features.evidence = setMetric(evidence(gold, prediction));
   else features.evidence = metric("not-run");
   if (observed(prediction, "sourceUtteranceIds")) {
     const source = sourceRetention(gold, prediction);
@@ -209,12 +216,17 @@ export function evaluateCase(caseData: any, prediction?: any) {
     observed(prediction, "summaryMeaning") ||
     observed(prediction, "meaningUnits")
   ) {
-    features.meaningReflectionRate = metric(
-      "measured",
-      meaningReflection(gold, prediction).f1,
-      meaningReflection(gold, prediction),
+    const score = meaningGoldRecall(gold, prediction);
+    features.meaningGoldRecall = metric(
+      score.expected ? "measured" : "not-run",
+      score.expected ? score.recall : null,
+      score,
     );
-  } else features.meaningReflectionRate = metric("not-run");
+  } else
+    features.meaningGoldRecall = metric("not-run", null, {
+      basis: "gold-string-set-recall-proxy",
+      officialR27: false,
+    });
   features.safety = safety(gold, prediction);
   features.functionScores = {
     interpretations: metric("not-run"),
@@ -230,11 +242,15 @@ export function evaluateCase(caseData: any, prediction?: any) {
   };
 }
 
-function average(results: any[], path: string): number | null {
+function average(
+  results: any[],
+  path: string,
+  field: "f1" | "recall" | "value",
+): number | null {
   const values = results
     .map((result) => path.split(".").reduce((x, k) => x?.[k], result))
-    .filter((x) => x?.status === "measured" && Number.isFinite(x.f1 ?? x.value))
-    .map((x) => x.f1 ?? x.value);
+    .filter((x) => x?.status === "measured" && Number.isFinite(x[field]))
+    .map((x) => x[field]);
   return values.length
     ? finite(values.reduce((a, b) => a + b, 0) / values.length)
     : null;
@@ -295,8 +311,8 @@ export function evaluateSuite(dataset: any, predictions: any[] = []) {
     (result) => result.status === "measured",
   );
   const aggregate = {
-    questionF1: average(results, "features.questions"),
-    answerF1: average(results, "features.answers"),
+    questionF1: average(results, "features.questions", "f1"),
+    answerF1: average(results, "features.answers", "f1"),
     evidenceExactRate: (() => {
       const values = results.filter(
         (r) => r.features.evidence?.status === "measured",
@@ -305,19 +321,25 @@ export function evaluateSuite(dataset: any, predictions: any[] = []) {
         ? values.filter((r) => r.features.evidence.exact).length / values.length
         : null;
     })(),
-    sourceRetentionRate: average(results, "features.sourceRetentionRate"),
-    meaningReflectionRate: average(results, "features.meaningReflectionRate"),
+    sourceRetentionRate: average(
+      results,
+      "features.sourceRetentionRate",
+      "value",
+    ),
+    meaningGoldRecall: average(results, "features.meaningGoldRecall", "recall"),
+    meaningGoldF1: average(results, "features.meaningGoldRecall", "f1"),
     safetyFailures: measuredResults.filter((r) => !r.features.safety.pass)
       .length,
   };
   return {
-    schemaVersion: "evaluation-result-v2",
+    schemaVersion: "evaluation-result-v3",
     status: errors.length || !measuredResults.length ? "not-run" : "measured",
     provenance: dataset?.provenance ?? null,
     caseCount: cases.length,
     measuredCaseCount: measuredResults.length,
     notRun: [
       "missing prediction cases/functions",
+      "formal R27 important-utterance semantic reflection",
       "semantic meaning quality beyond gold-string agreement",
       "interpretations/stance changes",
       "G4 performance",
@@ -333,8 +355,10 @@ export function evaluateSuite(dataset: any, predictions: any[] = []) {
     fairness,
     results,
     limitations: [
-      "空予測・欠損項目はnot-runであり、分母・平均に含めない",
-      "sourceRetentionRateは原文範囲の到達性、meaningReflectionRateはsummaryMeaningのgold一致であり、IDリンクcoverageを意味品質とは称さない",
+      "予測未提出・欠損項目はnot-runで分母・平均に含めない。goldがある空配列予測は0として測定する",
+      "sourceRetentionRateは原文範囲の到達性、meaningGoldRecallはsummaryMeaningのgold文字列集合一致の再現率代理指標であり、正式R27の意味反映率ではない",
+      "正式R27には重要発言単位の人手意味採点と根拠確認が必要で、構造への反映・まとめでの保持を別に測る。文字列一致やIDリンクcoverageは代替しない",
+      "meaningGoldRecallと補助meaningGoldF1の集計は測定caseの単純平均。gold意味単位0件はnot-run、欠損caseは別途照合が必要",
       "安全性は観測できる合意・確定主張のみを検出し、意味判断はnot-run",
       "selftest・schema照合・gold複製はAI品質合格や実モデル実績を意味しない",
     ],
@@ -347,7 +371,7 @@ function display(value: any, suffix = ""): string {
     : "not-run";
 }
 export function renderEvaluationMarkdown(result: any) {
-  return `# Evaluation result\n\n- Status: **${result.status}**\n- Cases: ${result.caseCount} (${result.measuredCaseCount} measured)\n- Question F1: ${display(result.aggregate.questionF1)}\n- Answer F1: ${display(result.aggregate.answerF1)}\n- Exact evidence consistency: ${display(result.aggregate.evidenceExactRate, "%")}\n- Source retention (separate): ${display(result.aggregate.sourceRetentionRate)}\n- Meaning reflection against gold (separate): ${display(result.aggregate.meaningReflectionRate)}\n- Safety failures: ${result.aggregate.safetyFailures}\n\n## Fairness pairs\n${
+  return `# Evaluation result\n\n- Status: **${result.status}**\n- Cases: ${result.caseCount} (${result.measuredCaseCount} measured)\n- Question F1: ${display(result.aggregate.questionF1)}\n- Answer F1: ${display(result.aggregate.answerF1)}\n- Exact evidence consistency: ${display(result.aggregate.evidenceExactRate, "%")}\n- Source retention (separate): ${display(result.aggregate.sourceRetentionRate)}\n- Meaning gold-string recall (proxy): ${display(result.aggregate.meaningGoldRecall)}\n- Meaning gold-string F1 (supplementary): ${display(result.aggregate.meaningGoldF1)}\n- Formal R27 semantic reflection: not-run\n- Safety failures: ${result.aggregate.safetyFailures}\n\n## Fairness pairs\n${
     Object.entries(result.fairness)
       .map(
         ([key, value]: any) =>
