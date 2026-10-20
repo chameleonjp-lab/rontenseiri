@@ -23,7 +23,7 @@
 | ADR-012 | 分割／統合はlineageと明示関係移送を保存し、Undoは共通snapshotにする | 部分実装 | lineage validation、snapshot Undo、integration testあり。全衝突UI未完了 |
 | ADR-013 | 混合依存の無効化はfixed pointまで反復し、許可DTOだけをexportする | 部分実装 | invalidation／export allowlistあり。長期互換性・全依存品質未検証 |
 | ADR-014 | 解析sessionは停止・再開とsource hash付きcheckpointを持つ | 部分実装 | `analysis/session.ts`。現Worker/UIへの完全統合、実機復旧未了 |
-| ADR-015 | 解析所有権はWeb Locks必須、取得不能はfail-closed | 部分実装 | `analysis/ownership.ts`。複数タブ実機と資源上限は未検証 |
+| ADR-015 | 解析所有権はWeb Locks必須、取得不能はfail-closed | 部分実装 | `analysis/ownership.ts`。期限切れ／取消は作業signalをAbortするが、実作業のcleanupと`release()`完了前にLockをhandoffしない。複数タブ実機と資源上限は未検証 |
 | ADR-016 | オフライン準備は明示操作時のみ、静的アセットをcontent hash／scope確認してcache | 部分実装 | ReadinessPanel、production offline 1件。本文・DB・モデルはcacheしない |
 | ADR-017 | 21架空日本語ケースを固定し、実モデル予測0件はnot-runとして分母から除外 | 採用 | `evals/cases.json`, `evaluation-empty.*`。品質・公平性・G8は未測定 |
 

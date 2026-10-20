@@ -105,8 +105,9 @@ export async function runLocalTransport(
   const id = localRunId(snapshot);
   const owner = crypto.randomUUID(); // A new generation for every start/resume attempt.
   return withAnalysisOwnership(
-    async () => {
-      if (signal.aborted) throw new DOMException("cancelled", "AbortError");
+    async (lease) => {
+      if (lease.signal.aborted)
+        throw new DOMException("cancelled", "AbortError");
       const existing = await readLocalRun(id);
       const runId = existing?.runId ?? crypto.randomUUID();
       const workerController = new AbortController();
@@ -160,7 +161,7 @@ export async function runLocalTransport(
               },
               saveSignal,
             );
-            if (!signal.aborted)
+            if (!lease.signal.aborted)
               onRecord({
                 id,
                 runId,
@@ -179,19 +180,20 @@ export async function runLocalTransport(
         session.cancel();
         workerController.abort();
       };
-      signal.addEventListener("abort", cancel, { once: true });
-      if (signal.aborted) cancel();
+      lease.signal.addEventListener("abort", cancel, { once: true });
+      if (lease.signal.aborted) cancel();
       const publish = (state: LocalRunRecord["state"], error?: string) =>
         writeLocalRun(
           id,
           owner,
           (record) => ({ ...record, state, error }),
-          state === "completed" ? signal : undefined,
+          state === "completed" ? lease.signal : undefined,
         );
       try {
         // Pure validation first. A mismatch/corrupt prefix leaves the entire DB record unchanged.
         await session.inspectCheckpoint(existing?.checkpoint);
-        if (signal.aborted) throw new DOMException("cancelled", "AbortError");
+        if (lease.signal.aborted)
+          throw new DOMException("cancelled", "AbortError");
         const fingerprint = await session.fingerprint;
         if (existing)
           assertLocalRunRecord(existing, {
@@ -206,7 +208,8 @@ export async function runLocalTransport(
           expected: existing ?? null,
         });
         claimed = true;
-        if (signal.aborted) throw new DOMException("cancelled", "AbortError");
+        if (lease.signal.aborted)
+          throw new DOMException("cancelled", "AbortError");
         onRecord({
           id,
           runId,
@@ -223,7 +226,7 @@ export async function runLocalTransport(
           scenario,
           workerController.signal,
         );
-        const result = await session.run(signal);
+        const result = await session.run(lease.signal);
         // This transport-only UI has no partial-result presentation or resume policy.
         // Never publish a future partial adapter response as a completed run.
         if (result.status !== "complete")
@@ -233,7 +236,7 @@ export async function runLocalTransport(
         await publish("completed");
       } catch (error) {
         const cancelled =
-          signal.aborted ||
+          lease.signal.aborted ||
           (error instanceof DOMException && error.name === "AbortError");
         if (claimed)
           await publish(
@@ -242,7 +245,7 @@ export async function runLocalTransport(
           );
         throw error;
       } finally {
-        signal.removeEventListener("abort", cancel);
+        lease.signal.removeEventListener("abort", cancel);
         transport?.dispose();
       }
     },

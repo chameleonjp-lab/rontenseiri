@@ -168,28 +168,25 @@ export async function analyzeLocally(
   if (signal.aborted)
     throw new DOMException("解析を中止しました", "AbortError");
   return withAnalysisOwnership(
-    async () => {
-      if (signal.aborted)
+    async (lease) => {
+      if (lease.signal.aborted)
         throw new DOMException("解析を中止しました", "AbortError");
       if (typeof Worker === "undefined")
         throw new Error(
           "Workerを利用できない環境です。AI解析は未提供で、手動整理のみ利用できます。",
         );
+      const chunks = chunkProject(project);
+      if (chunks.length === 0) throw new Error("解析対象の発言がありません");
       const worker = new Worker(
         new URL("../workers/analysis.worker.ts", import.meta.url),
         { type: "module" },
       );
-      const chunks = chunkProject(project);
-      if (chunks.length === 0) {
-        worker.terminate();
-        throw new Error("解析対象の発言がありません");
-      }
       return new Promise<ModelSuggestion>((resolve, reject) => {
         let settled = false;
         const finish = (fn: () => void) => {
           if (settled) return;
           settled = true;
-          signal.removeEventListener("abort", abort);
+          lease.signal.removeEventListener("abort", abort);
           worker.terminate();
           fn();
         };
@@ -197,8 +194,9 @@ export async function analyzeLocally(
           finish(() =>
             reject(new DOMException("解析を中止しました", "AbortError")),
           );
-        signal.addEventListener("abort", abort, { once: true });
+        lease.signal.addEventListener("abort", abort, { once: true });
         worker.onmessage = (event: MessageEvent<WorkerReply>) => {
+          if (settled || lease.signal.aborted) return;
           const message = event.data;
           if (message.type === "progress") onProgress(message.text);
           else if (message.type === "error")
@@ -220,12 +218,16 @@ export async function analyzeLocally(
               new Error(event.message || "ローカルWorkerで解析に失敗しました"),
             ),
           );
-        worker.postMessage({
-          type: "analyze",
-          modelId,
-          project: { utterances: project.utterances },
-          chunks,
-        });
+        try {
+          worker.postMessage({
+            type: "analyze",
+            modelId,
+            project: { utterances: project.utterances },
+            chunks,
+          });
+        } catch (error) {
+          finish(() => reject(error));
+        }
       });
     },
     { ...ownership, signal },
