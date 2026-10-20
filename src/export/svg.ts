@@ -1,3 +1,4 @@
+import { completenessLines } from "./completeness";
 import { relationLabel } from "../domain/relation-label";
 import type { Project } from "../domain/types";
 import { labels } from "../domain/types";
@@ -21,6 +22,7 @@ const color = {
 export function projectSvg(
   project: Project,
   names?: Map<string, string>,
+  limited = false,
 ): string {
   const layout = layoutProject(project);
   const nodes = new Map(layout.nodes.map((n) => [n.id, n]));
@@ -30,6 +32,24 @@ export function projectSvg(
   const maxX = Math.max(400, ...layout.blocks.map((b) => b.x + b.width)) + 20;
   const maxY = Math.max(300, ...layout.blocks.map((b) => b.y + b.height)) + 20;
   const width = maxX - minX;
+  const reportLines = completenessLines(project, limited).flatMap((line) =>
+    line.split(/\r\n|\r|\n/).flatMap((paragraph) => {
+      const chars = Array.from(paragraph);
+      const wrapped: string[] = [];
+      const columns = Math.max(1, Math.floor((width - 32) / 14));
+      for (let i = 0; i < chars.length; i += columns)
+        wrapped.push(chars.slice(i, i + columns).join(""));
+      return wrapped.length ? wrapped : [""];
+    }),
+  );
+  const headerHeight = reportLines.length * 22 + 24;
+  const canvasHeight = maxY + headerHeight;
+  const report = reportLines
+    .map(
+      (line, index) =>
+        `<text x="${minX + 16}" y="${24 + index * 22}" font-size="14" fill="#234653">${esc(line)}</text>`,
+    )
+    .join("");
   const frames = layout.blocks
     .map((b) => {
       const agenda = project.agendas.find((a) => a.id === b.agendaId)!;
@@ -64,5 +84,5 @@ export function projectSvg(
       return `<g><title>${esc(`${u.id} ${speaker}: ${u.quote}`)}</title><rect x="${n.x}" y="${n.y}" width="225" height="96" rx="9" fill="white" stroke="${color[u.classification]}"/><text x="${n.x + 12}" y="${n.y + 22}" font-size="11" fill="#546e78">${esc(`${u.id} · ${speaker}`)}</text><text x="${n.x + 12}" y="${n.y + 46}" font-size="11" fill="#234653">${lines.map((line, i) => `<tspan x="${n.x + 12}" dy="${i ? 19 : 0}">${esc(line)}</tspan>`).join("")}</text><text x="${n.x + 12}" y="${n.y + 84}" font-size="11" fill="${color[u.classification]}">${esc(labels.classification[u.classification])} · 原文ID ${esc(u.id)}</text></g>`;
     })
     .join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="${Math.ceil((1200 * maxY) / width)}" viewBox="${minX} 0 ${width} ${maxY}" role="img" aria-label="${esc(project.title)}"><title>${esc(project.title)} — 発言順は左から右。本文の全文は各要素のtitle、またはJSON/Markdownで確認できます。</title><rect x="${minX}" width="${width}" height="${maxY}" fill="#edf4f6"/>${frames}${edges}${cards}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="${Math.ceil((1200 * canvasHeight) / width)}" viewBox="${minX} 0 ${width} ${canvasHeight}" role="img" aria-label="${esc(project.title)}"><title>${esc(project.title)} — 発言順は左から右。本文の全文は各要素のtitle、またはJSON/Markdownで確認できます。</title><rect x="${minX}" width="${width}" height="${canvasHeight}" fill="#edf4f6"/>${report}<g transform="translate(0,${headerHeight})">${frames}${edges}${cards}</g></svg>`;
 }
