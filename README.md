@@ -15,13 +15,13 @@ npm run dev
 
 表示されたローカルURLを開き、「サンプルを見てみる」で架空の会話を確認できます。「新しく始める」ではUTF-8のTXT・MD・SRT・VTTとテキスト貼り付けに対応します。初期状態は未整理です。
 
-追加予定の親ブランチスクリプト（現時点ではpackage.jsonへ未追加）:
+利用できる補助スクリプト（2026-10-20確認、main `b0de54d1510832189cc7840749cfc66b50bdc4e6` のpackage.jsonに実在。スクリプトの存在は品質ゲート合格ではありません）:
 
 ```sh
 npm run test:offline   # production静的shellの明示オフライン準備
 npm run benchmark      # Node/Linuxのソフトウェア計測
 npm run evaluate       # 21架空日本語ケース（実モデル予測がないためnot-run）
-npm run check:format   # 親でscripts/publicも対象へ追加予定
+npm run check:format   # src/tests/e2e/scripts/public等の整形検査
 ```
 
 ## できること
@@ -59,7 +59,7 @@ npx playwright install --with-deps chromium
 npm run test:e2e
 ```
 
-単体・回帰は計100件（文書実験10件を含む）がローカルで通過。公開版は同一SHAのCI artifact（verified-sha.txtとe2e-results.json）を正本とします。50,000文字・500ノードの表示／パンと、選択・検索・折り畳み各100回のp95≤200msは別の検証です。実機未測定・未達はG5未合格のままです。Node/Linux入出力benchmarkもG4/G5合格を意味しません。架空日本語評価21ケースは実予測0件でnot-runです。
+旧基盤時点の単体・回帰100件（文書実験10件を含む）のローカル通過は履歴値で、現在headの総数ではありません。公開版は同一SHAのCI artifact（verified-sha.txtとe2e-results.json）を正本とします。50,000文字・500ノードの表示／パンと、選択・検索・折り畳み各100回のp95≤200msは別の検証です。実機未測定・未達はG5未合格のままです。Node/Linux入出力benchmarkもG4/G5合格を意味しません。架空日本語評価21ケースは実予測0件でnot-runです。
 
 ## まだできないこと・未確認事項
 
@@ -76,6 +76,7 @@ AI品質・モデル取得量・日本語品質、Mac／Windows／iPhone実機�
 - [要件ごとの実装状況・未達ゲート](docs/evaluation/requirements-status.md)
 - [実装検証結果と公開条件](docs/evaluation/implementation-review.md)
 - [アーキテクチャ判断記録](docs/architecture/decisions.md)
+- [v0.4残項目の詳細実行手順・受入証跡・承認境界](docs/development/v04-residual-execution-runbook.md)（mainの確認日/SHAとstack-onlyを区別。旧台帳だけで未実装と判定しない）
 
 ### 保存と再開の受入境界
 
