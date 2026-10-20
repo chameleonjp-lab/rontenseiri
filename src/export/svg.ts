@@ -3,8 +3,16 @@ import { relationLabel } from "../domain/relation-label";
 import type { Project } from "../domain/types";
 import { labels } from "../domain/types";
 import { layoutProject } from "../domain/layout";
-const esc = (text: string) =>
+// XML 1.0 cannot represent these characters, even as numeric entities.
+// Only the SVG view is transformed; source data and lossless JSON stay intact.
+const visibleXmlText = (text: string) =>
   text.replace(
+    /[\u0000-\u0008\u000b\u000c\u000e-\u001f\ud800-\udfff\ufffe\uffff]/gu,
+    (character) =>
+      `[U+${character.codePointAt(0)!.toString(16).toUpperCase().padStart(4, "0")}]`,
+  );
+const esc = (text: string) =>
+  visibleXmlText(text).replace(
     /[&<>"']/g,
     (c) =>
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[
@@ -32,16 +40,21 @@ export function projectSvg(
   const maxX = Math.max(400, ...layout.blocks.map((b) => b.x + b.width)) + 20;
   const maxY = Math.max(300, ...layout.blocks.map((b) => b.y + b.height)) + 20;
   const width = maxX - minX;
-  const reportLines = completenessLines(project, limited).flatMap((line) =>
-    line.split(/\r\n|\r|\n/).flatMap((paragraph) => {
-      const chars = Array.from(paragraph);
-      const wrapped: string[] = [];
-      const columns = Math.max(1, Math.floor((width - 32) / 14));
-      for (let i = 0; i < chars.length; i += columns)
-        wrapped.push(chars.slice(i, i + columns).join(""));
-      return wrapped.length ? wrapped : [""];
-    }),
-  );
+  const reportLines = [
+    ...completenessLines(project, limited),
+    "SVGで表示できない制御文字などは[U+XXXX]表記。元の文字は完全JSONに保持されます。",
+  ]
+    .map(visibleXmlText)
+    .flatMap((line) =>
+      line.split(/\r\n|\r|\n/).flatMap((paragraph) => {
+        const chars = Array.from(paragraph);
+        const wrapped: string[] = [];
+        const columns = Math.max(1, Math.floor((width - 32) / 14));
+        for (let i = 0; i < chars.length; i += columns)
+          wrapped.push(chars.slice(i, i + columns).join(""));
+        return wrapped.length ? wrapped : [""];
+      }),
+    );
   const headerHeight = reportLines.length * 22 + 24;
   const canvasHeight = maxY + headerHeight;
   const report = reportLines
