@@ -686,7 +686,11 @@ export default function App() {
             <div className="prototype-notice">
               <span className="status-dot" />
               設計検証版 ·
-              日本語AI品質・対応端末・実機アクセシビリティは未検証です。公開版ではありません。
+              日本語AI品質・対応端末・実機アクセシビリティは未検証です。正式版ではありません。
+              同じ公開オリジンの別アプリとの保存領域の隔離は保証されません。機密情報は入力しないでください。
+              <a href={`${import.meta.env.BASE_URL}THIRD_PARTY_NOTICES.txt`}>
+                第三者ライセンス
+              </a>
             </div>
             <div
               className="canvas-host"
