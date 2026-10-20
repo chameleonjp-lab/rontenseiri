@@ -3,6 +3,7 @@ import { recordMetric } from "../diagnostics/metrics";
 import type { Agenda, Project, Source, Utterance } from "../domain/types";
 import { validateProject } from "../domain/project";
 import { projectSvg } from "./svg";
+import { completenessLines, markdownLiteral } from "./completeness";
 import { fullBackupEnvelope, MAX_BACKUP_BYTES } from "../domain/capacity";
 
 const MAX = MAX_BACKUP_BYTES;
@@ -252,6 +253,7 @@ function markdown(
     `# ${agenda?.title ?? p.title}`,
     "",
     `範囲: ${limited ? "限定出力" : "完全出力"}`,
+    ...completenessLines(p, limited).map(markdownLiteral),
     "",
   ];
   for (const a of agenda ? [agenda] : p.agendas) {
@@ -381,7 +383,7 @@ function exportProjectCore(
       pseudonymize,
       agenda ? selectedIds : undefined,
     );
-  return projectSvg(scoped, names);
+  return projectSvg(scoped, names, Boolean(agenda));
 }
 export function importProject(text: string): Project {
   if (typeof text !== "string" || bytes(text) > MAX)
