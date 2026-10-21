@@ -1,4 +1,4 @@
-name: Deploy design-validation Pages (blocked pending distribution review)
+name: Deploy reviewed design-validation Pages
 
 on:
   workflow_dispatch:
@@ -41,10 +41,24 @@ jobs:
         with:
           ref: ${{ inputs.expected_sha }}
           persist-credentials: false
-      - name: Distribution review gate (no manual bypass)
+      - name: Verify bounded distribution review inputs
         run: |
-          echo '::error::Application source, asset provenance and commercial-use rights review is pending. The native/runtime notice addendum does not constitute full-app clearance. This workflow remains intentionally blocked until the distribution review and this gate are explicitly reviewed before deployment.'
-          exit 1
+          # Review scope: AI-disabled design-validation app, not full product acceptance.
+          # Source/lock/build input changes fail closed and require a fresh review.
+          # No unreviewed Vite/npm configuration may be added at repository root.
+          test -z "$(git ls-files -- '.env' '.env.*' '.npmrc')"
+          test "$(git rev-parse HEAD:LICENSE)" = "d645695673349e3947e8e5ae42332d0ac3164cd7"
+          test "$(git rev-parse HEAD:evals)" = "4fb6f1a1841ecdca70242a2a63da514dbc89862d"
+          test "$(git rev-parse HEAD:index.html)" = "2d7cfb858c18a19ec7d44008a5ea572728248624"
+          test "$(git rev-parse HEAD:package-lock.json)" = "31fcb25ba1574a63e5e082cbfeb4cec57d3fa578"
+          test "$(git rev-parse HEAD:package.json)" = "a54b68b111eef15c97f933154c182f355ccf7cf6"
+          test "$(git rev-parse HEAD:prompts)" = "7235e40a6c80b27e444f047761f0a3e3f3a764b3"
+          test "$(git rev-parse HEAD:public)" = "945348035935b6a1af23cf2bfbb5a5ad37083c15"
+          test "$(git rev-parse HEAD:scripts)" = "baa8056f715b03f3995b3575ec9dac071fea2fd4"
+          test "$(git rev-parse HEAD:src)" = "452d08fbff4b9b2f55594cff9882e07348fc157b"
+          test "$(git rev-parse HEAD:tsconfig.json)" = "49288949939d67e70dbecf04cb22b1afd62a8320"
+          test "$(git rev-parse HEAD:vite.config.ts)" = "951309ee63ec4d1f1bc6a5705d7ff0ca81bae2c0"
+          echo "ca3023f1cfafa271ad0727a1fe8c1ca7e7762320f3ed6b21241aeb387ef5dee6  public/THIRD_PARTY_NOTICES.txt" | sha256sum --check --strict
       - uses: actions/setup-node@v4
         with:
           node-version: 24

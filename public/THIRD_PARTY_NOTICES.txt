@@ -1,18 +1,24 @@
 Third-party notices for rontenseiri design-validation build
 Dependency audit baseline commit: 462cd47f6e5669b467d0b703f3c9a06b97a9d6c5
-Owner application rights are unchanged.
+Distribution review reference: d1a4ce600bb5371d6ca1342c80e829317d877eb6
+Review date: 2026-10-21
 
-DISTRIBUTION_REVIEW_PENDING
-This notice inventory is a draft, not a completed distribution review.
-The emitted JavaScript dependencies and three embedded npm source packages have
-been reconciled. The release-specific native/runtime addendum below supplies
-recovered permission texts, copyright notices, source pins and bounded
-provenance limitations. The broader application source, asset provenance and commercial-use rights
-review remains pending. Deployment must remain blocked until that review is
-complete; resolution of individual third-party notices is not full-app clearance.
-Earlier supplemental upstream main-branch notices are historical supporting
-material, not proof of exact release mapping. The addendum identifies the
-release-specific evidence and conservative attributions.
+Bounded distribution review: AI-disabled design-validation application only.
+The emitted JavaScript dependencies and three embedded npm source packages were
+reconciled; their permission and attribution texts are retained below, including
+the release-specific native/runtime addendum and its conservative attributions.
+The application, dependency lock and shipped assets are unchanged from reviewed
+commit b7f665854c5012dd26b0cd4f2ed46f30876d3964; subsequent changes add the
+owner-adopted Apache-2.0 license and reader-facing documentation only.
+No specific missing third-party distribution permission was identified in this
+bounded review. This is not a guarantee of non-infringement, independent proof
+of authorship, or acceptance of all product-quality and real-device requirements.
+No model weights, external fonts, documentation screenshots or user documents
+are included in the static publication artifact. AI remains disabled.
+The owner's Apache-2.0 grant applies to the project's original portions only;
+third-party components retain their respective terms. Earlier upstream-main
+notices are supporting material, not proof of exact release mapping.
+Source, dependency, runtime, asset or model changes require a new review.
 
 
 ========================================================================
